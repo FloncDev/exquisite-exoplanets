@@ -52,6 +52,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "3.12.*"
+pyright = "^1.1.372"
 
 [tool.poetry.dev-dependencies]
 ruff = "~0.5.0"
@@ -60,3 +61,9 @@ pre-commit = "~3.7.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/__pycache__", "**/playground"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
