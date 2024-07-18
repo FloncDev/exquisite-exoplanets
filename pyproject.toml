@@ -19,6 +19,7 @@ select = ["ALL"]
 ignore = [
     # Missing docstrings.
     "D100",
+    "D103",
     "D104",
     "D105",
     "D106",
@@ -41,6 +42,14 @@ ignore = [
     # Annotations.
     "ANN101",
     "ANN102",
+    # Conflict fix
+    "COM812",
+    "ISC001",
+    # ignore type
+    "PGH003",
+    # Exception
+    "TRY003",
+    "EM101"
 ]
 
 [tool.poetry]
