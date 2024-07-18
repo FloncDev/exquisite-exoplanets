@@ -1,50 +1,53 @@
+import asyncio
 import os
 
 import discord
 from discord.ext import commands
+from dotenv import find_dotenv, load_dotenv
 
-bot_prefix = os.getenv("PREFIX") or "p."
+load_dotenv(find_dotenv())
 
-bot = commands.Bot(
-    command_prefix=commands.when_mentioned_or(bot_prefix),  # type: ignore
-    intents=discord.Intents.all(),
-    case_insensitive=False,
-)
-
-TOKEN = os.getenv("BOT_TOKEN")
-if not TOKEN:
-    raise ValueError("Missing Token")
+TOKEN = os.environ["DISCORD_TOKEN"]
+TESTING_GUILD_ID = os.getenv("TESTING_GUILD_ID")
 
 
-async def load_all_extensions() -> None:
-    for filename in os.listdir("./ext"):
-        if filename.endswith(".py"):
-            await bot.load_extension(f"ext.{filename[:-3]}")
+class DiscordClient(commands.Bot):
+    """Main class for the discord client."""
+
+    def __init__(self, *, intents: discord.Intents, testing_guild_id: int | None = None) -> None:
+        super().__init__("", intents=intents)
+        self.testing_guild_id = testing_guild_id
+
+    async def setup_hook(self) -> None:
+        """Ran when setting up the bot, loads cogs."""
+        for filename in os.listdir("./cogs"):
+            if filename.endswith(".py"):
+                await self.load_extension(f"cogs.{filename[:-3]}")
+
+        if self.testing_guild_id:
+            guild = discord.Object(self.testing_guild_id)
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
+
+    async def on_ready(self) -> None:
+        """Ran when bot has logged in."""
+        user = self.user
+
+        if user is None:
+            return
+
+        # TODO: Setup propper logging
+        print(f"Logged in as {user.name}({user.id})")
 
 
-@bot.event
-async def setup_hook() -> None:
-    await load_all_extensions()
+async def main() -> None:
+    discord.utils.setup_logging()
 
-
-@bot.event
-async def on_ready() -> None:
-    print("------------------------------------")
-    print(f"Bot Name: {bot.user.name}")  # type: ignore
-    print(f"Bot ID: {bot.user.id}")  # type: ignore
-    print(f"Guilds: {len(bot.guilds)}")
-    print("------------------------------------")
-
-
-@bot.command("sync")
-async def sync_command(ctx: commands.Context) -> None:  # type: ignore[reportMissingTypeArgument]
-    app_cmds = await bot.tree.sync()
-    await ctx.reply(
-        embed=discord.Embed(
-            title=f"Synced {len(app_cmds)} cmd",
-            description="\n".join([f"- {app_cmd.name}({app_cmd.id})" for app_cmd in app_cmds]),
-        ),
+    bot = DiscordClient(
+        intents=discord.Intents.default(),
+        testing_guild_id=int(TESTING_GUILD_ID) if TESTING_GUILD_ID else None,
     )
+    await bot.start(TOKEN)
 
 
-bot.run(TOKEN)
+asyncio.run(main())

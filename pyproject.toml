@@ -45,11 +45,6 @@ ignore = [
     # Conflict fix
     "COM812",
     "ISC001",
-    # ignore type
-    "PGH003",
-    # Exception
-    "TRY003",
-    "EM101"
 ]
 
 [tool.poetry]
@@ -64,6 +59,7 @@ package-mode = false
 python = "3.12.*"
 pyright = "^1.1.372"
 discord-py = "2.4.0"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 ruff = "~0.5.0"
@@ -78,5 +74,5 @@ include = ["src"]
 exclude = ["**/__pycache__", "**/playground"]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
-venvPath="."
-venv=".venv"
+venvPath = "."
+venv = ".venv"
