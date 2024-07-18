@@ -69,3 +69,5 @@ include = ["src"]
 exclude = ["**/__pycache__", "**/playground"]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
+venvPath="."
+venv=".venv"
