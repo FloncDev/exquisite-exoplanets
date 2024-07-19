@@ -1,5 +1,11 @@
 services:
   bot:
-    build: .
+    build: bot
     env_file:
       - .env
+  api:
+    build: api
+    env_file:
+      - .env
+    ports:
+      - 8000:80

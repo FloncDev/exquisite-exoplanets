@@ -20,7 +20,7 @@ class DiscordClient(commands.Bot):
 
     async def setup_hook(self) -> None:
         """Ran when setting up the bot, loads cogs."""
-        for filename in os.listdir("./cogs"):
+        for filename in os.listdir("./src/cogs"):
             if filename.endswith(".py"):
                 await self.load_extension(f"cogs.{filename[:-3]}")
 
