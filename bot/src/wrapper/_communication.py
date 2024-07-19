@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import aiohttp
 
-from ._api_schema import CompanyPostIdOutput, CompanyPostInput
+from ._api_schema import CompanyPatchIdInput, CompanyPostIdOutput, CompanyPostInput
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError
 
 
@@ -45,4 +45,19 @@ async def get_company(address: str, token: str, user_id: int) -> CompanyPostIdOu
             message = "This user doesn't own a company"
             raise DoNotExistError(message)
         message = f"Undefined behaviour bot.src.wrapper.get_company, Status received {resp.status}"
+        raise UnknownNetworkError(message)
+
+
+async def edit_company_name(address: str, token: str, user_id: int, src: CompanyPatchIdInput) -> None:
+    """Send an api request to edit the company name."""
+    async with (
+        aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+        session.patch(f"/company/{user_id}", json=src) as resp,
+    ):
+        if resp.ok:
+            return
+        if resp.status == Status.NOT_FOUND:
+            message = "This user doesn't own a company"
+            raise DoNotExistError(message)
+        message = f"Undefined behaviour bot.src.wrapper.edit_company_name, Status received {resp.status}"
         raise UnknownNetworkError(message)
