@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup {{ matrix.folder }}
-        uses: ./.github/workflows/setup
+        uses: ./.github/workflows/setup.yaml
         with:
           target_folder: ${{ matrix.folder }}
       - name: Run pre-commit hooks
