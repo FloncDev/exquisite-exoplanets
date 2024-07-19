@@ -24,6 +24,10 @@ class CompanyPatchIdInput(TypedDict):
     company_name: str
 
 
+type BatchCompaniesOutput = list[CompanyPostIdOutput]
+"""JSON data for GET /companies endpoint output"""
+
+
 class ShopItem(TypedDict):
     """A item object from the shop."""
 
