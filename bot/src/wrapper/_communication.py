@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import aiohttp
 
-from ._api_schema import CompanyPatchIdInput, CompanyPostIdOutput, CompanyPostInput
+from ._api_schema import BatchCompaniesOutput, CompanyPatchIdInput, CompanyPostIdOutput, CompanyPostInput
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError
 
 
@@ -75,4 +75,21 @@ async def delete_company(address: str, token: str, user_id: int) -> None:
             message = "This user doesn't own a company"
             raise DoNotExistError(message)
         message = f"Undefined behaviour bot.src.wrapper.delete_company, Status received {resp.status}"
+        raise UnknownNetworkError(message)
+
+
+async def list_companies(address: str, token: str, page: int = 1, limit: int = 10) -> BatchCompaniesOutput:
+    """Send an api request to return a list of companies."""
+    async with (
+        aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+        session.get(
+            "/companies", params={"Page": page, "Limit": limit}
+        ) as resp,  # Require further clarification for the capitalization
+    ):
+        if resp.ok:
+            return await resp.json()
+        if resp.status == Status.NOT_FOUND:
+            message = "No company found"
+            raise DoNotExistError(message)
+        message = f"Undefined behaviour bot.src.wrapper.list_companies, Status received {resp.status}"
         raise UnknownNetworkError(message)
