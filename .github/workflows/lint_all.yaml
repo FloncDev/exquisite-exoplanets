@@ -12,6 +12,9 @@ concurrency: setup-${{ github.sha }}
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      # The Python version your project uses. Feel free to change this if required.
+      PYTHON_VERSION: '3.12'
     strategy:
       matrix:
         folder: [bot, api]
@@ -22,5 +25,6 @@ jobs:
         uses: ./.github/actions/setup
         with:
           target_folder: ${{ matrix.folder }}
+          python_version: ${{ env.PYTHON_VERSION }}
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.1
