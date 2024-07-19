@@ -1,4 +1,5 @@
 import discord
+from discord import option
 from discord.ext import commands
 
 
@@ -7,6 +8,7 @@ class Accounts(commands.Cog):
         self.client = client
 
     @commands.slash_command()
+    @option("user", description="User's profile to check. Leave blank to see your own.")
     async def profile(
         self,
         ctx: discord.ApplicationContext,

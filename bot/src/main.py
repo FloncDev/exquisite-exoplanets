@@ -9,7 +9,7 @@ load_dotenv(find_dotenv())
 TOKEN = os.environ["DISCORD_TOKEN"]
 TESTING_GUILD_ID = os.getenv("TESTING_GUILD_ID")
 
-client = commands.Bot()
+client = commands.Bot(debug_guilds=[TESTING_GUILD_ID] if TESTING_GUILD_ID else None)
 
 
 @client.listen()
