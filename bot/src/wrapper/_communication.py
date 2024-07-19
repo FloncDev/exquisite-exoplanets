@@ -61,3 +61,18 @@ async def edit_company_name(address: str, token: str, user_id: int, src: Company
             raise DoNotExistError(message)
         message = f"Undefined behaviour bot.src.wrapper.edit_company_name, Status received {resp.status}"
         raise UnknownNetworkError(message)
+
+
+async def delete_company(address: str, token: str, user_id: int) -> None:
+    """Send an api request to delete the company."""
+    async with (
+        aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+        session.delete(f"/company/{user_id}") as resp,
+    ):
+        if resp.ok:
+            return
+        if resp.status == Status.NOT_FOUND:
+            message = "This user doesn't own a company"
+            raise DoNotExistError(message)
+        message = f"Undefined behaviour bot.src.wrapper.delete_company, Status received {resp.status}"
+        raise UnknownNetworkError(message)
