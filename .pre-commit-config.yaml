@@ -16,7 +16,19 @@ repos:
     hooks:
       - id: ruff
       - id: ruff-format
+
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.372
     hooks:
       - id: pyright
+        name: pyright (bot)
+        args: ["--project", "bot/pyproject.toml"]
+        files: bot/.*\.py
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.372
+    hooks:
+      - id: pyright
+        name: pyright (api)
+        args: ["--project", "api/pyproject.toml"]
+        files: api/.*\.py
