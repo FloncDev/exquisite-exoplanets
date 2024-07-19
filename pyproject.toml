@@ -31,4 +31,6 @@ ignore = [
   # Conflict fix
   "COM812",
   "ISC001",
+  # star-import
+  "F403",
 ]
