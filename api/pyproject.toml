@@ -1,0 +1,33 @@
+[tool.ruff]
+line-length = 119
+target-version = "py312"
+fix = true
+src = ["src"]
+
+[tool.poetry]
+name = "bot-backend"
+version = "0.1.0"
+description = "A discord bot for the python discord codejam 11"
+authors = ["Author 1 <email@mail.com>"]
+license = "MIT"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "3.12.*"
+fastapi = "^0.111.1"
+
+[tool.poetry.dev-dependencies]
+ruff = "~0.5.0"
+pre-commit = "~3.7.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/__pycache__", "**/playground"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
