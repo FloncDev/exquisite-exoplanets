@@ -1,19 +1,16 @@
 import discord
-from discord import app_commands
 from discord.ext import commands
-
-from src.main import DiscordClient
 
 
 class Ping(commands.Cog):
-    def __init__(self, client: DiscordClient) -> None:
+    def __init__(self, client: discord.Bot) -> None:
         self.client = client
 
-    @app_commands.command(name="ping")
-    async def ping(self, interaction: discord.Interaction) -> None:
+    @commands.slash_command(name="ping")
+    async def ping(self, ctx: discord.ApplicationContext) -> None:
         """Ping the bot"""
-        await interaction.response.send_message("Pong")
+        await ctx.respond("pong")
 
 
-async def setup(client: DiscordClient):
-    await client.add_cog(Ping(client))
+def setup(client: discord.Bot):
+    client.add_cog(Ping(client))
