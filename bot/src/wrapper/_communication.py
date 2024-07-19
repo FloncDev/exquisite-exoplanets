@@ -37,12 +37,12 @@ async def get_company(address: str, token: str, user_id: int) -> CompanyPostIdOu
     """Send an api request to get info of the company."""
     async with (
         aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
-        session.post(f"/company/{user_id}") as resp,
+        session.get(f"/company/{user_id}") as resp,
     ):
         if resp.ok:
             return await resp.json()
         if resp.status == Status.NOT_FOUND:
             message = "This user doesn't own a company"
             raise DoNotExistError(message)
-        message = f"Undefined behaviour bot.src.wrapper.create_company, Status received {resp.status}"
+        message = f"Undefined behaviour bot.src.wrapper.get_company, Status received {resp.status}"
         raise UnknownNetworkError(message)
