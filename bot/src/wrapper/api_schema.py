@@ -13,7 +13,7 @@ class CompanyPostOutput(TypedDict):
 
 
 class CompanyPostIdOutput(CompanyPostOutput):
-    is_bankrypt: bool
+    is_bankrupt: bool
     current_networth: float
 
 
