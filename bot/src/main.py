@@ -22,7 +22,7 @@ class DiscordClient(commands.Bot):
         """Ran when setting up the bot, loads cogs."""
         for filename in os.listdir("./src/cogs"):
             if filename.endswith(".py"):
-                await self.load_extension(f"cogs.{filename[:-3]}")
+                await self.load_extension(f"src.cogs.{filename[:-3]}")
 
         if self.testing_guild_id:
             guild = discord.Object(self.testing_guild_id)
@@ -50,4 +50,5 @@ async def main() -> None:
     await bot.start(TOKEN)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
