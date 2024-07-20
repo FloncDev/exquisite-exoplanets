@@ -26,3 +26,12 @@ class Company:
             current_networth=decimal.Decimal(src["current_networth"]),
             is_bankrupt=src["is_bankrupt"],
         )
+
+
+@dataclass
+class ShopItem:
+    """A dataclass in represent of a specific item and its availability in the shop."""
+
+    item_name: str
+    item_price: float
+    item_quantity: int
