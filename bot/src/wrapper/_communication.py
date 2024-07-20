@@ -2,7 +2,13 @@ from enum import IntEnum
 
 import aiohttp
 
-from ._api_schema import BatchCompaniesOutput, CompanyPatchIdInput, CompanyPostIdOutput, CompanyPostInput
+from ._api_schema import (  # Company
+    BatchCompaniesOutput,
+    CompanyPatchIdInput,
+    CompanyPostIdOutput,
+    CompanyPostInput,
+    ShopGetOutput,  # Shop
+)
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError
 
 
@@ -33,7 +39,9 @@ class CompanyRawAPI:
             if resp.status == Status.CONFLICT:
                 message = "This company name is already being used or The user already own a company"
                 raise AlreadyExistError(message)
-            message = f"Undefined behaviour bot.src.wrapper.create_company, Status received {resp.status}"
+            message = (
+                f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.create_company, Status received {resp.status}"
+            )
             raise UnknownNetworkError(message)
 
     @staticmethod
@@ -48,7 +56,7 @@ class CompanyRawAPI:
             if resp.status == Status.NOT_FOUND:
                 message = "This user doesn't own a company"
                 raise DoNotExistError(message)
-            message = f"Undefined behaviour bot.src.wrapper.get_company, Status received {resp.status}"
+            message = f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.get_company, Status received {resp.status}"
             raise UnknownNetworkError(message)
 
     @staticmethod
@@ -63,7 +71,9 @@ class CompanyRawAPI:
             if resp.status == Status.NOT_FOUND:
                 message = "This user doesn't own a company"
                 raise DoNotExistError(message)
-            message = f"Undefined behaviour bot.src.wrapper.edit_company_name, Status received {resp.status}"
+            message = (
+                f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.edit_company_name, Status received {resp.status}"
+            )
             raise UnknownNetworkError(message)
 
     @staticmethod
@@ -78,7 +88,9 @@ class CompanyRawAPI:
             if resp.status == Status.NOT_FOUND:
                 message = "This user doesn't own a company"
                 raise DoNotExistError(message)
-            message = f"Undefined behaviour bot.src.wrapper.delete_company, Status received {resp.status}"
+            message = (
+                f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.delete_company, Status received {resp.status}"
+            )
             raise UnknownNetworkError(message)
 
     @staticmethod
@@ -95,5 +107,23 @@ class CompanyRawAPI:
             if resp.status == Status.NOT_FOUND:
                 message = "No company found"
                 raise DoNotExistError(message)
-            message = f"Undefined behaviour bot.src.wrapper.list_companies, Status received {resp.status}"
+            message = (
+                f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.list_companies, Status received {resp.status}"
+            )
+            raise UnknownNetworkError(message)
+
+
+class ShopRawAPI:
+    """A bundle of API available to use for company endpoint."""
+
+    @staticmethod
+    async def list_shop_items(address: str, token: str) -> ShopGetOutput:
+        """Get a list of all item in the shop through a direct HTTP request."""
+        async with (
+            aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+            session.get("/shop") as resp,  # Require further clarification for the capitalization
+        ):
+            if resp.ok:
+                return await resp.json()
+            message = f"Undefined behaviour bot.src.wrapper.ShopRawAPI.list_shop_items, Status received {resp.status}"
             raise UnknownNetworkError(message)
