@@ -27,7 +27,12 @@ class CompanyAPI(BaseAPI):
     """Bundle of formatted API access to company endpoint."""
 
     async def create_company(self, user_id: int, company_name: str) -> Company:
-        """Create an company for the user and return the Company."""
+        """Create a company for the user and return the Company.
+
+        :raise
+        `AlreadyExistError`: Raise when the company name is already being used by other user,
+         or the user already own a company
+        """
         src: CompanyPostInput = {"company_name": company_name, "owner_id": user_id}
         await CompanyRawAPI.create_company(self.parent.session, src)
         return await self.get_company(user_id)
