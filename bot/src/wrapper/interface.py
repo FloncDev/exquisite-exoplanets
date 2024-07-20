@@ -1,9 +1,9 @@
 from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING
 
-from ._communication import CompanyRawAPI
+from ._communication import CompanyRawAPI, ShopRawAPI
 from .error import DoNotExistError
-from .schema import Company
+from .schema import Company, ShopItem
 
 if TYPE_CHECKING:
     from ._api_schema import CompanyGetIdOutput, CompanyPatchIdInput, CompanyPostInput
@@ -66,6 +66,26 @@ class CompanyAPI(BaseAPI):
                 page += 1
             except DoNotExistError:
                 return
+
+
+class ShopAPI(BaseAPI):
+    """Bundle of formatted API access to shop endpoint."""
+
+    async def list_items(self) -> list[ShopItem]:
+        """Return a list of shop items."""
+        return [ShopItem.from_dict(out) for out in await ShopRawAPI.list_shop_items(self.address, self.token)]
+
+    async def get_shop_item(self, item_id: int) -> ShopItem:
+        """Get a specific shop item."""
+        return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.address, self.token, item_id))
+
+    async def purchase(self, item: int, company: Company | int, quantity: int) -> None:
+        """Purchase item as the company."""
+        if isinstance(company, Company):
+            user_id: int = company.owner_id
+        else:
+            user_id: int = company
+        await ShopRawAPI.purchase_shop_item(self.address, self.token, item, {"user_id": user_id, "quantity": quantity})
 
 
 class Interface:
