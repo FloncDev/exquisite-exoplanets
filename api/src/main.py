@@ -6,7 +6,7 @@ from uvicorn import run
 from .classes.company import CompanyRepresentation
 from .classes.pagination import CompanyPagination
 from .db import engine, get_session
-from .models import CompanyCreate
+from .models import CompanyCreate, CompanyUpdate
 
 SQLModel.metadata.create_all(bind=engine)
 
@@ -65,6 +65,47 @@ async def get_companies(params: CompanyPagination = Depends(), session: Session 
 
     except HTTPException as ex:
         raise ex
+
+
+@app.patch("/company/{company_id}")
+async def update_company(company_id: int, data: CompanyUpdate, session: Session = Depends(get_session)):
+    """
+    Endpoint to update the given Company's details.
+
+    :param data: Data to update.
+    :param session: Database session.
+    :return: None
+    """
+    try:
+        fetched_company: CompanyRepresentation = CompanyRepresentation.fetch_company(
+            session=session, company_id=company_id
+        )
+        fetched_company.update(data=data)
+
+    except HTTPException as ex:
+        raise ex
+
+    return HTTPException(status_code=200, detail="Company successfully updated.")
+
+
+@app.delete("/company/{company_id}")
+async def delete_company(company_id: int, session: Session = Depends(get_session)):
+    """
+    Endpoint to delete the given Company. Marks them as `bankrupt`.
+
+    :param session: Database session.
+    :return: None
+    """
+    try:
+        fetched_company: CompanyRepresentation = CompanyRepresentation.fetch_company(
+            session=session, company_id=company_id
+        )
+        fetched_company.delete()
+
+    except HTTPException as ex:
+        raise ex
+
+    return HTTPException(status_code=200, detail="Company successfully deleted.")
 
 
 def main() -> None:

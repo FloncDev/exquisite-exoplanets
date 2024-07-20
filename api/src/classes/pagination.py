@@ -1,3 +1,6 @@
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+
 import math
 from enum import IntEnum
 from typing import Any, Dict, List, Sequence
@@ -64,7 +67,7 @@ class Paginate:
         """
         return self.session.exec(
             self.query.offset((self.params.page - 1) * self.params.limit).limit(self.params.limit)
-        ).all()  # type: ignore
+        ).all()
 
     def add_data(self, data: Dict[str, Any]) -> None:
         """

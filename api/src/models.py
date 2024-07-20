@@ -20,6 +20,10 @@ class CompanyCreate(SQLModel):
     owner: str = Field(nullable=False)
 
 
+class CompanyUpdate(SQLModel):
+    name: str | None = Field(default=None)
+
+
 class CompanyPublic(SQLModel):
     id: int
     created: datetime

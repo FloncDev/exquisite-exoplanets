@@ -1,3 +1,5 @@
+# pyright: reportOptionalMemberAccess=false
+
 from typing import Dict, Any, List
 
 from fastapi import HTTPException
@@ -5,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, or_, select, desc
 
 from src.classes.pagination import CompanyPagination, Paginate
-from src.models import Company, CompanyCreate, CompanyPublic
+from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate
 
 
 class CompanyRepresentation:
@@ -55,8 +57,14 @@ class CompanyRepresentation:
 
         res: List[Dict[str, Any]] = []
         for company in paginator.get_data():
-            company = company[0]  # type: ignore
-            res.append({"name": company.name, "owner": company.owner, "networth": company.networth})
+            res.append(
+                {
+                    "name": company.name,
+                    "owner": company.owner,
+                    "networth": company.networth,
+                    "is_bankrupt": company.is_bankrupt,
+                }
+            )
 
         # If nothing
         if not res:
@@ -113,5 +121,42 @@ class CompanyRepresentation:
         :return: Company details.
         """
         if self.company is not None:
-            return CompanyPublic.model_validate(self.company[0])  # type: ignore
+            return CompanyPublic.model_validate(self.company)
         return None
+
+    def update(self, data: CompanyUpdate) -> None:
+        """
+        Method to update the Company details.
+
+        :param data: Data of Company to update.
+        :return: None
+        """
+        try:
+            has_changed: bool = False
+
+            if data.name is not None:
+                self.company.name = data.name
+                has_changed = True
+
+            if has_changed:
+                self.session.add(self.company)
+                self.session.flush()
+                self.session.commit()
+
+        except SQLAlchemyError:
+            raise HTTPException(status_code=500, detail="Unable to update Company.")
+
+    def delete(self) -> None:
+        """
+        Method to mark the Company as `bankrupt`.
+
+        :return: None
+        """
+        try:
+            self.company.is_bankrupt = True
+            self.session.add(self.company)
+            self.session.flush()
+            self.session.commit()
+
+        except SQLAlchemyError:
+            raise HTTPException(status_code=500, detail="Unable to delete Company.")
