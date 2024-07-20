@@ -7,9 +7,12 @@ from ._api_schema import (  # Company
     CompanyPatchIdInput,
     CompanyPostIdOutput,
     CompanyPostInput,
+    RawShopItem,
+    ShopBuyInput,
+    ShopBuyOutput,
     ShopGetOutput,  # Shop
 )
-from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError
+from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
 
 
 class Status(IntEnum):
@@ -126,4 +129,42 @@ class ShopRawAPI:
             if resp.ok:
                 return await resp.json()
             message = f"Undefined behaviour bot.src.wrapper.ShopRawAPI.list_shop_items, Status received {resp.status}"
+            raise UnknownNetworkError(message)
+
+    @staticmethod
+    async def get_shop_item(address: str, token: str, item_id: int) -> RawShopItem:
+        """Get a item by its id in the shop through a direct HTTP request."""
+        async with (
+            aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+            session.get(f"/shop/{item_id}") as resp,  # Require further clarification for the capitalization
+        ):
+            if resp.ok:
+                return await resp.json()
+            if resp.status == Status.NOT_FOUND:
+                message = f"Item with item id: {item_id} not found"
+                raise DoNotExistError(message)
+            message = f"Undefined behaviour bot.src.wrapper.ShopRawAPI.get_shop_item, Status received {resp.status}"
+            raise UnknownNetworkError(message)
+
+    @staticmethod
+    async def purchase_shop_item(address: str, token: str, item_id: int, src: ShopBuyInput) -> ShopBuyOutput:
+        """Get a item by its id and quantity in the shop through a direct HTTP request."""
+        async with (
+            aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
+            session.put(
+                f"/shop/{item_id}/buy", json=src
+            ) as resp,  # Require further clarification for the capitalization
+        ):
+            if resp.ok:
+                return await resp.json()
+            if resp.status == Status.UNAUTHORIZED:
+                await CompanyRawAPI.get_company(address, token, src["user_id"])
+                message = "Not enough balance"
+                raise UserError(message)  # Should probably do further check on this
+            if resp.status == Status.NOT_FOUND:
+                message = f"Item with item id: {item_id} not found"
+                raise DoNotExistError(message)
+            message = (
+                f"Undefined behaviour bot.src.wrapper.ShopRawAPI.purchase_shop_item, Status received {resp.status}"
+            )
             raise UnknownNetworkError(message)
