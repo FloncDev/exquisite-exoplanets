@@ -56,7 +56,7 @@ class CompanyAPI(BaseAPI):
             for out in await CompanyRawAPI.list_companies(self.address, self.token, page=page, limit=limit)
         ]
 
-    async def item_companies(self) -> AsyncGenerator[Company, None]:
+    async def iter_companies(self) -> AsyncGenerator[Company, None]:
         """Iterate through all company until there are no company left."""
         page = 1
         while True:
