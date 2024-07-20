@@ -1,6 +1,8 @@
 from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING
 
+import aiohttp
+
 from ._communication import CompanyRawAPI, ShopRawAPI
 from .error import DoNotExistError
 from .schema import Company, ShopItem
@@ -95,6 +97,7 @@ class Interface:
         """Initialize the interface with the address and API token."""
         self.address = address
         self.token = token
+        self._session: aiohttp.ClientSession = aiohttp.ClientSession(base_url=address)
 
     @property
     def company(self) -> CompanyAPI:
@@ -105,3 +108,8 @@ class Interface:
     def shop(self) -> ShopAPI:
         """Retrieve the Shop API with the address and Token."""
         return ShopAPI(self.address, self.token)
+
+    @property
+    def session(self) -> tuple[bool, aiohttp.ClientSession]:
+        """Return the state of the session and the session."""
+        return self._session.closed, self._session
