@@ -4,6 +4,41 @@ target-version = "py312"
 fix = true
 src = ["src"]
 
+[tool.ruff.lint]
+# Enable all linting rules.
+select = ["ALL"]
+# Ignore some of the most obnoxious linting errors.
+ignore = [
+  # Missing docstrings.
+  "D100",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  # Docstring whitespace.
+  "D203",
+  "D213",
+  # Docstring punctuation.
+  "D415",
+  # Docstring quotes.
+  "D301",
+  # Builtins.
+  "A",
+  # Print statements.
+  "T20",
+  # TODOs.
+  "TD002",
+  "TD003",
+  "FIX",
+  # Annotations.
+  "ANN101",
+  "ANN102",
+  # Conflict fix
+  "COM812",
+  "ISC001",
+]
+
 [tool.poetry]
 name = "exoquisite-exoplanets"
 version = "0.1.0"

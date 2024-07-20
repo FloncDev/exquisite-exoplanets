@@ -4,6 +4,8 @@ from discord.ext import commands
 
 
 class Accounts(commands.Cog):
+    """Cog to handle basic account functions."""
+
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
 
@@ -15,7 +17,6 @@ class Accounts(commands.Cog):
         user: discord.User | discord.Member | None = None,
     ) -> None:
         """Get info about an account. Leave user blank to see your own."""
-
         if user is None:
             user = ctx.author
 
@@ -29,5 +30,5 @@ class Accounts(commands.Cog):
         await ctx.respond(embed=embed)
 
 
-def setup(client: commands.Bot):
+def setup(client: commands.Bot) -> None:
     client.add_cog(Accounts(client))
