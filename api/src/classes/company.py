@@ -1,12 +1,15 @@
 # pyright: reportOptionalMemberAccess=false
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, desc, or_, select
 from src.classes.pagination import CompanyPagination, Paginate
 from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class CompanyRepresentation:
@@ -30,7 +33,7 @@ class CompanyRepresentation:
         """
         fetched_company: Company | None = session.exec(
             select(Company).where(
-                or_(Company.id.__eq__(company_id), Company.name.__eq__(name), Company.owner.__eq__(owner_id))
+                or_(Company.id.__eq__(company_id), Company.name.__eq__(name), Company.owner_id.__eq__(owner_id))
             )
         ).first()
 
@@ -54,7 +57,7 @@ class CompanyRepresentation:
 
         res: list[dict[str, Any]] = [{
             "name": company.name,
-            "owner": company.owner,
+            "owner_id": company.owner_id,
             "networth": company.networth,
             "is_bankrupt": company.is_bankrupt,
         } for company in paginator.get_data()]
@@ -78,15 +81,15 @@ class CompanyRepresentation:
         :return: Instance with the created company.
         """
         # Query the database
-        target: Company | None = session.exec(
-            select(Company).where(or_(Company.name.__eq__(data.name), Company.owner.__eq__(data.owner)))
-        ).first()
+        target: Sequence[Company] = session.exec(
+            select(Company).where(or_(Company.name.__eq__(data.name), Company.owner_id.__eq__(data.owner_id)))
+        ).all()
 
-        if target:
+        if target and not any(x.is_bankrupt for x in target):
             raise HTTPException(status_code=409, detail="Such company already exists.")
 
         try:
-            new_company: Company = Company(name=data.name, owner=data.owner)
+            new_company: Company = Company(name=data.name, owner_id=data.owner_id)
             session.add(new_company)
             session.flush()
             session.commit()
