@@ -23,7 +23,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def create_company(address: str, token: str, src: CompanyPostInput) -> None:
-        """Send an api request to create a company."""
+        """Create a company with the given details through a direct HTTP request."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.post("/company", json=src) as resp,
@@ -38,7 +38,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def get_company(address: str, token: str, user_id: int) -> CompanyPostIdOutput:
-        """Send an api request to get info of the company."""
+        """Get the company details from user id of the discord user through a direct HTTP request."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.get(f"/company/{user_id}") as resp,
@@ -53,7 +53,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def edit_company_name(address: str, token: str, user_id: int, src: CompanyPatchIdInput) -> None:
-        """Send an api request to edit the company name."""
+        """Edit the company name with the user id of the discord user through a direct HTTP request."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.patch(f"/company/{user_id}", json=src) as resp,
@@ -68,7 +68,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def delete_company(address: str, token: str, user_id: int) -> None:
-        """Send an api request to delete the company."""
+        """Delete the company with the user id of the discord user through a direct HTTP request."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.delete(f"/company/{user_id}") as resp,
@@ -83,7 +83,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def list_companies(address: str, token: str, page: int = 1, limit: int = 10) -> BatchCompaniesOutput:
-        """Send an api request to return a list of companies."""
+        """Get a list of the registered Companies."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.get(
