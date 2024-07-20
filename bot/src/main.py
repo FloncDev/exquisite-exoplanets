@@ -24,7 +24,7 @@ async def on_ready() -> None:
 
 async def main() -> None:
     for filename in os.listdir("./src/cogs"):
-        if filename.endswith(".py"):
+        if filename.endswith(".py") and filename != "__init__.py":
             client.load_extension(f"src.cogs.{filename[:-3]}")
 
     await client.start(TOKEN)
