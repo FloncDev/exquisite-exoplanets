@@ -31,6 +31,7 @@ type BatchCompaniesOutput = list[CompanyGetIdOutput]
 class RawShopItem(TypedDict):
     """A item object from the shop."""
 
+    item_id: int
     item_name: str
     item_price: float
     item_quantity: int

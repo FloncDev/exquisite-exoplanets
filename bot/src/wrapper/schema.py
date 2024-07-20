@@ -32,6 +32,7 @@ class Company:
 class ShopItem:
     """A dataclass in represent of a specific item and its availability in the shop."""
 
+    item_id: int
     item_name: str
     item_price: float
     item_quantity: int
