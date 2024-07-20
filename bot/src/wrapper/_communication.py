@@ -102,7 +102,7 @@ class CompanyRawAPI:
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,
             session.get(
-                "/companies", params={"Page": page, "Limit": limit}
+                "/companies", params={"page": page, "limit": limit}
             ) as resp,  # Require further clarification for the capitalization
         ):
             if resp.ok:
