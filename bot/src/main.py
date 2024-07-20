@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+import discord
 from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
 
@@ -9,26 +10,44 @@ load_dotenv(find_dotenv())
 TOKEN = os.environ["DISCORD_TOKEN"]
 TESTING_GUILD_ID = os.getenv("TESTING_GUILD_ID")
 
-client = commands.Bot(debug_guilds=[TESTING_GUILD_ID] if TESTING_GUILD_ID else None)
 
+class DiscordClient(commands.Bot):
+    """Main class for the discord client."""
 
-@client.listen()
-async def on_ready() -> None:
-    user = client.user
+    def __init__(self, *, intents: discord.Intents, testing_guild_id: int | None = None) -> None:
+        super().__init__("", intents=intents)
+        self.testing_guild_id = testing_guild_id
 
-    if user is None:
-        return
+    async def setup_hook(self) -> None:
+        """Ran when setting up the bot, loads cogs."""
+        for filename in os.listdir("./src/cogs"):
+            if filename.endswith(".py"):
+                await self.load_extension(f"cogs.{filename[:-3]}")
 
-    print(f"Logged in as {user.name}({user.id})")
+        if self.testing_guild_id:
+            guild = discord.Object(self.testing_guild_id)
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
+
+    async def on_ready(self) -> None:
+        """Ran when bot has logged in."""
+        user = self.user
+
+        if user is None:
+            return
+
+        # TODO: Setup propper logging
+        print(f"Logged in as {user.name}({user.id})")
 
 
 async def main() -> None:
-    for filename in os.listdir("./src/cogs"):
-        if filename.endswith(".py") and filename != "__init__.py":
-            client.load_extension(f"src.cogs.{filename[:-3]}")
+    discord.utils.setup_logging()
 
-    await client.start(TOKEN)
+    bot = DiscordClient(
+        intents=discord.Intents.default(),
+        testing_guild_id=int(TESTING_GUILD_ID) if TESTING_GUILD_ID else None,
+    )
+    await bot.start(TOKEN)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
