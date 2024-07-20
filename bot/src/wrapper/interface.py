@@ -39,6 +39,14 @@ class CompanyAPI(BaseAPI):
         await CompanyRawAPI.edit_company_name(self.address, self.token, user_id, src)
         return await self.get_company(user_id)
 
+    async def delete_company(self, company: Company | int) -> None:
+        """Delete the company with the given Company object or user ID."""
+        if isinstance(company, Company):
+            user_id: int = company.owner_id
+        else:
+            user_id: int = company
+        await CompanyRawAPI.delete_company(self.address, self.token, user_id)
+
 
 class Interface:
     """An API wrapper interface for the bot."""
