@@ -1,6 +1,8 @@
+from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING
 
 from ._communication import CompanyRawAPI
+from .error import DoNotExistError
 from .schema import Company
 
 if TYPE_CHECKING:
@@ -46,6 +48,24 @@ class CompanyAPI(BaseAPI):
         else:
             user_id: int = company
         await CompanyRawAPI.delete_company(self.address, self.token, user_id)
+
+    async def list_companies(self, page: int = 1, limit: int = 10) -> list[Company]:
+        """List companies from the database using paginator."""
+        return [
+            Company.from_dict(out)
+            for out in await CompanyRawAPI.list_companies(self.address, self.token, page=page, limit=limit)
+        ]
+
+    async def item_companies(self) -> AsyncGenerator[Company, None]:
+        """Iterate through all company until there are no company left."""
+        page = 1
+        while True:
+            try:
+                for company in await self.list_companies(page=page):
+                    yield company
+                page += 1
+            except DoNotExistError:
+                return
 
 
 class Interface:
