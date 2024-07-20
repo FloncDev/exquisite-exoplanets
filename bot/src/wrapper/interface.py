@@ -29,12 +29,12 @@ class CompanyAPI(BaseAPI):
     async def create_company(self, user_id: int, company_name: str) -> Company:
         """Create an company for the user and return the Company."""
         src: CompanyPostInput = {"company_name": company_name, "owner_id": user_id}
-        await CompanyRawAPI.create_company(self.address, self.token, src)
+        await CompanyRawAPI.create_company(self.parent.session, src)
         return await self.get_company(user_id)
 
     async def get_company(self, user_id: int) -> Company:
         """Get the company from user id."""
-        out: CompanyGetIdOutput = await CompanyRawAPI.get_company(self.address, self.token, user_id)
+        out: CompanyGetIdOutput = await CompanyRawAPI.get_company(self.parent.session, user_id)
         return Company.from_dict(out)
 
     async def edit_company_name(self, company: Company | int, new_name: str) -> Company:
@@ -44,7 +44,7 @@ class CompanyAPI(BaseAPI):
         else:
             user_id: int = company
         src: CompanyPatchIdInput = {"company_name": new_name}
-        await CompanyRawAPI.edit_company_name(self.address, self.token, user_id, src)
+        await CompanyRawAPI.edit_company_name(self.parent.session, user_id, src)
         return await self.get_company(user_id)
 
     async def delete_company(self, company: Company | int) -> None:
@@ -53,13 +53,13 @@ class CompanyAPI(BaseAPI):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await CompanyRawAPI.delete_company(self.address, self.token, user_id)
+        await CompanyRawAPI.delete_company(self.parent.session, user_id)
 
     async def list_companies(self, page: int = 1, limit: int = 10) -> list[Company]:
         """List companies from the database using paginator."""
         return [
             Company.from_dict(out)
-            for out in await CompanyRawAPI.list_companies(self.address, self.token, page=page, limit=limit)
+            for out in await CompanyRawAPI.list_companies(self.parent.session, page=page, limit=limit)
         ]
 
     async def iter_companies(self) -> AsyncGenerator[Company, None]:
@@ -79,11 +79,16 @@ class ShopAPI(BaseAPI):
 
     async def list_items(self) -> list[ShopItem]:
         """Return a list of shop items."""
-        return [ShopItem.from_dict(out) for out in await ShopRawAPI.list_shop_items(self.address, self.token)]
+        return [
+            ShopItem.from_dict(out)
+            for out in await ShopRawAPI.list_shop_items(
+                self.parent.session,
+            )
+        ]
 
     async def get_shop_item(self, item_id: int) -> ShopItem:
         """Get a specific shop item."""
-        return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.address, self.token, item_id))
+        return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
 
     async def purchase(self, item: int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company."""
@@ -91,7 +96,7 @@ class ShopAPI(BaseAPI):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await ShopRawAPI.purchase_shop_item(self.address, self.token, item, {"user_id": user_id, "quantity": quantity})
+        await ShopRawAPI.purchase_shop_item(self.parent.session, item, {"user_id": user_id, "quantity": quantity})
 
 
 class Interface:
@@ -101,7 +106,9 @@ class Interface:
         """Initialize the interface with the address and API token."""
         self.address = address
         self.token = token
-        self._session: aiohttp.ClientSession = aiohttp.ClientSession(base_url=address)
+        self._session: aiohttp.ClientSession = aiohttp.ClientSession(
+            base_url=address, headers={"Authorization": token}
+        )
 
     @property
     def company(self) -> CompanyAPI:
@@ -114,6 +121,6 @@ class Interface:
         return ShopAPI(self.address, self.token, parent=self)
 
     @property
-    def session(self) -> tuple[bool, aiohttp.ClientSession]:
+    def session(self) -> aiohttp.ClientSession:
         """Return the state of the session and the session."""
-        return self._session.closed, self._session
+        return self._session
