@@ -1,7 +1,7 @@
 import os
 
 from dotenv import find_dotenv, load_dotenv
-from sqlmodel import create_engine, Session
+from sqlmodel import Session, create_engine
 
 load_dotenv(find_dotenv())
 
@@ -10,7 +10,8 @@ engine = create_engine(DATABASE_URL, echo=False)
 session = Session(bind=engine, autoflush=True)
 
 
-def get_session():
+def get_session() -> Session:
+    """Get a database session."""
     try:
         yield session
     finally:

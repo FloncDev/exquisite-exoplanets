@@ -1,19 +1,18 @@
 # pyright: reportOptionalMemberAccess=false
 
-from typing import Dict, Any, List
+from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, or_, select, desc
-
+from sqlmodel import Session, desc, or_, select
 from src.classes.pagination import CompanyPagination, Paginate
 from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate
 
 
 class CompanyRepresentation:
-    """Class that represents a `company` that is stored in the database"""
+    """Class that represents a `company` that is stored in the database."""
 
-    def __init__(self, session: Session, *, company: Company | None = None):
+    def __init__(self, session: Session, *, company: Company | None = None) -> None:
         self.session: Session = session
         self.company: Company | None = company
 
@@ -21,8 +20,7 @@ class CompanyRepresentation:
     def fetch_company(
         cls, session: Session, *, name: str | None = None, owner_id: str | None = None, company_id: int | None = None
     ) -> "CompanyRepresentation":
-        """
-        Method to fetch a company from the database, if it exists.
+        """Return instance with target Company, if it exists.
 
         :param company_id: ID of the Company to search for.
         :param session: Database session.
@@ -42,9 +40,8 @@ class CompanyRepresentation:
         return cls(session=session, company=fetched_company)
 
     @classmethod
-    def fetch_companies(cls, session: Session, params: CompanyPagination) -> Dict[str, Any]:
-        """
-        Method to get Companies from the database and return them, with pagination.
+    def fetch_companies(cls, session: Session, params: CompanyPagination) -> dict[str, Any]:
+        """Return Companies from the database and return them, with pagination.
 
         :param session: Database session.
         :param params: Pagination parameters.
@@ -55,16 +52,12 @@ class CompanyRepresentation:
 
         paginator: Paginate = Paginate(query=q, session=session, params=params)
 
-        res: List[Dict[str, Any]] = []
-        for company in paginator.get_data():
-            res.append(
-                {
-                    "name": company.name,
-                    "owner": company.owner,
-                    "networth": company.networth,
-                    "is_bankrupt": company.is_bankrupt,
-                }
-            )
+        res: list[dict[str, Any]] = [{
+            "name": company.name,
+            "owner": company.owner,
+            "networth": company.networth,
+            "is_bankrupt": company.is_bankrupt,
+        } for company in paginator.get_data()]
 
         # If nothing
         if not res:
@@ -75,8 +68,7 @@ class CompanyRepresentation:
 
     @classmethod
     def create_company(cls, session: Session, data: CompanyCreate) -> "CompanyRepresentation":
-        """
-        Method to create a new Company and store in the database.
+        """Return instance with newly created Company.
 
         If the `owner` already has a company, they cannot create a new one.
         If the `name` has been taken, the company cannot be created.
@@ -102,21 +94,19 @@ class CompanyRepresentation:
 
         except SQLAlchemyError:
             session.rollback()
-            raise HTTPException(status_code=500, detail="Unable to create a new Company")
+            raise HTTPException(status_code=500, detail="Unable to create a new Company") from None
 
         return cls(session=session, company=new_company)
 
     def get_company(self) -> Company | None:
-        """
-        Get the Company model bound to the instance.
+        """Get the Company model bound to the instance.
 
         :return: Bound Company model.
         """
         return self.company
 
     def get_details(self) -> CompanyPublic | None:
-        """
-        Get the details of the Company.
+        """Get the details of the Company.
 
         :return: Company details.
         """
@@ -125,8 +115,7 @@ class CompanyRepresentation:
         return None
 
     def update(self, data: CompanyUpdate) -> None:
-        """
-        Method to update the Company details.
+        """Update the Company's details.
 
         :param data: Data of Company to update.
         :return: None
@@ -144,11 +133,10 @@ class CompanyRepresentation:
                 self.session.commit()
 
         except SQLAlchemyError:
-            raise HTTPException(status_code=500, detail="Unable to update Company.")
+            raise HTTPException(status_code=500, detail="Unable to update Company.") from None
 
     def delete(self) -> None:
-        """
-        Method to mark the Company as `bankrupt`.
+        """Mark the Company as `bankrupt`.
 
         :return: None
         """
@@ -159,4 +147,4 @@ class CompanyRepresentation:
             self.session.commit()
 
         except SQLAlchemyError:
-            raise HTTPException(status_code=500, detail="Unable to delete Company.")
+            raise HTTPException(status_code=500, detail="Unable to delete Company.") from None
