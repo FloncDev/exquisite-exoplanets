@@ -3,7 +3,7 @@ import decimal
 from dataclasses import dataclass, field
 from typing import Self
 
-from ._api_schema import CompanyGetIdOutput, RawShopItem
+from ._api_schema import CompanyGetIdOutput, RawExperience, RawShopItem, RawUser
 
 
 @dataclass
@@ -41,3 +41,29 @@ class ShopItem:
     def from_dict(cls, src: RawShopItem) -> Self:
         """Convert json from http endpoint to ShopItem object."""
         return cls(**src)
+
+
+@dataclass
+class Experience:
+    """An object represent a experience and level."""
+
+    level: int = 1
+    experience: int = 0
+
+    @classmethod
+    def from_dict(cls, src: RawExperience) -> Self:
+        """Convert json from http endpoint to Experience object."""
+        return cls(**src)
+
+
+@dataclass
+class User:
+    """An object to represent an user."""
+
+    user_id: int
+    experience: Experience = field(default_factory=Experience)
+
+    @classmethod
+    def from_dict(cls, src: RawUser) -> Self:
+        """Convert json from http endpoint to User object."""
+        return cls(user_id=src["user_id"], experience=Experience(**src["experience"]))
