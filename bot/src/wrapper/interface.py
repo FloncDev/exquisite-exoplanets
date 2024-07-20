@@ -100,3 +100,8 @@ class Interface:
     def company(self) -> CompanyAPI:
         """Retrieve the Company API with the address and Token."""
         return CompanyAPI(self.address, self.token)
+
+    @property
+    def shop(self) -> ShopAPI:
+        """Retrieve the Shop API with the address and Token."""
+        return ShopAPI(self.address, self.token)
