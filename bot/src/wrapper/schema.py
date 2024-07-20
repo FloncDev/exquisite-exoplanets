@@ -3,7 +3,7 @@ import decimal
 from dataclasses import dataclass, field
 from typing import Self
 
-from ._api_schema import CompanyPostIdOutput
+from ._api_schema import CompanyGetIdOutput
 
 
 @dataclass
@@ -17,7 +17,7 @@ class Company:
     is_bankrupt: bool | None = False
 
     @classmethod
-    def from_dict(cls, src: CompanyPostIdOutput) -> Self:
+    def from_dict(cls, src: CompanyGetIdOutput) -> Self:
         """Convert json from http endpoint to Company object."""
         return cls(
             company_name=src["company_name"],

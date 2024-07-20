@@ -4,8 +4,8 @@ import aiohttp
 
 from ._api_schema import (  # Company
     BatchCompaniesOutput,
+    CompanyGetIdOutput,
     CompanyPatchIdInput,
-    CompanyPostIdOutput,
     CompanyPostInput,
     RawShopItem,
     ShopBuyInput,
@@ -48,7 +48,7 @@ class CompanyRawAPI:
             raise UnknownNetworkError(message)
 
     @staticmethod
-    async def get_company(address: str, token: str, user_id: int) -> CompanyPostIdOutput:
+    async def get_company(address: str, token: str, user_id: int) -> CompanyGetIdOutput:
         """Get the company details from user id of the discord user through a direct HTTP request."""
         async with (
             aiohttp.ClientSession(base_url=address, headers={"Authorization": token}) as session,

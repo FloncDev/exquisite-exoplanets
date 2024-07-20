@@ -8,7 +8,7 @@ class CompanyPostInput(TypedDict):
     owner_id: int
 
 
-class CompanyPostIdOutput(TypedDict):
+class CompanyGetIdOutput(TypedDict):
     """JSON data for GET /conpany/{id} endpoint output."""
 
     company_name: str
@@ -24,7 +24,7 @@ class CompanyPatchIdInput(TypedDict):
     company_name: str
 
 
-type BatchCompaniesOutput = list[CompanyPostIdOutput]
+type BatchCompaniesOutput = list[CompanyGetIdOutput]
 """JSON data for GET /companies endpoint output"""
 
 
