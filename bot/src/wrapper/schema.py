@@ -3,7 +3,7 @@ import decimal
 from dataclasses import dataclass, field
 from typing import Self
 
-from ._api_schema import CompanyGetIdOutput
+from ._api_schema import CompanyGetIdOutput, RawShopItem
 
 
 @dataclass
@@ -35,3 +35,8 @@ class ShopItem:
     item_name: str
     item_price: float
     item_quantity: int
+
+    @classmethod
+    def from_dict(cls, src: RawShopItem) -> Self:
+        """Convert json from http endpoint to ShopItem object."""
+        return cls(**src)
