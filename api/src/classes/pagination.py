@@ -59,7 +59,7 @@ class Paginate:
         self.data: list[dict[str, Any]] = []
 
         # Determining necessary variables
-        self.entry_count: int = len(self.session.exec(self.query).all())
+        self.entry_count: int = len(self.session.exec(self.query).all())  # type: ignore[reportUnknownArgumentType]
         self.page_count: int = 1 if self.params.limit < 1 else math.ceil(self.entry_count / self.params.limit)
 
     def get_data(self) -> Sequence[Row[Any] | RowMapping | Any]:

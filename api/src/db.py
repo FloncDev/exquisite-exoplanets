@@ -1,4 +1,6 @@
 import os
+from collections.abc import Generator
+from typing import Any
 
 from dotenv import find_dotenv, load_dotenv
 from sqlmodel import Session, create_engine
@@ -10,7 +12,7 @@ engine = create_engine(DATABASE_URL, echo=False)
 session = Session(bind=engine, autoflush=True)
 
 
-def get_session() -> Session:
+def get_session() -> Generator[Session, Any, Any]:
     """Get a database session."""
     try:
         yield session

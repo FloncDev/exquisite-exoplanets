@@ -28,7 +28,7 @@ async def create_company(data: CompanyCreate, session: Session = Depends(get_ses
 
 
 @app.get("/company/{company_id}")
-async def get_company(company_id: int, session: Session = Depends(get_session)) -> CompanyPublic:  # noqa: B008
+async def get_company(company_id: int, session: Session = Depends(get_session)) -> CompanyPublic | None:  # noqa: B008
     """Endpoint to get the target Company.
 
     :param company_id: ID of Company to get.
@@ -42,8 +42,10 @@ async def get_company(company_id: int, session: Session = Depends(get_session)) 
 
 
 @app.get("/companies")
-async def get_companies(params: CompanyPagination = Depends(), session: Session = Depends(get_session)) -> dict[  # noqa: B008
-    str, Any]:
+async def get_companies(
+    params: CompanyPagination = Depends(),  # noqa: B008
+    session: Session = Depends(get_session),  # noqa: B008
+) -> dict[str, Any]:
     """Endpoint to get all Companies, with pagination.
 
     :param params: Endpoint parameters.
@@ -54,8 +56,7 @@ async def get_companies(params: CompanyPagination = Depends(), session: Session 
 
 
 @app.patch("/company/{company_id}")
-async def update_company(company_id: int, data: CompanyUpdate,
-                         session: Session = Depends(get_session)) -> None:  # noqa: B008
+async def update_company(company_id: int, data: CompanyUpdate, session: Session = Depends(get_session)) -> None:  # noqa: B008
     """Endpoint to update the given Company's details.
 
     :param company_id: ID of the Company to update.

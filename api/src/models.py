@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel  # type: ignore[reportUnknownVariableType]
 
 
 #################
