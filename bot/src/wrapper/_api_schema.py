@@ -61,18 +61,26 @@ class ShopBuyOutput(TypedDict):
 
 
 class RawExperience(TypedDict):
+    """JSON data for a user experience info."""
+
     level: int
     experience: int
 
 
 class RawUser(TypedDict):
+    """JSON data for the user information."""
+
+    user_id: int
     experience: RawExperience
 
 
 type UserIdGetOutput = RawUser
+"""JSON data for GET /user/{id} endpoint output."""
 
 
 class UserIdExperiencePatchOutput(TypedDict):
+    """JSON data for PATCH /user/{id}/experience endpoint output."""
+
     level_up: bool
     new_level: int
     new_experience: int
