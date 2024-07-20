@@ -1,4 +1,5 @@
-from collections.abc import AsyncGenerator
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import aiohttp
@@ -8,15 +9,18 @@ from .error import DoNotExistError
 from .schema import Company, ShopItem
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
     from ._api_schema import CompanyGetIdOutput, CompanyPatchIdInput, CompanyPostInput
 
 
 class BaseAPI:
     """A BaseAPI with the required argument."""
 
-    def __init__(self, address: str, token: str) -> None:
+    def __init__(self, address: str, token: str, *, parent: Interface) -> None:
         self.address = address
         self.token = token
+        self.parent = parent
 
 
 class CompanyAPI(BaseAPI):
@@ -102,12 +106,12 @@ class Interface:
     @property
     def company(self) -> CompanyAPI:
         """Retrieve the Company API with the address and Token."""
-        return CompanyAPI(self.address, self.token)
+        return CompanyAPI(self.address, self.token, parent=self)
 
     @property
     def shop(self) -> ShopAPI:
         """Retrieve the Shop API with the address and Token."""
-        return ShopAPI(self.address, self.token)
+        return ShopAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> tuple[bool, aiohttp.ClientSession]:
