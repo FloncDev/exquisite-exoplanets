@@ -58,3 +58,21 @@ class ShopBuyOutput(TypedDict):
     item_id: int
     quantity: int
     new_balance: float
+
+
+class RawExperience(TypedDict):
+    level: int
+    experience: int
+
+
+class RawUser(TypedDict):
+    experience: RawExperience
+
+
+type UserIdGetOutput = RawUser
+
+
+class UserIdExperiencePatchOutput(TypedDict):
+    level_up: bool
+    new_level: int
+    new_experience: int
