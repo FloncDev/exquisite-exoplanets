@@ -28,7 +28,7 @@ type BatchCompaniesOutput = list[CompanyPostIdOutput]
 """JSON data for GET /companies endpoint output"""
 
 
-class ShopItem(TypedDict):
+class RawShopItem(TypedDict):
     """A item object from the shop."""
 
     item_name: str
@@ -36,10 +36,10 @@ class ShopItem(TypedDict):
     item_quantity: int
 
 
-type ShopGetOutput = list[ShopItem]
+type ShopGetOutput = list[RawShopItem]
 """JSON data for GET /shop endpoint output."""
 
-type ShopIdGetOutput = ShopItem
+type ShopIdGetOutput = RawShopItem
 """JSON data for GET /shop/{id} endpoint output."""
 
 
