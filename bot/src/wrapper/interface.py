@@ -133,6 +133,13 @@ class UserAPI(BaseAPI):
         :raise DoNotExistError: The user cannot be found after an attempt of registration
         """
         await UserRawAPI.create_user(self.parent.session, user_id)
+        return await self.get_user(user_id)
+
+    async def get_user(self, user_id: int) -> User:
+        """Get the user by its user_id.
+
+        :raise DoNotExistError: The user cannot be found
+        """
         return User.from_dict(await UserRawAPI.get_user(self.parent.session, user_id))
 
 
