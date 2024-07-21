@@ -20,6 +20,8 @@ class Companies(commands.Cog):
     @option("name", str, description="The name of your new company")
     async def create(self, ctx: Context, name: str) -> None:
         """Create a new company."""
+        # TODO: Create user account if they do not have one
+
         if not re.match(r"^[a-zA-Z0-9\- \.]{1,}$", name):
             await ctx.error("Company name must only contain alphanumerics, spaces, `-` and `.`")
             return
