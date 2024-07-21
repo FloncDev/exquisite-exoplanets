@@ -92,4 +92,3 @@ async def update_user_experience(
     session.commit()
 
     return Experience(experience=user.experience)
-
