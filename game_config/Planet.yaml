@@ -1,0 +1,52 @@
+# a template for making random planet names
+
+random_name_part1:
+   - 'Cardinan'
+   - 'Solis'
+   - 'Aractus'
+   - 'Thanator'
+   - 'Carnache'
+   - 'Fauros'
+   - 'Gallieni'
+   - 'Kraka'
+   - 'Iridis'
+   - 'Aurobos'
+   - 'Ma'
+   - 'Pietrus'
+   - 'Lu'
+   - 'Babao'
+
+random_name_modifier:
+   - 'I'
+   - 'II'
+   - 'III'
+   - 'IV'
+   - 'V'
+   - 'VI'
+   - 'VII'
+   - 'A'
+   - 'B'
+   - 'C'
+   - 'D'
+   - 'E'
+   - 'F'
+   - 'Prime'
+   - 'minor'
+   - 'major'
+   - 'bis'
+   - 'ter'
+
+# premade planets
+EA0000:
+   name: 'Earth'
+   tier: 0
+   resources: []
+   description: 'This empty husk used to be the most magnificent green world, believe it or not'
+
+HO0004:
+   name: 'Hoxxes IV'
+   tier: 0
+   ressources: [] # Gold in high density
+   description: 'This very rich planet has a huge chunk of its crust detached exposing the lower layers.
+   Unfortunately, no matter how many prospecting devices you send, they always seem to get destroyed by the extremely hostile local wildlife'
+

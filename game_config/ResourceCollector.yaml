@@ -1,0 +1,10 @@
+# resource collector template
+ResourceCollectorID:
+  name: 'ResourceCollectorName'
+  resource: [ResourceID]
+  init_price: [0, inf]
+  init_speed: [0, inf]
+  # speed upgrades
+  speed_upgrade_upscale: [1, inf]
+  speed_upgrade_init_price: [0, inf]
+  speed_upgrade_price_upscale: [1, inf]
