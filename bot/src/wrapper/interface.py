@@ -110,17 +110,21 @@ class ShopAPI(BaseAPI):
         """
         return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
 
-    async def purchase(self, item: int, company: Company | int, quantity: int) -> None:
+    async def purchase(self, item: ShopItem | int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company.
 
         :raise DoNotExistError: The company the user own cannot be found or the item cannot be found
         :raise UserError: The company doesn't have enough balance to purchase the item
         """
+        if isinstance(item, ShopItem):
+            item_id: int = item.item_id
+        else:
+            item_id: int = item
         if isinstance(company, Company):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await ShopRawAPI.purchase_shop_item(self.parent.session, item, {"user_id": user_id, "quantity": quantity})
+        await ShopRawAPI.purchase_shop_item(self.parent.session, item_id, {"user_id": user_id, "quantity": quantity})
 
 
 class UserAPI(BaseAPI):
