@@ -12,8 +12,10 @@ from ._api_schema import (  # Company
     ShopBuyInput,
     ShopBuyOutput,
     ShopGetOutput,
-    UserIdExperiencePatchInput,
-    UserIdExperiencePatchOutput,  # User
+    UserIdExperiencePatchInput,  # User
+    UserIdExperiencePatchOutput,
+    UserIdExperiencePostInput,
+    UserIdExperiencePostOutput,
     UserIdGetOutput,
 )
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
@@ -255,7 +257,7 @@ class UserRawAPI:
         """Update the user experience by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
-            async with session.post(f"user/{user_id}/experience", json=src) as resp:
+            async with session.patch(f"user/{user_id}/experience/add", json=src) as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
@@ -263,6 +265,27 @@ class UserRawAPI:
                     raise DoNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.UserRawAPI.update_user_experience,"
+                    f" Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def set_user_experience(
+        session: aiohttp.ClientSession, user_id: int, src: UserIdExperiencePostInput
+    ) -> UserIdExperiencePostOutput:
+        """Set the user experience by user id through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
+            async with session.post(f"user/{user_id}/experience/set", json=src) as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = f"User with user id {user_id} cannot be found"
+                    raise DoNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.UserRawAPI.set_user_experience,"
                     f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
