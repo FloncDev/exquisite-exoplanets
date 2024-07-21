@@ -229,3 +229,19 @@ class UserRawAPI:
                 raise UnknownNetworkError(message)
 
         return await make_request(session, caller)
+
+    @staticmethod
+    async def create_user(session: aiohttp.ClientSession, user_id: int) -> None:
+        """Create the user by user id through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> None:
+            async with session.get(f"user/{user_id}") as resp:
+                if resp.ok:
+                    return
+                if resp.status == Status.CONFLICT:
+                    message = f"User with user id {user_id} have been register already"
+                    raise AlreadyExistError(message)
+                message = f"Undefined behaviour bot.src.wrapper.UserRawAPI.create_user, Status received {resp.status}"
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
