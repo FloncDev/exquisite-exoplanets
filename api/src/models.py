@@ -14,14 +14,14 @@ class Company(SQLModel, table=True):
     is_bankrupt: bool | None = Field(nullable=False, default=False)
     networth: float | None = Field(nullable=False, default=0)
     name: str = Field(nullable=False)
-    owner_id: str = Field(nullable=False)
+    owner_id: int = Field(nullable=False)
 
 
 class CompanyCreate(SQLModel):
     """Model representing the data used to create a new Company."""
 
     name: str = Field(nullable=False)
-    owner_id: str = Field(nullable=False)
+    owner_id: int = Field(nullable=False)
 
 
 class CompanyUpdate(SQLModel):
@@ -36,7 +36,7 @@ class CompanyPublic(SQLModel):
     id: int
     created: datetime
     name: str
-    owner_id: str
+    owner_id: int
     networth: float
     is_bankrupt: bool
 
