@@ -8,10 +8,13 @@ from ._api_schema import (  # Company
     CompanyGetIdOutput,
     CompanyPatchIdInput,
     CompanyPostInput,
-    RawShopItem,
+    RawShopItem,  # Shop
     ShopBuyInput,
     ShopBuyOutput,
-    ShopGetOutput,  # Shop
+    ShopGetOutput,
+    UserIdExperiencePatchInput,
+    UserIdExperiencePatchOutput,  # User
+    UserIdGetOutput,
 )
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
 
@@ -129,7 +132,7 @@ class CompanyRawAPI:
         async def caller(session: aiohttp.ClientSession) -> BatchCompaniesOutput:
             async with (
                 session.get(
-                    "/companies", params={"Page": page, "Limit": limit}
+                    "/companies", params={"page": page, "limit": limit}
                 ) as resp,  # Require further clarification for the capitalization
             ):
                 if resp.ok:
@@ -204,6 +207,63 @@ class ShopRawAPI:
                     raise DoNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.purchase_shop_item, Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+
+class UserRawAPI:
+    """A bundle of API available to use for user endpoint."""
+
+    @staticmethod
+    async def get_user(session: aiohttp.ClientSession, user_id: int) -> UserIdGetOutput:
+        """Get the User information by user id through direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> UserIdGetOutput:
+            async with session.get(f"user/{user_id}") as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = f"User with user id {user_id} cannot be found"
+                    raise DoNotExistError(message)
+                message = f"Undefined behaviour bot.src.wrapper.UserRawAPI.get_user, Status received {resp.status}"
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def create_user(session: aiohttp.ClientSession, user_id: int) -> None:
+        """Create the user by user id through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> None:
+            async with session.post(f"user/{user_id}") as resp:
+                if resp.ok:
+                    return
+                if resp.status == Status.CONFLICT:
+                    message = f"User with user id {user_id} have been register already"
+                    raise AlreadyExistError(message)
+                message = f"Undefined behaviour bot.src.wrapper.UserRawAPI.create_user, Status received {resp.status}"
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def update_user_experience(
+        session: aiohttp.ClientSession, user_id: int, src: UserIdExperiencePatchInput
+    ) -> UserIdExperiencePatchOutput:
+        """Update the user experience by user id through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
+            async with session.post(f"user/{user_id}/experience", json=src) as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = f"User with user id {user_id} cannot be found"
+                    raise DoNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.UserRawAPI.update_user_experience,"
+                    f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
 

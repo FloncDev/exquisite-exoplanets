@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 import aiohttp
 
-from ._communication import CompanyRawAPI, ShopRawAPI
+from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
 from .error import DoNotExistError
-from .schema import Company, ShopItem
+from .schema import Company, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -110,17 +110,67 @@ class ShopAPI(BaseAPI):
         """
         return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
 
-    async def purchase(self, item: int, company: Company | int, quantity: int) -> None:
+    async def purchase(self, item: ShopItem | int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company.
 
         :raise DoNotExistError: The company the user own cannot be found or the item cannot be found
         :raise UserError: The company doesn't have enough balance to purchase the item
         """
+        if isinstance(item, ShopItem):
+            item_id: int = item.item_id
+        else:
+            item_id: int = item
         if isinstance(company, Company):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await ShopRawAPI.purchase_shop_item(self.parent.session, item, {"user_id": user_id, "quantity": quantity})
+        await ShopRawAPI.purchase_shop_item(self.parent.session, item_id, {"user_id": user_id, "quantity": quantity})
+
+
+class UserAPI(BaseAPI):
+    """Bundle of formatted API access to api endpoint."""
+
+    async def register_user(self, user_id: int) -> User:
+        """Register the user by the user_id.
+
+        :param user_id: A user id for the user to be registered
+        :return: A `User` object
+        :raise AlreadyExistError: Raise when the user already existed
+        :raise DoNotExistError: The user cannot be found after an attempt of registration
+        """
+        await UserRawAPI.create_user(self.parent.session, user_id)
+        return await self.get_user(user_id)
+
+    async def get_user(self, user: User | int) -> User:
+        """Get the user by its user_id, or a updated User object from the User object.
+
+        :param user: A `User` object or a user id
+        :return: A `User` object
+        :raise DoNotExistError: The user cannot be found
+        """
+        if isinstance(user, User):
+            user_id: int = user.user_id
+        else:
+            user_id: int = user
+
+        return User.from_dict(await UserRawAPI.get_user(self.parent.session, user_id))
+
+    async def add_experience(self, user: User | int, exp: int = 0) -> tuple[bool, User]:
+        """Update the amount of experience the user have.
+
+        :param user: A `User` object or a user id
+        :param exp: the added experience to the user
+        :return: A boolean value represent whether the user have upgraded, and
+         User represent an updated user after adding experience
+        :raise DoNotExistError: The user cannot be found
+        """
+        if isinstance(user, User):
+            user_id: int = user.user_id
+        else:
+            user_id: int = user
+
+        result = await UserRawAPI.update_user_experience(self.parent.session, user_id, {"new_experience": exp})
+        return result["level_up"], await self.get_user(user_id)
 
 
 class Interface:
@@ -143,6 +193,11 @@ class Interface:
     def shop(self) -> ShopAPI:
         """Retrieve the Shop API with the address and Token."""
         return ShopAPI(self.address, self.token, parent=self)
+
+    @property
+    def user(self) -> UserAPI:
+        """Retrieve the User API with the address and Token."""
+        return UserAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:
