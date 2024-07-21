@@ -216,7 +216,7 @@ class UserRawAPI:
 
     @staticmethod
     async def get_user(session: aiohttp.ClientSession, user_id: int) -> UserIdGetOutput:
-        """Get the User information by user id."""
+        """Get the User information by user id through direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdGetOutput:
             async with session.get(f"user/{user_id}") as resp:
