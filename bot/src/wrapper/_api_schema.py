@@ -90,6 +90,8 @@ class UserIdExperiencePatchOutput(TypedDict):
     new_experience: int
 
 
-type UserIdExperiencePostInput = UserIdExperiencePatchInput
+class UserIdExperiencePostInput(TypedDict):
+    experience: int
 
-type UserIdExperiencePostOutput = UserIdExperiencePatchInput
+
+type UserIdExperiencePostOutput = UserIdExperiencePatchOutput
