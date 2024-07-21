@@ -237,7 +237,7 @@ class UserRawAPI:
         """Create the user by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> None:
-            async with session.get(f"user/{user_id}") as resp:
+            async with session.post(f"user/{user_id}") as resp:
                 if resp.ok:
                     return
                 if resp.status == Status.CONFLICT:
