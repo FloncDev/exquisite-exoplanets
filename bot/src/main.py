@@ -1,33 +1,52 @@
 import asyncio
 import os
 
+import discord
 from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
 
+from src.context import Context
+
 load_dotenv(find_dotenv())
 
-TOKEN = os.environ["DISCORD_TOKEN"]
+DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 TESTING_GUILD_ID = os.getenv("TESTING_GUILD_ID")
 
-client = commands.Bot(debug_guilds=[TESTING_GUILD_ID] if TESTING_GUILD_ID else None)
 
+class Client(commands.Bot):
+    """Wrapper for the pycord client to store state."""
 
-@client.listen()
-async def on_ready() -> None:
-    user = client.user
+    def __init__(self, testing_guild_id: int | None = None) -> None:
+        super().__init__(debug_guild_id=[testing_guild_id] if testing_guild_id else None)
 
-    if user is None:
-        return
+    async def get_application_context(
+        self,
+        interaction: discord.Interaction,
+        cls=Context,  # pyright: ignore[reportMissingParameterType]  # noqa: ANN001
+    ) -> discord.ApplicationContext:
+        """Return custom application context."""
+        return await super().get_application_context(interaction, cls)
 
-    print(f"Logged in as {user.name}({user.id})")
+    async def on_ready(self) -> None:
+        """Ran after bot has logged in."""
+        user = self.user
+
+        if user is None:
+            return
+
+        print(f"Logged in as {user.name}({user.id})")
 
 
 async def main() -> None:
+    testing_guild_id = int(TESTING_GUILD_ID) if TESTING_GUILD_ID is not None else None
+
+    client = Client(testing_guild_id=testing_guild_id)
+
     for filename in os.listdir("./src/cogs"):
         if filename.endswith(".py") and filename != "__init__.py":
             client.load_extension(f"src.cogs.{filename[:-3]}")
 
-    await client.start(TOKEN)
+    await client.start(DISCORD_TOKEN)
 
 
 if __name__ == "__main__":
