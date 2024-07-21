@@ -39,3 +39,40 @@ class CompanyPublic(SQLModel):
     owner_id: int
     networth: float
     is_bankrupt: bool
+
+
+#################
+# USER SCHEMA
+#################
+class Experience(SQLModel):
+    """A model representing a user's experience."""
+
+    level: int = 0
+    experience: int = 0
+
+
+class User(SQLModel, table=True):
+    """Model representing a User in the database."""
+
+    user_id: int | None = Field(default=None, nullable=False, primary_key=True)
+    registered: datetime | None = Field(nullable=False, default_factory=datetime.now)
+    experience: int = Field(default=0, nullable=False)
+
+
+class UserPublic(SQLModel):
+    """Model representing a User that can be returned."""
+
+    user_id: int
+    experience: int
+
+
+class UserCreatePublic(SQLModel):
+    """Model representing the data used to create a new User."""
+
+    id: int
+
+
+class UserUpdateExperience(SQLModel):
+    """Model representing the data used to update a user's experience."""
+
+    new_experience: int
