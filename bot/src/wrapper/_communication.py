@@ -8,10 +8,11 @@ from ._api_schema import (  # Company
     CompanyGetIdOutput,
     CompanyPatchIdInput,
     CompanyPostInput,
-    RawShopItem,
+    RawShopItem,  # Shop
     ShopBuyInput,
     ShopBuyOutput,
-    ShopGetOutput,  # Shop
+    ShopGetOutput,
+    UserIdGetOutput,  # User
 )
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
 
@@ -205,6 +206,26 @@ class ShopRawAPI:
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.purchase_shop_item, Status received {resp.status}"
                 )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+
+class UserRawAPI:
+    """A bundle of API available to use for user endpoint."""
+
+    @staticmethod
+    async def get_user(session: aiohttp.ClientSession, user_id: int) -> UserIdGetOutput:
+        """Get the User information by user id."""
+
+        async def caller(session: aiohttp.ClientSession) -> UserIdGetOutput:
+            async with session.get(f"user/{user_id}") as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = f"User with user id {user_id} cannot be found"
+                    raise DoNotExistError(message)
+                message = f"Undefined behaviour bot.src.wrapper.UserRawAPI.get_user, Status received {resp.status}"
                 raise UnknownNetworkError(message)
 
         return await make_request(session, caller)
