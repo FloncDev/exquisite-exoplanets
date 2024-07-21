@@ -32,9 +32,7 @@ class CompanyRepresentation:
         :return: Instance with the fetched company.
         """
         fetched_company: Company | None = session.exec(
-            select(Company).where(
-                or_(Company.id.__eq__(company_id), Company.name.__eq__(name), Company.owner_id.__eq__(owner_id))
-            )
+            select(Company).where(or_(Company.id == company_id, Company.name == name, Company.owner_id == owner_id))
         ).first()
 
         if not fetched_company:
@@ -85,7 +83,7 @@ class CompanyRepresentation:
         """
         # Query the database
         target: Sequence[Company] = session.exec(
-            select(Company).where(or_(Company.name.__eq__(data.name), Company.owner_id.__eq__(data.owner_id)))
+            select(Company).where(or_(Company.name == data.name, Company.owner_id == data.owner_id))
         ).all()
 
         if target and not any(x.is_bankrupt for x in target):
