@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 import aiohttp
 
-from ._communication import CompanyRawAPI, ShopRawAPI
+from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
 from .error import DoNotExistError
-from .schema import Company, ShopItem
+from .schema import Company, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -123,6 +123,19 @@ class ShopAPI(BaseAPI):
         await ShopRawAPI.purchase_shop_item(self.parent.session, item, {"user_id": user_id, "quantity": quantity})
 
 
+class UserAPI(BaseAPI):
+    """Bundle of formatted API access to api endpoint."""
+
+    async def register_user(self, user_id: int) -> User:
+        """Register the user by the user_id.
+
+        :raise AlreadyExistError: Raise when the user already existed
+        :raise DoNotExistError: The user cannot be found after an attempt of registration
+        """
+        await UserRawAPI.create_user(self.parent.session, user_id)
+        return User.from_dict(await UserRawAPI.get_user(self.parent.session, user_id))
+
+
 class Interface:
     """An API wrapper interface for the bot."""
 
@@ -143,6 +156,11 @@ class Interface:
     def shop(self) -> ShopAPI:
         """Retrieve the Shop API with the address and Token."""
         return ShopAPI(self.address, self.token, parent=self)
+
+    @property
+    def user(self) -> UserAPI:
+        """Retrieve the User API with the address and Token."""
+        return UserAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:
