@@ -133,6 +133,8 @@ class UserAPI(BaseAPI):
     async def register_user(self, user_id: int) -> User:
         """Register the user by the user_id.
 
+        :param user_id: A user id for the user to be registered
+        :return: A `User` object
         :raise AlreadyExistError: Raise when the user already existed
         :raise DoNotExistError: The user cannot be found after an attempt of registration
         """
@@ -142,6 +144,8 @@ class UserAPI(BaseAPI):
     async def get_user(self, user: User | int) -> User:
         """Get the user by its user_id, or a updated User object from the User object.
 
+        :param user: A `User` object or a user id
+        :return: A `User` object
         :raise DoNotExistError: The user cannot be found
         """
         if isinstance(user, User):
