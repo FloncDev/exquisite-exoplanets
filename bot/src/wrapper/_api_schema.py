@@ -77,8 +77,6 @@ class RawUser(TypedDict):
 type UserIdGetOutput = RawUser
 """JSON data for GET /user/{id} endpoint output."""
 
-type UserIdExperienceGetOutput = RawExperience
-
 
 class UserIdExperiencePatchOutput(TypedDict):
     """JSON data for PATCH /user/{id}/experience endpoint output."""
