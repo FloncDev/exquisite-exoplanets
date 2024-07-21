@@ -17,6 +17,12 @@ async def get_user(
     user_id: int,
     session: Session = Depends(get_session),  # noqa: B008
 ) -> UserPublic:
+    """Endpoint to retrieve an existing user.
+
+    :param user_id: ID of the User to retrieve.
+    :param session: Database session.
+    :return: a representation of the user
+    """
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
     if user is None:
@@ -29,6 +35,12 @@ async def create_user(
     user_id: int,
     session: Session = Depends(get_session),  # noqa: B008
 ) -> UserCreatePublic:
+    """Endpoint to register a new user.
+
+    :param user_id: ID of the User to register.
+    :param session: Database session.
+    :return: id of the newly registered user
+    """
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
     if user is None:
@@ -45,6 +57,12 @@ async def get_user_experience(
     user_id: int,
     session: Session = Depends(get_session),  # noqa: B008
 ) -> Experience:
+    """Endpoint to retrieve the given User's experience.
+
+    :param user_id: ID of the User to retrieve.
+    :param session: Database session.
+    :return: Experience (an integer representing the user's experience)
+    """
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
     if user is None:
@@ -58,6 +76,13 @@ async def update_user_experience(
     new_experience: UserUpdateExperience,
     session: Session = Depends(get_session),  # noqa: B008
 ) -> Experience:
+    """Endpoint to update the given User's experience.
+
+    :param user_id: ID of the User to update.
+    :param new_experience: Represents the integer value of the user's new experience.
+    :param session: Database session.
+    :return: Experience (an integer representing the user's new experience)
+    """
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
     if user is None:
