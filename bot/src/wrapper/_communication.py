@@ -12,8 +12,9 @@ from ._api_schema import (  # Company
     ShopBuyInput,
     ShopBuyOutput,
     ShopGetOutput,
-    UserIdExperienceGetOutput,
-    UserIdGetOutput,  # User
+    UserIdExperiencePatchInput,
+    UserIdExperiencePatchOutput,  # User
+    UserIdGetOutput,
 )
 from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
 
@@ -248,18 +249,20 @@ class UserRawAPI:
         return await make_request(session, caller)
 
     @staticmethod
-    async def get_user_experience(session: aiohttp.ClientSession, user_id: int) -> UserIdExperienceGetOutput:
+    async def update_user_experience(
+        session: aiohttp.ClientSession, user_id: int, src: UserIdExperiencePatchInput
+    ) -> UserIdExperiencePatchOutput:
         """Get the user experience by user id through a direct HTTP request."""
 
-        async def caller(session: aiohttp.ClientSession) -> UserIdExperienceGetOutput:
-            async with session.get(f"user/{user_id}/experience") as resp:
+        async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
+            async with session.patch(f"user/{user_id}/experience", json=src) as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = f"User with user id {user_id} cannot be found"
                     raise DoNotExistError(message)
                 message = (
-                    "Undefined behaviour bot.src.wrapper.UserRawAPI.get_user_experience,"
+                    "Undefined behaviour bot.src.wrapper.UserRawAPI.update_user_experience,"
                     f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
