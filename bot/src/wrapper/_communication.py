@@ -252,7 +252,7 @@ class UserRawAPI:
     async def update_user_experience(
         session: aiohttp.ClientSession, user_id: int, src: UserIdExperiencePatchInput
     ) -> UserIdExperiencePatchOutput:
-        """Get the user experience by user id through a direct HTTP request."""
+        """Update the user experience by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
             async with session.post(f"user/{user_id}/experience", json=src) as resp:
