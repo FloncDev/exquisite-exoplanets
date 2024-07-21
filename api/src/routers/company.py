@@ -19,7 +19,7 @@ async def create_company(data: CompanyCreate, session: Session = Depends(get_ses
     :return: Success or not.
     """
     # Creating the company
-    _ = CompanyRepresentation.create_company(session=session, data=data)
+    CompanyRepresentation.create_company(session=session, data=data)
     raise HTTPException(status_code=201, detail="Company created successfully.")
 
 

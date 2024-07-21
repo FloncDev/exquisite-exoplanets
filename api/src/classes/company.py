@@ -21,7 +21,7 @@ class CompanyRepresentation:
 
     @classmethod
     def fetch_company(
-        cls, session: Session, *, name: str | None = None, owner_id: str | None = None, company_id: int | None = None
+        cls, session: Session, *, name: str | None = None, owner_id: int | None = None, company_id: int | None = None
     ) -> "CompanyRepresentation":
         """Return instance with target Company, if it exists.
 
@@ -92,7 +92,6 @@ class CompanyRepresentation:
         try:
             new_company: Company = Company(name=data.name, owner_id=data.owner_id)
             session.add(new_company)
-            session.flush()
             session.commit()
             session.refresh(new_company)
 
@@ -133,7 +132,6 @@ class CompanyRepresentation:
 
             if has_changed:
                 self.session.add(self.company)
-                self.session.flush()
                 self.session.commit()
 
         except SQLAlchemyError:
@@ -147,7 +145,6 @@ class CompanyRepresentation:
         try:
             self.company.is_bankrupt = True
             self.session.add(self.company)
-            self.session.flush()
             self.session.commit()
 
         except SQLAlchemyError:
