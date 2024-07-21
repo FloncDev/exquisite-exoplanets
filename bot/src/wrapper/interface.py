@@ -139,11 +139,16 @@ class UserAPI(BaseAPI):
         await UserRawAPI.create_user(self.parent.session, user_id)
         return await self.get_user(user_id)
 
-    async def get_user(self, user_id: int) -> User:
-        """Get the user by its user_id.
+    async def get_user(self, user: User | int) -> User:
+        """Get the user by its user_id, or a updated User object from the User object.
 
         :raise DoNotExistError: The user cannot be found
         """
+        if isinstance(user, User):
+            user_id: int = user.user_id
+        else:
+            user_id: int = user
+
         return User.from_dict(await UserRawAPI.get_user(self.parent.session, user_id))
 
     async def add_experience(self, user: User | int, exp: int = 0) -> tuple[bool, User]:
