@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 import discord
 from discord.commands import SlashCommandGroup, option
@@ -19,7 +20,10 @@ class Companies(commands.Cog):
     @option("name", str, description="The name of your new company")
     async def create(self, ctx: Context, name: str) -> None:
         """Create a new company."""
-        # TODO: Validate input
+        if not re.match(r"^[a-zA-Z0-9\- \.]{1,}$", name):
+            await ctx.error("Company name must only contain alphanumerics, spaces, `-` and `.`")
+            return
+
         # TODO: Make API requests
         has_company = False
 
