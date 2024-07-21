@@ -146,6 +146,23 @@ class UserAPI(BaseAPI):
         """
         return User.from_dict(await UserRawAPI.get_user(self.parent.session, user_id))
 
+    async def add_experience(self, user: User | int, exp: int = 0) -> tuple[bool, User]:
+        """Update the amount of experience the user have.
+
+        :param user: A `User` object or a user id
+        :param exp: the added experience to the user
+        :return: A boolean value represent whether the user have upgraded, and
+         User represent an updated user after adding experience
+        :raise DoNotExistError: The user cannot be found
+        """
+        if isinstance(user, User):
+            user_id: int = user.user_id
+        else:
+            user_id: int = user
+
+        result = await UserRawAPI.update_user_experience(self.parent.session, user_id, {"new_experience": exp})
+        return result["level_up"], await self.get_user(user_id)
+
 
 class Interface:
     """An API wrapper interface for the bot."""
