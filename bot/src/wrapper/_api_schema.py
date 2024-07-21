@@ -88,3 +88,8 @@ class UserIdExperiencePatchOutput(TypedDict):
     level_up: bool
     new_level: int
     new_experience: int
+
+
+type UserIdExperiencePostInput = UserIdExperiencePatchInput
+
+type UserIdExperiencePostOutput = UserIdExperiencePatchInput
