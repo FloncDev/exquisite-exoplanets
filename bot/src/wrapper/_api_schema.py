@@ -78,6 +78,10 @@ type UserIdGetOutput = RawUser
 """JSON data for GET /user/{id} endpoint output."""
 
 
+class UserIdExperiencePatchInput(TypedDict):
+    new_experience: int
+
+
 class UserIdExperiencePatchOutput(TypedDict):
     """JSON data for PATCH /user/{id}/experience endpoint output."""
 
