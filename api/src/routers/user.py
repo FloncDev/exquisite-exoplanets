@@ -14,7 +14,8 @@ router = APIRouter()
 
 @router.get("/user/{user_id}")
 async def get_user(
-    user_id: int, session: Session = Depends(get_session)  # noqa: B008
+    user_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
 ) -> UserPublic:
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
@@ -25,7 +26,8 @@ async def get_user(
 
 @router.post("/user/{user_id}")
 async def create_user(
-    user_id: int, session: Session = Depends(get_session)  # noqa: B008
+    user_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
 ) -> UserCreatePublic:
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
@@ -40,7 +42,8 @@ async def create_user(
 
 @router.get("/user/{user_id}/experience")
 async def get_user_experience(
-    user_id: int, session: Session = Depends(get_session)  # noqa: B008
+    user_id: int,
+    session: Session = Depends(get_session),  # noqa: B008
 ) -> Experience:
     user = session.exec(select(User).where(User.user_id == user_id)).first()
 
