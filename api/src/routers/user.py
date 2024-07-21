@@ -27,7 +27,7 @@ async def get_user(
 
     if user is None:
         raise HTTPException(404, "User not found")
-    return user
+    return user # type: ignore  # noqa: PGH003
 
 
 @router.post("/user/{user_id}")
