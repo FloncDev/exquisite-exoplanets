@@ -1,5 +1,5 @@
 [tool.ruff]
-line-length = 119
+line-length = 125
 target-version = "py312"
 fix = true
 src = ["src"]
@@ -39,6 +39,10 @@ ignore = [
   "ISC001",
   # star-import
   "F403",
+  # Function calls in function
+  "B008",
+  # Naming too complex
+  "C901",
 ]
 
 

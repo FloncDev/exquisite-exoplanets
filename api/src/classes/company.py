@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, desc, or_, select
 from src.classes.pagination import CompanyPagination, Paginate
-from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate
+from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate, Inventory, InventoryPublic
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -149,3 +149,23 @@ class CompanyRepresentation:
 
         except SQLAlchemyError:
             raise HTTPException(status_code=500, detail="Unable to delete Company.") from None
+
+    def get_inventory(self) -> dict[str, Any]:
+        """Get the Company's Inventory.
+
+        :return: Company's inventory.
+        """
+        inventory: list[Inventory] | None = self.company.inventory
+
+        res: list[InventoryPublic] = []
+
+        for item in inventory:
+            data: dict[str, Any] = {
+                "company_id": item.company_id,
+                "stock": item.stock,
+                "total_amount_spent": item.total_amount_spent,
+                "item": {"item_id": item.item.id, "name": item.item.name},
+            }
+            res.append(InventoryPublic.model_validate(data))
+
+        return {"company_id": self.company.id, "inventory": res}

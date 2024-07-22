@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from enum import IntEnum
 from typing import Any
 
+from fastapi import Query as Check
 from sqlalchemy import Row, RowMapping
 from sqlmodel import Session
 
@@ -20,7 +21,11 @@ class PaginationDefaults(IntEnum):
 class Pagination:
     """Base class for pagination."""
 
-    def __init__(self, page: int = PaginationDefaults.PAGE.value, limit: int = PaginationDefaults.LIMIT.value) -> None:
+    def __init__(
+        self,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
+    ) -> None:
         self.page: int = page
         self.limit: int = limit
 
@@ -36,13 +41,33 @@ class CompanyPagination(Pagination):
 
     def __init__(
         self,
-        page: int = PaginationDefaults.PAGE.value,
-        limit: int = PaginationDefaults.LIMIT.value,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
         *,
         ascending: bool = False,
     ) -> None:
         super().__init__(page=page, limit=limit)
         self.ascending: bool | None = ascending
+
+    def as_dict(self) -> dict[str, Any]:
+        """Get the params as a dict."""
+        return super().as_dict()
+
+
+class ShopPagination(Pagination):
+    """Pagination for getting Shop Items."""
+
+    def __init__(
+        self,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
+        *,
+        ascending: bool = False,
+        sort_by: list[str] | None = Check(default=None, examples=["price", "quantity"]),
+    ) -> None:
+        super().__init__(page=page, limit=limit)
+        self.ascending: bool | None = ascending
+        self.sort_by: list[str] | None = sort_by
 
     def as_dict(self) -> dict[str, Any]:
         """Get the params as a dict."""
