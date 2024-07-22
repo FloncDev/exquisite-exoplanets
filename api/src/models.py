@@ -11,7 +11,7 @@ from sqlmodel import Field, Relationship, SQLModel  # type: ignore[reportUnknown
 class Company(SQLModel, table=True):
     """Model representing a Company in the database."""
 
-    id: int | None = Field(primary_key=True, nullable=False, default=None)
+    id: int | None = Field(primary_key=True, default=None)
     created: datetime = Field(nullable=False, default_factory=datetime.now)
     is_bankrupt: bool = Field(nullable=False, default=False)
     networth: float = Field(nullable=False, default=0)
@@ -29,6 +29,7 @@ class Company(SQLModel, table=True):
 
     # Relationships
     inventory: list["Inventory"] = Relationship(back_populates="company")
+    achievements: list["EarnedAchievements"] = Relationship(back_populates="company")
 
 
 class CompanyCreate(SQLModel):
@@ -67,8 +68,6 @@ class CompanyPublic(SQLModel):
 ###########################
 # COMPANY INVENTORY SCHEMA
 ###########################
-
-
 class Inventory(SQLModel, table=True):
     """Model representing a Company's inventory."""
 
@@ -104,7 +103,7 @@ class Experience(SQLModel):
 class User(SQLModel, table=True):
     """Model representing a User in the database."""
 
-    user_id: int | None = Field(default=None, nullable=False, primary_key=True)
+    user_id: int | None = Field(default=None, primary_key=True)
     registered: datetime | None = Field(nullable=False, default_factory=datetime.now)
     experience: int = Field(default=0, nullable=False)
 
@@ -134,7 +133,7 @@ class UserUpdateExperience(SQLModel):
 class ShopItem(SQLModel, table=True):
     """Model representing a Shop Item."""
 
-    id: int = Field(nullable=False, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(nullable=False, max_length=32)
     price: float = Field(nullable=False, gt=0)
     available_quantity: int = Field(nullable=False, ge=0)
@@ -203,3 +202,63 @@ class ShopItemPurchase(SQLModel):
     company_id: int
     item_id: int
     purchase_quantity: int = Field(gt=0)
+
+
+####################
+# ACHIEVEMENT SCHEMA
+####################
+class Achievement(SQLModel, table=True):
+    """Model representing the details of an Achievement."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+
+    # Relationships
+    companies_earned: list["EarnedAchievements"] = Relationship(back_populates="achievement")
+
+
+class CompanyAchievementPublic(SQLModel):
+    """Model representing the details of an Achievement achieved by a Company."""
+
+    name: str
+    owner_id: int
+    date: datetime
+
+
+class AchievementPublic(SQLModel):
+    """Model representing the details of an Achievement seen when viewing an Achievement."""
+
+    id: int
+    name: str
+    description: str
+    companies_earned: int
+    first_achieved: CompanyAchievementPublic | None
+    latest_achieved: CompanyAchievementPublic | None
+
+
+class AchievementsCompanyPublic(SQLModel):
+    """Model representing the Achievements a Company has achieved."""
+
+    class AchievementSingle(SQLModel):
+        """Model representing the basic details of an Achievement."""
+
+        id: int
+        name: str
+        description: str
+
+    achievements: list[AchievementSingle] | None
+    first_achievement: str
+    latest_achievement: str
+
+
+class EarnedAchievements(SQLModel, table=True):
+    """Model representing a single Achievement earned by a Company."""
+
+    achievement_id: int = Field(foreign_key="achievement.id", primary_key=True)
+    company_id: int = Field(foreign_key="company.id", primary_key=True)
+    achieved: datetime = Field(nullable=False, default_factory=datetime.now)
+
+    # Relationships
+    company: "Company" = Relationship(back_populates="achievements")
+    achievement: "Achievement" = Relationship(back_populates="companies_earned")

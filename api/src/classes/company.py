@@ -1,10 +1,20 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, desc, or_, select
 from src.classes.pagination import CompanyPagination, Paginate
-from src.models import Company, CompanyCreate, CompanyPublic, CompanyUpdate, Inventory, InventoryPublic
+from src.models import (
+    Achievement,
+    AchievementsCompanyPublic,
+    Company,
+    CompanyCreate,
+    CompanyPublic,
+    CompanyUpdate,
+    EarnedAchievements,
+    Inventory,
+    InventoryPublic,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -20,7 +30,7 @@ class CompanyRepresentation:
     @classmethod
     def fetch_company(
         cls, session: Session, *, name: str | None = None, owner_id: int | None = None, company_id: int | None = None
-    ) -> "CompanyRepresentation":
+    ) -> Self:
         """Return instance with target Company, if it exists.
 
         :param company_id: ID of the Company to search for.
@@ -69,7 +79,7 @@ class CompanyRepresentation:
         return paginator.get_page()
 
     @classmethod
-    def create_company(cls, session: Session, data: CompanyCreate) -> "CompanyRepresentation":
+    def create_company(cls, session: Session, data: CompanyCreate) -> Self:
         """Return instance with newly created Company.
 
         If the `owner` already has a company, they cannot create a new one.
@@ -165,3 +175,31 @@ class CompanyRepresentation:
             res.append(InventoryPublic.model_validate(data))
 
         return {"company_id": self.company.id, "inventory": res}
+
+    def get_achievements(self) -> AchievementsCompanyPublic:
+        """Get the Achievements the Company has achieved.
+
+        :return: Company's Achievements.
+        """
+        company_achievements: list[EarnedAchievements] = self.company.achievements
+
+        if not company_achievements:
+            raise HTTPException(status_code=404, detail="Company has not Achievements.")
+
+        achievements_details: list[AchievementsCompanyPublic.AchievementSingle] = []
+        for achievement in company_achievements:
+            ach: Achievement = achievement.achievement
+            details: dict[str, Any] = {"id": ach.id, "name": ach.name, "description": ach.description}
+            achievements_details.append(AchievementsCompanyPublic.AchievementSingle.model_validate(details))
+
+        # Getting the Company's first and latest Achievement
+        company_achievements = sorted(company_achievements, key=lambda x: x.achieved, reverse=False)
+        first_achievement, latest_achievement = company_achievements[0], company_achievements[-1]
+
+        res: dict[str, Any] = {
+            "achievements": achievements_details,
+            "first_achievement": first_achievement.achievement.name,
+            "latest_achievement": latest_achievement.achievement.name,
+        }
+
+        return AchievementsCompanyPublic.model_validate(res)

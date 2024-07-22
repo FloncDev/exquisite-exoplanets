@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from src.classes.company import CompanyRepresentation
 from src.classes.pagination import ShopPagination
@@ -22,8 +22,8 @@ async def get_shop(params: ShopPagination = Depends(), session: Session = Depend
     return ShopRepresentation.fetch_shop(session=session, params=params)
 
 
-@router.post("/shop")
-async def create_shop_item(data: ShopItemCreate, session: Session = Depends(get_session)) -> None:
+@router.post("/shop", status_code=200)
+async def create_shop_item(data: ShopItemCreate, session: Session = Depends(get_session)) -> dict[str, str]:
     """Create a new Item in the Shop.
 
     :param data: Shop Item data.
@@ -31,7 +31,7 @@ async def create_shop_item(data: ShopItemCreate, session: Session = Depends(get_
     :return: None
     """
     ShopRepresentation.create_item(session=session, data=data)
-    raise HTTPException(status_code=200, detail="Shop Item successfully created.")
+    return {"message": "Shop Item successfully created."}
 
 
 @router.get("/shop/{item_id}")
@@ -45,8 +45,12 @@ async def get_shop_item(item_id: int, session: Session = Depends(get_session)) -
     return ShopRepresentation.get_item(item_id=item_id, session=session).get_details()
 
 
-@router.patch("/shop/{item_id}")
-async def update_shop_item(item_id: int, data: ShopItemUpdate, session: Session = Depends(get_session)) -> None:  # noqa: ARG001
+@router.patch("/shop/{item_id}", status_code=200)
+async def update_shop_item(
+    item_id: int,
+    data: ShopItemUpdate,
+    session: Session = Depends(get_session),
+) -> dict[str, str]:
     """Update the target Shop Item with the given Data.
 
     :param item_id: ID of Shop Item to update.
@@ -54,12 +58,14 @@ async def update_shop_item(item_id: int, data: ShopItemUpdate, session: Session 
     :param session: Database session.
     :return: None
     """
-    ShopRepresentation.update_item(session=session, data=data)
-    raise HTTPException(status_code=200, detail="Shop Item successfully updated.")
+    ShopRepresentation.update_item(session=session, data=data, item_id=item_id)
+    return {"message": "Shop Item successfully updated."}
 
 
-@router.post("/shop/{item_id}/buy")
-async def company_purchase_shop_item(item_id: int, data: ShopItemPurchase, session: Session = Depends(get_session)) -> None:
+@router.post("/shop/{item_id}/buy", status_code=200)
+async def company_purchase_shop_item(
+    item_id: int, data: ShopItemPurchase, session: Session = Depends(get_session)
+) -> dict[str, str]:
     """Target company purchases the target item.
 
     :param item_id: ID of Shop Item.
@@ -67,7 +73,11 @@ async def company_purchase_shop_item(item_id: int, data: ShopItemPurchase, sessi
     :param session: Database session.
     :return: None
     """
-    fetched_company: CompanyRepresentation = CompanyRepresentation.fetch_company(session=session, company_id=data.company_id)
-    target_item: ShopRepresentation.ShopItemRepresentation = ShopRepresentation.get_item(session=session, item_id=item_id)
+    fetched_company: CompanyRepresentation = CompanyRepresentation.fetch_company(
+        session=session, company_id=data.company_id
+    )
+    target_item: ShopRepresentation.ShopItemRepresentation = ShopRepresentation.get_item(
+        session=session, item_id=item_id
+    )
     target_item.purchase_item(company=fetched_company.get_company(), data=data)
-    raise HTTPException(status_code=200, detail="Shop Item successfully purchased.")
+    return {"message": "Shop Item successfully purchased."}

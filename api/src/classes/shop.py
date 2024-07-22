@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Self
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
@@ -26,7 +26,7 @@ class ShopRepresentation:
             self.shop_item: ShopItem = shop_item
 
         @classmethod
-        def create_shop_item(cls, session: Session, data: ShopItemCreate) -> "ShopRepresentation.ShopItemRepresentation":
+        def create_shop_item(cls, session: Session, data: ShopItemCreate) -> Self:
             """Create a new Item to be added to the Shop.
 
             :param session: Database session.
@@ -35,7 +35,9 @@ class ShopRepresentation:
             """
             # Checking that an Item with the same name does not exist.
             # If so, raise exception.
-            fetched_shop_item: ShopItem | None = session.exec(select(ShopItem).where(ShopItem.name == data.name)).first()
+            fetched_shop_item: ShopItem | None = session.exec(
+                select(ShopItem).where(ShopItem.name == data.name)
+            ).first()
 
             if fetched_shop_item is not None:
                 raise HTTPException(status_code=409, detail="Shop Item already exists.")
@@ -60,14 +62,16 @@ class ShopRepresentation:
             return cls(session=session, shop_item=new_shop_item)
 
         @classmethod
-        def fetch_shop_item(cls, session: Session, shop_item_id: int) -> "ShopRepresentation.ShopItemRepresentation":
+        def fetch_shop_item(cls, session: Session, shop_item_id: int) -> Self:
             """Fetch the target Shop Item from the database.
 
             :param session: Database session.
             :param shop_item_id: ID of Shop Item to fetch.
             :return: Instance with fetched Shop Item.
             """
-            fetched_shop_item: ShopItem | None = session.exec(select(ShopItem).where(ShopItem.id == shop_item_id)).first()
+            fetched_shop_item: ShopItem | None = session.exec(
+                select(ShopItem).where(ShopItem.id == shop_item_id)
+            ).first()
 
             if fetched_shop_item is None:
                 raise HTTPException(status_code=404, detail="Shop Item not found.")
@@ -89,21 +93,23 @@ class ShopRepresentation:
                 q = q.where(ShopItem.is_disabled) if params.is_disabled else q.where(not_(ShopItem.is_disabled))
 
             # Sort by given type
-            if params.sort_by is not None:
-                for option in params.sort_by:
-                    match option:
-                        case "price":
-                            q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
+            for option in params.sort_by:
+                match option:
+                    case "price":
+                        q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
 
-                        case "quantity":
-                            q = (
-                                q.order_by(desc(ShopItem.available_quantity))
-                                if not params.ascending
-                                else q.order_by(ShopItem.available_quantity)
-                            )
+                    case "quantity":
+                        q = (
+                            q.order_by(desc(ShopItem.available_quantity))
+                            if not params.ascending
+                            else q.order_by(ShopItem.available_quantity)
+                        )
 
-                        case _:
-                            continue
+                    case "name":
+                        q = q.order_by(desc(ShopItem.name)) if not params.ascending else q.order_by(ShopItem.name)
+
+                    case _:
+                        continue
 
             paginator: Paginate = Paginate(query=q, session=session, params=params)
 
@@ -115,7 +121,7 @@ class ShopRepresentation:
             paginator.add_data({"shop_items": res})
             return paginator.get_page()
 
-        def purchase_item(self, company: Company, data: ShopItemPurchase) -> None:  # noqa: PLR0912
+        def purchase_item(self, company: Company, data: ShopItemPurchase) -> None:
             """Add purchased Item to the Company's inventory.
 
             :param data: Data on Shop Item purchase.
@@ -144,11 +150,11 @@ class ShopRepresentation:
                 raise HTTPException(status_code=400, detail="Cannot purchase; insufficient funds.")
 
             # Purchase the item(s)
-            company_inventory: list[Inventory] | None = company.inventory
+            company_inventory: list[Inventory] = company.inventory
 
             if len(company_inventory) == 0:
                 # Add Item to Company Inventory
-                if company.id:
+                if company.id is not None and self.shop_item.id is not None:
                     new_inventory_item: Inventory = Inventory(
                         item_id=self.shop_item.id,
                         company_id=company.id,
@@ -165,7 +171,7 @@ class ShopRepresentation:
 
                 if target_item is None:
                     # Create Inventory entry
-                    if company.id:
+                    if company.id is not None and self.shop_item.id is not None:
                         new_inventory_item: Inventory = Inventory(
                             item_id=self.shop_item.id,
                             company_id=company.id,
@@ -271,15 +277,16 @@ class ShopRepresentation:
         ShopRepresentation.ShopItemRepresentation.create_shop_item(session=session, data=data)
 
     @classmethod
-    def update_item(cls, session: Session, data: ShopItemUpdate) -> None:
+    def update_item(cls, session: Session, data: ShopItemUpdate, item_id: int) -> None:
         """Update the details of a Shop Item.
 
         :param session: Database session.
         :param data: Shop Item data to update.
+        :param item_id: ID of Shop Item to update.
         :return: None
         """
-        target_item: ShopRepresentation.ShopItemRepresentation = ShopRepresentation.ShopItemRepresentation.fetch_shop_item(
-            session=session, shop_item_id=data.item_id
+        target_item: ShopRepresentation.ShopItemRepresentation = (
+            ShopRepresentation.ShopItemRepresentation.fetch_shop_item(session=session, shop_item_id=item_id)
         )
         target_item.update(data=data)
 
