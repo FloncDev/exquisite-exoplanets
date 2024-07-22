@@ -64,10 +64,12 @@ class ShopPagination(Pagination):
         *,
         ascending: bool = False,
         sort_by: list[str] | None = Check(default=None, examples=["price", "quantity"]),
+        is_disabled: bool | None = None,
     ) -> None:
         super().__init__(page=page, limit=limit)
         self.ascending: bool | None = ascending
         self.sort_by: list[str] | None = sort_by
+        self.is_disabled: bool | None = is_disabled
 
     def as_dict(self) -> dict[str, Any]:
         """Get the params as a dict."""

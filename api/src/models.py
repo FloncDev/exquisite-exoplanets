@@ -12,9 +12,9 @@ class Company(SQLModel, table=True):
     """Model representing a Company in the database."""
 
     id: int | None = Field(primary_key=True, nullable=False, default=None)
-    created: datetime | None = Field(nullable=False, default_factory=datetime.now)
-    is_bankrupt: bool | None = Field(nullable=False, default=False)
-    networth: float | None = Field(nullable=False, default=0)
+    created: datetime = Field(nullable=False, default_factory=datetime.now)
+    is_bankrupt: bool = Field(nullable=False, default=False)
+    networth: float = Field(nullable=False, default=0)
     name: str = Field(nullable=False)
     owner_id: int = Field(nullable=False)
 

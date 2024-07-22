@@ -1,5 +1,3 @@
-# pyright: reportUnnecessaryComparison=false
-
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -44,9 +42,7 @@ async def get_shop_item(item_id: int, session: Session = Depends(get_session)) -
     :param session: Database session.
     :return: Fetched Shop Item
     """
-    if (item := ShopRepresentation.get_item(item_id=item_id, session=session)) is not None:
-        return item.get_details()
-    raise HTTPException(status_code=404, detail="Shop Item not found.")
+    return ShopRepresentation.get_item(item_id=item_id, session=session).get_details()
 
 
 @router.patch("/shop/{item_id}")
@@ -73,7 +69,5 @@ async def company_purchase_shop_item(item_id: int, data: ShopItemPurchase, sessi
     """
     fetched_company: CompanyRepresentation = CompanyRepresentation.fetch_company(session=session, company_id=data.company_id)
     target_item: ShopRepresentation.ShopItemRepresentation = ShopRepresentation.get_item(session=session, item_id=item_id)
-
-    if (c := fetched_company.get_company()) is not None:
-        target_item.purchase_item(company=c, data=data)
+    target_item.purchase_item(company=fetched_company.get_company(), data=data)
     raise HTTPException(status_code=200, detail="Shop Item successfully purchased.")

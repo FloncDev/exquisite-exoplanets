@@ -1,14 +1,8 @@
-# pyright: reportOptionalMemberAccess=false
-# pyright: reportUnnecessaryComparison=false
-# pyright: reportOperatorIssue=false
-# pyright: reportArgumentType=false
-
-
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, desc, select
+from sqlmodel import Session, desc, not_, select
 from src.classes.pagination import Paginate, ShopPagination
 from src.models import (
     Company,
@@ -27,9 +21,9 @@ class ShopRepresentation:
     class ShopItemRepresentation:
         """Class that represents a single `item` found in the Shop."""
 
-        def __init__(self, session: Session, *, shop_item: ShopItem | None = None) -> None:
+        def __init__(self, session: Session, shop_item: ShopItem) -> None:
             self.session: Session = session
-            self.shop_item: ShopItem | None = shop_item
+            self.shop_item: ShopItem = shop_item
 
         @classmethod
         def create_shop_item(cls, session: Session, data: ShopItemCreate) -> "ShopRepresentation.ShopItemRepresentation":
@@ -88,7 +82,11 @@ class ShopRepresentation:
             :param params: Pagination parameters.
             :return: Fetched Shop Items.
             """
-            q: Any = select(ShopItem).where(not bool(ShopItem.is_disabled))
+            q: Any = select(ShopItem)
+
+            # Get by status
+            if params.is_disabled is not None:
+                q = q.where(ShopItem.is_disabled) if params.is_disabled else q.where(not_(ShopItem.is_disabled))
 
             # Sort by given type
             if params.sort_by is not None:
@@ -142,7 +140,7 @@ class ShopRepresentation:
 
             # Check that the User can purchase the Item.
             purchase_cost: float = self.shop_item.price * data.purchase_quantity
-            if purchase_cost > company.networth or company.networth is None:
+            if purchase_cost > company.networth:
                 raise HTTPException(status_code=400, detail="Cannot purchase; insufficient funds.")
 
             # Purchase the item(s)
@@ -150,13 +148,14 @@ class ShopRepresentation:
 
             if len(company_inventory) == 0:
                 # Add Item to Company Inventory
-                new_inventory_item: Inventory = Inventory(
-                    item_id=self.shop_item.id,
-                    company_id=company.id,
-                    stock=data.purchase_quantity,
-                    total_amount_spent=purchase_cost,
-                )
-                self.session.add(new_inventory_item)
+                if company.id:
+                    new_inventory_item: Inventory = Inventory(
+                        item_id=self.shop_item.id,
+                        company_id=company.id,
+                        stock=data.purchase_quantity,
+                        total_amount_spent=purchase_cost,
+                    )
+                    self.session.add(new_inventory_item)
 
             else:
                 # Check if the items is present, if not, add it.
@@ -166,13 +165,14 @@ class ShopRepresentation:
 
                 if target_item is None:
                     # Create Inventory entry
-                    new_inventory_item: Inventory = Inventory(
-                        item_id=self.shop_item.id,
-                        company_id=company.id,
-                        stock=data.purchase_quantity,
-                        total_amount_spent=purchase_cost,
-                    )
-                    self.session.add(new_inventory_item)
+                    if company.id:
+                        new_inventory_item: Inventory = Inventory(
+                            item_id=self.shop_item.id,
+                            company_id=company.id,
+                            stock=data.purchase_quantity,
+                            total_amount_spent=purchase_cost,
+                        )
+                        self.session.add(new_inventory_item)
 
                 else:
                     # Update inventory
@@ -187,14 +187,10 @@ class ShopRepresentation:
             self.session.add(self.shop_item)
 
             # Update the Company
-            if company.networth is not None:
-                company.networth -= purchase_cost
-                if company.networth < 1:
-                    company.is_bankrupt = True
+            company.networth -= purchase_cost
+            if company.networth < 1:
+                company.is_bankrupt = True
                 self.session.add(company)
-
-            else:
-                raise HTTPException(status_code=400, detail="Unable to purchase Shop Item.")
 
             # Save changes
             try:
@@ -204,21 +200,19 @@ class ShopRepresentation:
                 self.session.rollback()
                 raise HTTPException(status_code=400, detail="Unable to purchase Shop Item.") from None
 
-        def get_shop_item(self) -> ShopItem | None:
+        def get_shop_item(self) -> ShopItem:
             """Get the Shop Item bound to the instance.
 
             :return: Bound Shop Item.
             """
             return self.shop_item
 
-        def get_details(self) -> ShopItemPublic | None:
+        def get_details(self) -> ShopItemPublic:
             """Get the details of the Shop Item.
 
             :return: Shop Item details.
             """
-            if self.shop_item is not None:
-                return ShopItemPublic.model_validate(self.shop_item)
-            return None
+            return ShopItemPublic.model_validate(self.shop_item)
 
         def update(self, data: ShopItemUpdate) -> None:
             """Update the details of the Shop Item.

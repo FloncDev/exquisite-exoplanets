@@ -43,6 +43,9 @@ ignore = [
   "B008",
   # Naming too complex
   "C901",
+  # Arguments
+  "PLR0913",
+  "PLR0912",
 ]
 
 

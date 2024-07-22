@@ -1,5 +1,3 @@
-# pyright: reportOptionalMemberAccess=false
-
 from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
@@ -15,9 +13,9 @@ if TYPE_CHECKING:
 class CompanyRepresentation:
     """Class that represents a `company` that is stored in the database."""
 
-    def __init__(self, session: Session, *, company: Company | None = None) -> None:
+    def __init__(self, session: Session, company: Company) -> None:
         self.session: Session = session
-        self.company: Company | None = company
+        self.company: Company = company
 
     @classmethod
     def fetch_company(
@@ -101,21 +99,19 @@ class CompanyRepresentation:
 
         return cls(session=session, company=new_company)
 
-    def get_company(self) -> Company | None:
+    def get_company(self) -> Company:
         """Get the Company model bound to the instance.
 
         :return: Bound Company model.
         """
         return self.company
 
-    def get_details(self) -> CompanyPublic | None:
+    def get_details(self) -> CompanyPublic:
         """Get the details of the Company.
 
         :return: Company details.
         """
-        if self.company is not None:
-            return CompanyPublic.model_validate(self.company)
-        return None
+        return CompanyPublic.model_validate(self.company)
 
     def update(self, data: CompanyUpdate) -> None:
         """Update the Company's details.
