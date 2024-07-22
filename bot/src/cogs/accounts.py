@@ -3,12 +3,14 @@ from discord import option
 from discord.ext import commands
 
 from src.context import Context
+from src.main import Client
+from src.wrapper.error import DoNotExistError
 
 
 class Accounts(commands.Cog):
     """Cog to handle basic account functions."""
 
-    def __init__(self, client: commands.Bot) -> None:
+    def __init__(self, client: Client) -> None:
         self.client = client
         self.XP_BAR_WIDTH = 15  # Width of XP bar in chars
 
@@ -40,11 +42,15 @@ class Accounts(commands.Cog):
         embed = discord.Embed(title=f"{user.name}'s account")
         embed.set_thumbnail(url=avatar)
 
-        # TODO: Use API calls once they have been implemented
-        # For now, it's just dummy data
-        level = 10
-        experience = 123
-        experience_needed = 200
+        try:
+            account = await self.client.interface.user.get_user(user.id)
+        except DoNotExistError:
+            await ctx.error("You do not have an account! Please run `/company create`.")
+            return
+
+        level = account.experience.level
+        experience = account.experience.experience
+        experience_needed = 999  # TODO: Change once implemented
 
         progress = int((experience / experience_needed) * self.XP_BAR_WIDTH)
         progress_needed = self.XP_BAR_WIDTH - progress
@@ -55,6 +61,7 @@ class Accounts(commands.Cog):
 
         embed.add_field(name="Account Level", value=level_text, inline=True)
 
+        # TODO: Change once implemented
         company = "Mining Inc."
 
         embed.add_field(name="Current Company", value=company, inline=True)
@@ -62,5 +69,5 @@ class Accounts(commands.Cog):
         await ctx.respond(embed=embed)
 
 
-def setup(client: commands.Bot) -> None:
+def setup(client: Client) -> None:
     client.add_cog(Accounts(client))
