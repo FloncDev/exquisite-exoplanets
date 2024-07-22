@@ -10,7 +10,7 @@ from ._api_schema import CompanyGetIdOutput, RawExperience, RawShopItem, RawUser
 class Company:
     """A dataclass for basic company information from /company endpoint."""
 
-    company_name: str
+    name: str
     owner_id: int
     created_date: datetime.datetime
     current_networth: decimal.Decimal | None = field(default_factory=decimal.Decimal)
@@ -20,7 +20,7 @@ class Company:
     def from_dict(cls, src: CompanyGetIdOutput) -> Self:
         """Convert json from http endpoint to Company object."""
         return cls(
-            company_name=src["company_name"],
+            name=src["company_name"],
             owner_id=src["owner_id"],
             created_date=datetime.datetime.fromisoformat(src["created_date"]),
             current_networth=decimal.Decimal(src["current_networth"]),
