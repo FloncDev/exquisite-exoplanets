@@ -223,7 +223,7 @@ class UserRawAPI:
         """Get the User information by user id through direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdGetOutput:
-            async with session.get(f"user/{user_id}") as resp:
+            async with session.get(f"/user/{user_id}") as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
@@ -239,7 +239,7 @@ class UserRawAPI:
         """Create the user by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> None:
-            async with session.post(f"user/{user_id}") as resp:
+            async with session.post(f"/user/{user_id}") as resp:
                 if resp.ok:
                     return
                 if resp.status == Status.CONFLICT:
@@ -257,7 +257,7 @@ class UserRawAPI:
         """Update the user experience by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
-            async with session.patch(f"user/{user_id}/experience/add", json=src) as resp:
+            async with session.patch(f"/user/{user_id}/experience/add", json=src) as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:

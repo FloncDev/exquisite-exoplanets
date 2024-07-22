@@ -9,3 +9,8 @@ services:
       - .env
     ports:
       - 8000:80
+  snekbox:
+    image: ghcr.io/python-discord/snekbox:latest
+    ports:
+      - "8060:8060"
+    privileged: true
