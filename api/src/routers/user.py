@@ -15,7 +15,7 @@ router = APIRouter()
 @router.get("/user/{user_id}")
 async def get_user(
     user_id: int,
-    session: Session = Depends(get_session),  # noqa: B008
+    session: Session = Depends(get_session),
 ) -> UserPublic:
     """Endpoint to retrieve an existing user.
 
@@ -33,7 +33,7 @@ async def get_user(
 @router.post("/user/{user_id}")
 async def create_user(
     user_id: int,
-    session: Session = Depends(get_session),  # noqa: B008
+    session: Session = Depends(get_session),
 ) -> UserCreatePublic:
     """Endpoint to register a new user.
 
@@ -55,7 +55,7 @@ async def create_user(
 @router.get("/user/{user_id}/experience")
 async def get_user_experience(
     user_id: int,
-    session: Session = Depends(get_session),  # noqa: B008
+    session: Session = Depends(get_session),
 ) -> Experience:
     """Endpoint to retrieve the given User's experience.
 
@@ -74,7 +74,7 @@ async def get_user_experience(
 async def update_user_experience(
     user_id: int,
     new_experience: UserUpdateExperience,
-    session: Session = Depends(get_session),  # noqa: B008
+    session: Session = Depends(get_session),
 ) -> Experience:
     """Endpoint to update the given User's experience.
 
