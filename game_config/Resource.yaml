@@ -1,52 +1,50 @@
 # resource template
-ResourceID:
-  name: 'ResourceName'
-  min_tier: [0, inf]
-  sell_price: [0, inf] # unit price by cubic meter
-  xp_on_collection: [0, inf]
-  # probability of making the resource appear on a planet, scaling with planet tier
-  apparition_probability: [0,1]
-  tier_apparition_upscale: [1,inf]
-  # initial density of the material appearing on the planet, increasing with tier
-  init_density: [0,1]
-  tier_density_upscale: [1,inf]
-  # the rate at which the density decreases each time the resource is collected
-  # options
-  #   - linear : a fixed amount is removed each time
-  #   - exponential : the amount removed scales down with the density (density(t)=init_density*exp(-t/factor))
-  #   - geometric : the density is multiplied by a factor < 1 each time
-  #   - random : a random amount is removed from the density, the distribution is normal around the factor, and there
-  #   is always a non-zero probability to extract everything at once
-  density_decay_function: 'linear'
-  density_decay_factor: [-inf, inf]  # depends on the decay function
+#ResourceID:
+#  name: 'ResourceName'
+#  min_tier: [0, inf]
+#  unit_price: [0, inf] # unit price by cubic meter
+#  unit_xp: [0, inf]
+#  # probability of making the resource appear on a planet, scaling with planet tier
+#  apparition_probability: [0,1]
+#  tier_apparition_upscale: [1,inf]
+#  # initial density of the material appearing on the planet, increasing with tier
+#  init_density: [0,1]
+#  tier_density_upscale: [1,inf]
+#  # the rate at which the density decreases each time the resource is collected
+#  # options
+#  #   - linear : a fixed amount is removed each time
+#  #   - exponential : the amount removed scales down with the density (density(t)=init_density*exp(-t/factor))
+#  #   - geometric : the density is multiplied by a factor < 1 each time
+#  decay_function: 'linear'
+#  decay_factor: [-inf, inf]  # depends on the decay function
 
 WO00:
   name: 'Wood'
   min_tier: 0
-  sell_price: 60
-  xp_on_collection: 1
+  unit_price: 60
+  unit_xp: 1
   # probability of making the resource appear on a planet, scaling with planet tier
   apparition_probability: 0.5
   tier_apparition_upscale: 1.01
   # initial density of the material appearing on the planet, increasing with tier
-  init_density: 0.7
-  tier_density_upscale: 1.01
-  density_decay_function: 'geometric'
-  density_decay_factor: 0.95
+  init_units: 100
+  tier_units_upscale: 1.01
+  decay_function: 'geometric'
+  decay_factor: 0.95
 
 IR01:
   name: 'Iron'
   min_tier: 1
-  sell_price: 60
-  xp_on_collection: 2
+  unit_price: 60
+  unit_xp: 2
   # probability of making the resource appear on a planet, scaling with planet tier
   apparition_probability: 0.5
   tier_apparition_upscale: 1.01
   # initial density of the material appearing on the planet, increasing with tier
   init_density: 0.7
   tier_density_upscale: 1.01
-  density_decay_function: 'geometric'
-  density_decay_factor: 0.95
+  decay_function: 'geometric'
+  decay_factor: 0.95
 
 
 
