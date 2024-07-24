@@ -1,56 +1,78 @@
-import random
-
-import yaml
-import os
 import logging
 import math
 import warnings
 from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
-from __init__ import root
+import yaml
 
 yaml_logger = logging.getLogger(__name__)
+root = Path("../..")
 
 
 class YamlReader:
-    def __init__(self, filename: str):
-        if not filename.endswith('.yaml'):
-            raise ValueError('Wrong file type, must be `.yaml` extension')
+    """Class to read YAML config files."""
 
-        filepath = os.path.join(root, 'game_config', filename)
+    def __init__(self, filename: str) -> None:
+        if not filename.endswith(".yaml"):
+            error = "Wrong file type, must be `.yaml` extension"
+            raise ValueError(error)
+
+        filepath = root.joinpath("game_config", filename)
         yaml_logger.debug(f"reading {filename}")
-        with open(filepath, 'r') as file:
+        with filepath.open() as file:
             self.contents = yaml.safe_load(file)
 
         self.parse_special(self.contents)
 
-    def parse_special(self,
-                      cursor: dict):
+    def parse_special(self, cursor: dict[str, Any]) -> None:
+        """Parse special YAML content."""
         for attr, value in cursor.items():
             if isinstance(value, dict):
-                self.parse_special(cursor=value)
-            elif attr == 'decay_function':
-                if "decay_factor" not in cursor.keys():
-                    warnings.warn("Provided a decay function without a factor")
+                self.parse_special(
+                    cursor=value  # pyright: ignore[reportUnknownArgumentType]
+                )
+            elif attr == "decay_function":
+                if "decay_factor" not in cursor:
+                    warnings.warn(
+                        "Provided a decay function without a factor", stacklevel=2
+                    )
                 cursor[attr] = self.str_to_decay_function(value, cursor["decay_factor"])
 
     @staticmethod
-    def str_to_decay_function(fct_name: str,
-                              factor: float,
-                              ) -> Callable[[float, int], float]:
-        """
-        function signature : (epoch:int) → (resources left: float)
+    def str_to_decay_function(
+        fct_name: str,
+        factor: float,
+    ) -> Callable[[float, int], float]:
+        """Match a string to a decay function.
+
+        :param fct_name: Decay function name
+        :returns: (epoch, int) -> (resources left: float)
+
         """
         match fct_name:
-            case 'linear':
-                if 0 >= factor:
-                    raise ValueError(f'Linear factor must be strictly positive')
-                return lambda init_units, x: init_units - x*factor
-            case 'geometric':
+            case "linear":
+                if factor <= 0:
+                    error = "Linear factor must be strictly positive"
+                    raise ValueError(error)
+
+                return lambda init_units, x: init_units - x * factor
+
+            case "geometric":
                 if not 0 <= factor < 1:
-                    raise ValueError(f'Geometric factor must be in [0, 1[')
+                    error = "Geometric factor must be in [0, 1]"
+                    raise ValueError(error)
+
                 return lambda init_units, x: init_units * factor**x
-            case 'exponential':
-                if 0 >= factor:
-                    raise ValueError(f'Exponential factor must be strictly positive')
+
+            case "exponential":
+                if factor <= 0:
+                    error = "Exponential factor must be strictly positive"
+                    raise ValueError(error)
+
                 return lambda init_units, x: init_units * math.exp(-x / factor)
+
+            case _:
+                error = "Unknown fct_name"
+                raise ValueError(error)
