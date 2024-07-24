@@ -22,7 +22,7 @@ class YamlReader:
         filepath = root.joinpath("game_config", filename)
         yaml_logger.debug(f"reading {filename}")
         with filepath.open() as file:
-            self.contents = yaml.safe_load(file)
+            self.contents: dict[str, Any] = yaml.safe_load(file)
 
         self.parse_special(self.contents)
 
