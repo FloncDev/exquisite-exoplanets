@@ -1,43 +1,22 @@
-import datetime
 import logging
-from Planet import Planet
-from Resource import Resource
+from datetime import UTC, datetime
 
 company_logger = logging.getLogger(__name__)
 
 
 class Company:
+    """Class reprisenting a company in game."""
 
-    def __init__(self, name: str, owner: str):
-        self.__name = name
-        self.__owner = owner
-        self.__join_date = datetime.datetime.now()
-        self.__balance = 0
-        self.__planets = []
-        self.__inventory = []
-        self.__collectors = []
+    def __init__(self, name: str, owner: str) -> None:
+        self.name = name
+        self.owner = owner
+        self.join_date = datetime.now(tz=UTC)
+        self.balance = 0
+        self.planets = []
+        self.inventory = []
+        self.collectors = []
 
-    def is_bankrupt(self):
-        return self.__balance <= 0
-
-    def get_name(self):
-        return self.__name
-
-    def get_owner(self):
-        return self.__owner
-
-    def get_join_date(self):
-        return self.__join_date
-
-    def get_balance(self):
-        return self.__balance
-
-    def get_planets(self):
-        for planet in self.__planets:
-            yield planet
-
-    def get_collectors(self):
-        for collector in self.__collectors:
-            yield collector
-
-
+    @property
+    def is_bankrupt(self) -> bool:
+        """Returns True if balance <= 0."""
+        return self.balance <= 0
