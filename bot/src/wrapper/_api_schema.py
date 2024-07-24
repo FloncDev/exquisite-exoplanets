@@ -95,3 +95,23 @@ class UserIdExperiencePostInput(TypedDict):
 
 
 type UserIdExperiencePostOutput = UserIdExperiencePatchOutput
+
+
+class RawAchievementRecord(TypedDict):
+    name: str
+    owner_id: int
+    date: str
+
+
+class RawAchievement(TypedDict):
+    id: int
+    name: str
+    description: str
+    companies_earned: int
+    first_achieved: RawAchievementRecord | None
+    latest_achieved: RawAchievementRecord | None
+
+
+type AchievementGetOutput = list[RawAchievement]
+
+type AchievementIdGetOutput = RawAchievement
