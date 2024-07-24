@@ -26,8 +26,7 @@ class Resource:
         self.unit_price = self._matconf["unit_price"]
         self.unit_xp = self._matconf["unit_xp"]
         self.apparition_probability = min(
-            self._matconf["apparition_probability"]
-            * self._matconf["tier_apparition_upscale"] ** tier,
+            self._matconf["apparition_probability"] * self._matconf["tier_apparition_upscale"] ** tier,
             1,
         )
         self.init_units = (
@@ -35,9 +34,7 @@ class Resource:
             * self._matconf["tier_units_upscale"] ** tier
             * random.normalvariate(0.5, 1 / 60)
         )
-        self.decay_function: Callable[[float, int], float] = self._matconf[
-            "decay_function"
-        ]
+        self.decay_function: Callable[[float, int], float] = self._matconf["decay_function"]
         self.epoch = 0
 
     def get_units_left(self) -> float:

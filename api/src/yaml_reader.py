@@ -35,9 +35,7 @@ class YamlReader:
                 )
             elif attr == "decay_function":
                 if "decay_factor" not in cursor:
-                    warnings.warn(
-                        "Provided a decay function without a factor", stacklevel=2
-                    )
+                    warnings.warn("Provided a decay function without a factor", stacklevel=2)
                 cursor[attr] = self.str_to_decay_function(value, cursor["decay_factor"])
 
     @staticmethod
