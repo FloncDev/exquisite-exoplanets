@@ -27,7 +27,7 @@ async def get_user(
 
     if user is None:
         raise HTTPException(404, "User not found")
-    return user  # type: ignore  # noqa: PGH003
+    return UserPublic(user_id=user.user_id, experience=Experience(experience=user.experience))  # type: ignore[reportArgumentType]
 
 
 @router.post("/user/{user_id}")

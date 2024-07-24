@@ -112,7 +112,7 @@ class UserPublic(SQLModel):
     """Model representing a User that can be returned."""
 
     user_id: int
-    experience: int
+    experience: Experience
 
 
 class UserCreatePublic(SQLModel):
