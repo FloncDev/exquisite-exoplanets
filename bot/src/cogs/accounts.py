@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from src.context import Context
 from src.main import Client
-from src.wrapper.error import DoNotExistError
+from src.wrapper.error import DoesNotExistError
 
 
 class Accounts(commands.Cog):
@@ -44,7 +44,7 @@ class Accounts(commands.Cog):
 
         try:
             account = await self.client.interface.user.get_user(user.id)
-        except DoNotExistError:
+        except DoesNotExistError:
             await ctx.error("You do not have an account! Please run `/company create`.")
             return
 
