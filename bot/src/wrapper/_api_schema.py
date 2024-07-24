@@ -28,11 +28,16 @@ type BatchCompaniesOutput = list[CompanyGetIdOutput]
 """JSON data for GET /companies endpoint output"""
 
 
-class RawShopItem(TypedDict):
-    """A item object from the shop."""
+class RawItem(TypedDict):
+    """A item object."""
 
     item_id: int
     item_name: str
+
+
+class RawShopItem(TypedDict):
+    """A item object from the shop."""
+
     item_price: float
     item_quantity: int
 
