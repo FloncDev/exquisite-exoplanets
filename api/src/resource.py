@@ -1,41 +1,54 @@
-from YamlReader import YamlReader
 import logging
 import random
-from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
+from src import YamlReader
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 resource_logger = logging.getLogger(__name__)
 
 
 class Resource:
-    __config: dict = YamlReader('Resource.yaml').contents
+    """Class reprisenting an in game resource."""
 
-    def __init__(self,
-                 mat_id: str,
-                 tier: int = 0):
-        self.__matconf = self.__config[mat_id]
-        self.__name = self.__matconf["name"]
-        if tier < self.__matconf["min_tier"]:
-            raise ValueError("Tier must be greater than minimum tier")
-        else:
-            self.__tier = tier
-        self.__unit_price = self.__matconf["unit_price"]
-        self.__unit_xp = self.__matconf["unit_xp"]
-        self.__apparition_probability = min(self.__matconf["apparition_probability"]
-                                            * self.__matconf["tier_apparition_upscale"] ** tier, 1)
-        self.__init_units = (self.__matconf["init_units"] * self.__matconf["tier_units_upscale"] ** tier
-                             * random.normalvariate(0.5, 1 / 60))
-        self.__decay_function: Callable[[float, int], float] = self.__matconf["decay_function"]
-        self.__epoch = 0
+    _config: dict[str, Any] = YamlReader("Resource.yaml").contents
 
-    def get_units_left(self):
-        return self.__decay_function(self.__init_units, self.__epoch)
+    def __init__(self, mat_id: str, tier: int = 0) -> None:
+        self._matconf = self._config[mat_id]
+        self.name = self._matconf["name"]
+        if tier < self._matconf["min_tier"]:
+            error = "Tier must be greater than minimum tier"
+            raise ValueError(error)
 
-    def get_units_collected(self):
-        return self.__init_units - self.get_units_left()
+        self._tier = tier
+        self.unit_price = self._matconf["unit_price"]
+        self.unit_xp = self._matconf["unit_xp"]
+        self.apparition_probability = min(
+            self._matconf["apparition_probability"]
+            * self._matconf["tier_apparition_upscale"] ** tier,
+            1,
+        )
+        self.init_units = (
+            self._matconf["init_units"]
+            * self._matconf["tier_units_upscale"] ** tier
+            * random.normalvariate(0.5, 1 / 60)
+        )
+        self.decay_function: Callable[[float, int], float] = self._matconf[
+            "decay_function"
+        ]
+        self.epoch = 0
 
-    def collect(self,
-                n: int = 1):
-        self.__epoch += n
+    def get_units_left(self) -> float:
+        """Get the amount of units left."""
+        return self.decay_function(self.init_units, self.epoch)
+
+    def get_units_collected(self) -> float:
+        """Get the amount of units collected."""
+        return self.init_units - self.get_units_left()
+
+    def collect(self, n: int = 1) -> float:
+        """Collect resources."""
+        self.epoch += n
         return self.get_units_collected()
-
-
