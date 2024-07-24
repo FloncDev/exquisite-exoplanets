@@ -35,11 +35,19 @@ class RawItem(TypedDict):
     item_name: str
 
 
-class RawShopItem(TypedDict):
+class RawShopItem(RawItem):
     """A item object from the shop."""
 
     item_price: float
     item_quantity: int
+
+
+class RawInventoryItem(TypedDict):
+    """A representation of an item owned by the company."""
+
+    stock: int
+    total_amount_spent: float
+    item: RawItem
 
 
 type ShopGetOutput = list[RawShopItem]
