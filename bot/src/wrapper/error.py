@@ -14,7 +14,7 @@ class AlreadyExistError(NetworkError, FileExistsError):
     """The error which represent the material the client attempted to create already exist on the server."""
 
 
-class DoNotExistError(NetworkError, FileNotFoundError):
+class DoesNotExistError(NetworkError, FileNotFoundError):
     """The error which represent the requested material do not exist on the server."""
 
 

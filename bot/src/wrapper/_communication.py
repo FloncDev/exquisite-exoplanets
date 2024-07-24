@@ -16,7 +16,7 @@ from ._api_schema import (  # Company
     UserIdExperiencePatchOutput,  # User
     UserIdGetOutput,
 )
-from .error import AlreadyExistError, DoNotExistError, UnknownNetworkError, UserError
+from .error import AlreadyExistError, DoesNotExistError, UnknownNetworkError, UserError
 
 
 async def make_request[T](
@@ -76,7 +76,7 @@ class CompanyRawAPI:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = "This user doesn't own a company"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.get_company, Status received {resp.status}"
                 )
@@ -96,7 +96,7 @@ class CompanyRawAPI:
                     return
                 if resp.status == Status.NOT_FOUND:
                     message = "This user doesn't own a company"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.CompanyRawAPI.edit_company_name, "
                     f"Status received {resp.status}"
@@ -117,7 +117,7 @@ class CompanyRawAPI:
                     return
                 if resp.status == Status.NOT_FOUND:
                     message = "This user doesn't own a company"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.delete_company, Status received {resp.status}"
                 )
@@ -139,7 +139,7 @@ class CompanyRawAPI:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = "No company found"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.list_companies, Status received {resp.status}"
                 )
@@ -180,7 +180,7 @@ class ShopRawAPI:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = f"Item with item id: {item_id} not found"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.get_shop_item, Status received {resp.status}"
                 )
@@ -204,7 +204,7 @@ class ShopRawAPI:
                     raise UserError(message)  # Should probably do further check on this
                 if resp.status == Status.NOT_FOUND:
                     message = f"Item with item id: {item_id} not found"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.purchase_shop_item, Status received {resp.status}"
                 )
@@ -221,12 +221,12 @@ class UserRawAPI:
         """Get the User information by user id through direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdGetOutput:
-            async with session.get(f"user/{user_id}") as resp:
+            async with session.get(f"/user/{user_id}") as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = f"User with user id {user_id} cannot be found"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = f"Undefined behaviour bot.src.wrapper.UserRawAPI.get_user, Status received {resp.status}"
                 raise UnknownNetworkError(message)
 
@@ -237,7 +237,7 @@ class UserRawAPI:
         """Create the user by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> None:
-            async with session.post(f"user/{user_id}") as resp:
+            async with session.post(f"/user/{user_id}") as resp:
                 if resp.ok:
                     return
                 if resp.status == Status.CONFLICT:
@@ -255,12 +255,12 @@ class UserRawAPI:
         """Update the user experience by user id through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> UserIdExperiencePatchOutput:
-            async with session.post(f"user/{user_id}/experience", json=src) as resp:
+            async with session.post(f"/user/{user_id}/experience", json=src) as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
                     message = f"User with user id {user_id} cannot be found"
-                    raise DoNotExistError(message)
+                    raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.UserRawAPI.update_user_experience,"
                     f" Status received {resp.status}"

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import aiohttp
 
 from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
-from .error import DoNotExistError
+from .error import DoesNotExistError
 from .schema import Company, ShopItem, User
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class CompanyAPI(BaseAPI):
 
         :raise AlreadyExistError: Raise when the company name is already being used by other user,
          or the user already own a company
-        :raise DoNotExistError: The company cannot be found after an attempt of creation
+        :raise DoesNotExistError: The company cannot be found after an attempt of creation
         """
         src: CompanyPostInput = {"company_name": company_name, "owner_id": user_id}
         await CompanyRawAPI.create_company(self.parent.session, src)
@@ -40,7 +40,7 @@ class CompanyAPI(BaseAPI):
     async def get_company(self, user_id: int) -> Company:
         """Get the company from user id.
 
-        :raise DoNotExistError: The user cannot be found from the given user_id
+        :raise DoesNotExistError: The user cannot be found from the given user_id
         """
         out: CompanyGetIdOutput = await CompanyRawAPI.get_company(self.parent.session, user_id)
         return Company.from_dict(out)
@@ -48,7 +48,7 @@ class CompanyAPI(BaseAPI):
     async def edit_company_name(self, company: Company | int, new_name: str) -> Company:
         """Edit the company name with the given user id.
 
-        :raise DoNotExistError: The company cannot be found
+        :raise DoesNotExistError: The company cannot be found
         """
         if isinstance(company, Company):
             user_id: int = company.owner_id
@@ -61,7 +61,7 @@ class CompanyAPI(BaseAPI):
     async def delete_company(self, company: Company | int) -> None:
         """Delete the company with the given Company object or user ID.
 
-        :raise DoNotExistError: The company cannot be found
+        :raise DoesNotExistError: The company cannot be found
         """
         if isinstance(company, Company):
             user_id: int = company.owner_id
@@ -72,7 +72,7 @@ class CompanyAPI(BaseAPI):
     async def list_companies(self, page: int = 1, limit: int = 10) -> list[Company]:
         """List companies from the database using paginator.
 
-        :raise DoNotExistError: Reach the end of the paginator where no more company could be displayed
+        :raise DoesNotExistError: Reach the end of the paginator where no more company could be displayed
         """
         return [
             Company.from_dict(out)
@@ -87,7 +87,7 @@ class CompanyAPI(BaseAPI):
                 for company in await self.list_companies(page=page):
                     yield company
                 page += 1
-            except DoNotExistError:
+            except DoesNotExistError:
                 return
 
 
@@ -106,14 +106,14 @@ class ShopAPI(BaseAPI):
     async def get_shop_item(self, item_id: int) -> ShopItem:
         """Get a specific shop item.
 
-        :raise DoNotExistError: The item cannot be found with the item_id
+        :raise DoesNotExistError: The item cannot be found with the item_id
         """
         return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
 
     async def purchase(self, item: ShopItem | int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company.
 
-        :raise DoNotExistError: The company the user own cannot be found or the item cannot be found
+        :raise DoesNotExistError: The company the user own cannot be found or the item cannot be found
         :raise UserError: The company doesn't have enough balance to purchase the item
         """
         if isinstance(item, ShopItem):
@@ -136,7 +136,7 @@ class UserAPI(BaseAPI):
         :param user_id: A user id for the user to be registered
         :return: A `User` object
         :raise AlreadyExistError: Raise when the user already existed
-        :raise DoNotExistError: The user cannot be found after an attempt of registration
+        :raise DoesNotExistError: The user cannot be found after an attempt of registration
         """
         await UserRawAPI.create_user(self.parent.session, user_id)
         return await self.get_user(user_id)
@@ -146,7 +146,7 @@ class UserAPI(BaseAPI):
 
         :param user: A `User` object or a user id
         :return: A `User` object
-        :raise DoNotExistError: The user cannot be found
+        :raise DoesNotExistError: The user cannot be found
         """
         if isinstance(user, User):
             user_id: int = user.user_id
@@ -162,7 +162,7 @@ class UserAPI(BaseAPI):
         :param exp: the added experience to the user
         :return: A boolean value represent whether the user have upgraded, and
          User represent an updated user after adding experience
-        :raise DoNotExistError: The user cannot be found
+        :raise DoesNotExistError: The user cannot be found
         """
         if isinstance(user, User):
             user_id: int = user.user_id
