@@ -184,7 +184,7 @@ class CompanyRepresentation:
         company_achievements: list[EarnedAchievements] = self.company.achievements
 
         if not company_achievements:
-            raise HTTPException(status_code=404, detail="Company has not Achievements.")
+            raise HTTPException(status_code=404, detail="Company has no Achievements.")
 
         achievements_details: list[AchievementsCompanyPublic.AchievementSingle] = []
         for achievement in company_achievements:

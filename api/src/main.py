@@ -29,7 +29,7 @@ def _populate_achievements() -> None:
         name="Reach level 30.", description="Achievement earned when reaching Level 30."
     )
     reach_leaderboard: AchievementModel = AchievementModel(
-        name="Leaderboard Achieved!", description="Achievement earned when finding your way onto the Leaderboard!"
+        name="Leaderboard Achieved!", description="Achievement earned after finding your way onto the Leaderboard!"
     )
 
     all_achievements: list[AchievementModel] = [
