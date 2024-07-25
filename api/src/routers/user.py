@@ -30,11 +30,8 @@ async def get_user(
     if user is None:
         raise HTTPException(404, "User not found")
     return UserPublic(
-        user_id=user.user_id,
-        experience=Experience(
-            level=Experience.level_from_experience(user.experience),
-            experience=user.experience
-        )
+        user_id=user_id,
+        experience=Experience(level=Experience.level_from_experience(user.experience), experience=user.experience),
     )
 
 
