@@ -113,11 +113,19 @@ class User(SQLModel, table=True):
     experience: int = Field(default=0, nullable=False)
 
 
+class UserExperienceReturn(SQLModel):
+    """Model representing the data used set a user's experience."""
+
+    level_up: bool
+    new_level: int
+    new_experience: int
+
+
 class UserPublic(SQLModel):
     """Model representing a User that can be returned."""
 
     user_id: int
-    experience: Experience
+    experience: UserExperienceReturn
 
 
 class UserCreatePublic(SQLModel):
@@ -136,14 +144,6 @@ class UserSetExperience(SQLModel):
     """Model representing the data used set a user's experience."""
 
     experience: int
-
-
-class UserExperienceReturn(SQLModel):
-    """Model representing the data used set a user's experience."""
-
-    level_up: bool
-    new_level: int
-    new_experience: int
 
 
 ##############
