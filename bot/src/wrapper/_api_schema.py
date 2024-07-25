@@ -31,6 +31,7 @@ type BatchCompaniesOutput = list[CompanyGetIdOutput]
 class RawShopItem(TypedDict):
     """A item object from the shop."""
 
+    item_id: int
     item_name: str
     item_price: float
     item_quantity: int
@@ -57,3 +58,33 @@ class ShopBuyOutput(TypedDict):
     item_id: int
     quantity: int
     new_balance: float
+
+
+class RawExperience(TypedDict):
+    """JSON data for a user experience info."""
+
+    level: int
+    experience: int
+
+
+class RawUser(TypedDict):
+    """JSON data for the user information."""
+
+    user_id: int
+    experience: RawExperience
+
+
+type UserIdGetOutput = RawUser
+"""JSON data for GET /user/{id} endpoint output."""
+
+
+class UserIdExperiencePatchInput(TypedDict):
+    new_experience: int
+
+
+class UserIdExperiencePatchOutput(TypedDict):
+    """JSON data for PATCH /user/{id}/experience endpoint output."""
+
+    level_up: bool
+    new_level: int
+    new_experience: int
