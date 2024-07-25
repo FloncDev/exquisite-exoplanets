@@ -22,6 +22,7 @@ ENV VIRTUAL_ENV=/app/.venv \
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
+COPY game_config ./game_config
 COPY src ./src
 
 ENTRYPOINT ["fastapi", "run", "src/main.py", "--port", "80"]
