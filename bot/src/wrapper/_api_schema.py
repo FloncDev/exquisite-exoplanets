@@ -50,6 +50,13 @@ class RawInventoryItem(TypedDict):
     item: RawItem
 
 
+class CompanyIdInventoryGetOutput(TypedDict):
+    """A representation of the inventories of the company."""
+
+    company_id: int
+    inventory: list[RawInventoryItem]
+
+
 type ShopGetOutput = list[RawShopItem]
 """JSON data for GET /shop endpoint output."""
 
