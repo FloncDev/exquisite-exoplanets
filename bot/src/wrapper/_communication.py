@@ -6,6 +6,7 @@ import aiohttp
 from ._api_schema import (  # Company
     BatchCompaniesOutput,
     CompanyGetIdOutput,
+    CompanyIdInventoryGetOutput,
     CompanyPatchIdInput,
     CompanyPostInput,
     RawShopItem,  # Shop
@@ -133,9 +134,7 @@ class CompanyRawAPI:
 
         async def caller(session: aiohttp.ClientSession) -> BatchCompaniesOutput:
             async with (
-                session.get(
-                    "/companies", params={"page": page, "limit": limit}
-                ) as resp,  # Require further clarification for the capitalization
+                session.get("/companies", params={"page": page, "limit": limit}) as resp,
             ):
                 if resp.ok:
                     return await resp.json()
@@ -144,6 +143,27 @@ class CompanyRawAPI:
                     raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.CompanyRawAPI.list_companies, Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def get_company_inventory(session: aiohttp.ClientSession, user_id: int) -> CompanyIdInventoryGetOutput:
+        """Get a list of the registered Companies."""
+
+        async def caller(session: aiohttp.ClientSession) -> CompanyIdInventoryGetOutput:
+            async with (
+                session.get(f"/company/{user_id}/inventory") as resp,
+            ):
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = "Company not found"
+                    raise DoesNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.CompanyRawAPI.get_company_inventory,"
+                    f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
 
