@@ -4,14 +4,14 @@ from typing import TypedDict
 class CompanyPostInput(TypedDict):
     """JSON data for POST /conpany endpoint input."""
 
-    company_name: str
+    name: str
     owner_id: int
 
 
 class CompanyGetIdOutput(TypedDict):
     """JSON data for GET /conpany/{id} endpoint output."""
 
-    company_name: str
+    name: str
     owner_id: int
     created_date: str
     is_bankrupt: bool

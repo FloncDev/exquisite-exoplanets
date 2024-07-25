@@ -58,7 +58,7 @@ class Company:
     def from_dict(cls, src: CompanyGetIdOutput) -> Self:
         """Convert json from http endpoint to Company object."""
         return cls(
-            name=src["company_name"],
+            name=src["name"],
             owner_id=src["owner_id"],
             created_date=datetime.datetime.fromisoformat(src["created_date"]),
             current_networth=decimal.Decimal(src["current_networth"]),

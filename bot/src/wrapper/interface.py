@@ -33,7 +33,7 @@ class CompanyAPI(BaseAPI):
          or the user already own a company
         :raise DoesNotExistError: The company cannot be found after an attempt of creation
         """
-        src: CompanyPostInput = {"company_name": company_name, "owner_id": user_id}
+        src: CompanyPostInput = {"name": company_name, "owner_id": user_id}
         await CompanyRawAPI.create_company(self.parent.session, src)
         return await self.get_company(user_id)
 
