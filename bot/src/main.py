@@ -6,11 +6,13 @@ from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
 
 from src.context import Context
+from src.wrapper.interface import Interface
 
 load_dotenv(find_dotenv())
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
 TESTING_GUILD_ID = os.getenv("TESTING_GUILD_ID")
+API_URL = os.environ["API_URL"]
 
 
 class Client(commands.Bot):
@@ -18,6 +20,8 @@ class Client(commands.Bot):
 
     def __init__(self, testing_guild_id: int | None = None) -> None:
         super().__init__(debug_guild_id=[testing_guild_id] if testing_guild_id else None)
+
+        self.interface = Interface(address=API_URL, token="")
 
     async def get_application_context(
         self,

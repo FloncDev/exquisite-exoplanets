@@ -39,6 +39,8 @@ ignore = [
   "ISC001",
   # star-import
   "F403",
+  # f-strings in logging
+  "G004",
 ]
 
 
@@ -48,7 +50,7 @@ version = "0.1.0"
 description = "A discord bot for the python discord codejam 11"
 authors = ["Author 1 <email@mail.com>"]
 license = "MIT"
-packages = [{include="src"}]
+packages = [{ include = "src" }]
 
 [tool.poetry.scripts]
 api = "src.main:main"
