@@ -3,7 +3,44 @@ import decimal
 from dataclasses import dataclass, field
 from typing import Self
 
-from ._api_schema import CompanyGetIdOutput, RawExperience, RawShopItem, RawUser
+from ._api_schema import (
+    CompanyGetIdOutput,
+    CompanyIdInventoryGetOutput,
+    RawAchievement,
+    RawAchievementRecord,
+    RawExperience,
+    RawInventoryItem,
+    RawItem,
+    RawShopItem,
+    RawUser,
+)
+
+
+@dataclass
+class Item:
+    """Representation of an item."""
+
+    item_id: int
+    item_name: str
+
+    @classmethod
+    def from_dict(cls, src: RawItem) -> Self:
+        """Convert json from http endpoint to Item object."""
+        return cls(**src)
+
+
+@dataclass
+class InventoryItem:
+    """Representation of an item owned by a company."""
+
+    stock: int
+    total_amount_spent: float
+    item: Item
+
+    @classmethod
+    def from_dict(cls, src: RawInventoryItem) -> Self:
+        """Convert json from http endpoint to InventoryItem object."""
+        return cls(stock=src["stock"], total_amount_spent=src["total_amount_spent"], item=Item(**src["item"]))
 
 
 @dataclass
@@ -15,6 +52,7 @@ class Company:
     created_date: datetime.datetime
     current_networth: decimal.Decimal | None = field(default_factory=decimal.Decimal)
     is_bankrupt: bool | None = False
+    inventory: list[InventoryItem] | None = None
 
     @classmethod
     def from_dict(cls, src: CompanyGetIdOutput) -> Self:
@@ -27,6 +65,11 @@ class Company:
             is_bankrupt=src["is_bankrupt"],
         )
 
+    def set_inventory(self, src: CompanyIdInventoryGetOutput) -> Self:
+        """Set the inventory of the company from data from HTTP request content."""
+        self.inventory = [InventoryItem.from_dict(item) for item in src["inventory"]]
+        return self
+
 
 @dataclass
 class ShopItem:
@@ -36,6 +79,7 @@ class ShopItem:
     item_name: str
     item_price: float
     item_quantity: int
+    item_is_disabled: bool
 
     @classmethod
     def from_dict(cls, src: RawShopItem) -> Self:
@@ -47,7 +91,7 @@ class ShopItem:
 class Experience:
     """An object represent a experience and level."""
 
-    level: int = 1
+    level: int = 0
     experience: int = 0
 
     @classmethod
@@ -67,3 +111,41 @@ class User:
     def from_dict(cls, src: RawUser) -> Self:
         """Convert json from http endpoint to User object."""
         return cls(user_id=src["user_id"], experience=Experience(**src["experience"]))
+
+
+@dataclass
+class AchievementRecord:
+    """Representation of a user who held an achievement."""
+
+    name: str
+    owner_id: int
+    date: str
+
+    @classmethod
+    def from_dict(cls, src: RawAchievementRecord) -> Self:
+        """Convert json from http endpoint to AchievementRecord object."""
+        return cls(**src)
+
+
+@dataclass
+class Achievement:
+    """Representation of an achievement in game."""
+
+    id: int
+    name: str
+    description: str
+    companies_earned: int
+    first_achieved: AchievementRecord | None
+    latest_achieved: AchievementRecord | None
+
+    @classmethod
+    def from_dict(cls, src: RawAchievement) -> Self:
+        """Convert json from http endpoint to Achievement object."""
+        return cls(
+            id=src["id"],
+            name=src["name"],
+            description=src["description"],
+            companies_earned=src["companies_earned"],
+            first_achieved=AchievementRecord(**src["first_achieved"]) if src["first_achieved"] else None,
+            latest_achieved=AchievementRecord(**src["latest_achieved"]) if src["latest_achieved"] else None,
+        )

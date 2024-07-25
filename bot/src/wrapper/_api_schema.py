@@ -40,6 +40,7 @@ class RawShopItem(RawItem):
 
     item_price: float
     item_quantity: int
+    item_is_disabled: bool
 
 
 class RawInventoryItem(TypedDict):
