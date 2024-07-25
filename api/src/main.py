@@ -14,7 +14,7 @@ SQLModel.metadata.create_all(bind=engine)
 
 def _populate_achievements() -> None:
     """Populate the Achievements table."""
-    from .models import Achievement as AchievementModel
+    from src.models import Achievement as AchievementModel
 
     reach_level_5: AchievementModel = AchievementModel(
         name="Reach level 5.", description="Achievement earned when reaching Level 5."
