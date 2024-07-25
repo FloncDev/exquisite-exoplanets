@@ -1,17 +1,17 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from src.classes.company import CompanyRepresentation
 from src.classes.pagination import CompanyPagination
 from src.db import get_session
-from src.models import CompanyCreate, CompanyPublic, CompanyUpdate
+from src.models import AchievementsCompanyPublic, CompanyCreate, CompanyPublic, CompanyUpdate
 
 router = APIRouter()
 
 
-@router.post("/company")
-async def create_company(data: CompanyCreate, session: Session = Depends(get_session)) -> None:  # noqa: B008
+@router.post("/company", status_code=201)
+async def create_company(data: CompanyCreate, session: Session = Depends(get_session)) -> dict[str, str]:
     """Endpoint to create a new Company.
 
     :param data: Company data.
@@ -20,11 +20,11 @@ async def create_company(data: CompanyCreate, session: Session = Depends(get_ses
     """
     # Creating the company
     CompanyRepresentation.create_company(session=session, data=data)
-    raise HTTPException(status_code=201, detail="Company created successfully.")
+    return {"message": "Company created successfully."}
 
 
 @router.get("/company/{company_id}")
-async def get_company(company_id: int, session: Session = Depends(get_session)) -> CompanyPublic | None:  # noqa: B008
+async def get_company(company_id: int, session: Session = Depends(get_session)) -> CompanyPublic | None:
     """Endpoint to get the target Company.
 
     :param company_id: ID of Company to get.
@@ -39,8 +39,8 @@ async def get_company(company_id: int, session: Session = Depends(get_session)) 
 
 @router.get("/companies")
 async def get_companies(
-    params: CompanyPagination = Depends(),  # noqa: B008
-    session: Session = Depends(get_session),  # noqa: B008
+    params: CompanyPagination = Depends(),
+    session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     """Endpoint to get all Companies, with pagination.
 
@@ -51,8 +51,10 @@ async def get_companies(
     return CompanyRepresentation.fetch_companies(session=session, params=params)
 
 
-@router.patch("/company/{company_id}")
-async def update_company(company_id: int, data: CompanyUpdate, session: Session = Depends(get_session)) -> None:  # noqa: B008
+@router.patch("/company/{company_id}", status_code=200)
+async def update_company(
+    company_id: int, data: CompanyUpdate, session: Session = Depends(get_session)
+) -> dict[str, str]:
     """Endpoint to update the given Company's details.
 
     :param company_id: ID of the Company to update.
@@ -64,11 +66,11 @@ async def update_company(company_id: int, data: CompanyUpdate, session: Session 
         session=session, company_id=company_id
     )
     fetched_company.update(data=data)
-    raise HTTPException(status_code=200, detail="Company successfully updated.")
+    return {"message": "Company successfully updated."}
 
 
 @router.delete("/company/{company_id}")
-async def delete_company(company_id: int, session: Session = Depends(get_session)) -> None:  # noqa: B008
+async def delete_company(company_id: int, session: Session = Depends(get_session)) -> dict[str, str]:
     """Endpoint to delete the given Company. Marks them as `bankrupt`.
 
     :param company_id: ID of the Company to delete.
@@ -79,5 +81,22 @@ async def delete_company(company_id: int, session: Session = Depends(get_session
         session=session, company_id=company_id
     )
     fetched_company.delete()
+    return {"message": "Company successfully deleted."}
 
-    raise HTTPException(status_code=200, detail="Company successfully deleted.")
+
+@router.get("/company/{company_id}/inventory")
+async def get_inventory(company_id: int, session: Session = Depends(get_session)) -> dict[str, Any]:
+    return CompanyRepresentation.fetch_company(session=session, company_id=company_id).get_inventory()
+
+
+@router.get("/company/{company_id}/achievements")
+async def get_company_achievements(
+    company_id: int, session: Session = Depends(get_session)
+) -> AchievementsCompanyPublic:
+    """Get the Achievements for the given Company.
+
+    :param company_id: ID of Company.
+    :param session: Database session.
+    :return: Company's achievements.
+    """
+    return CompanyRepresentation.fetch_company(session=session, company_id=company_id).get_achievements()

@@ -1,11 +1,9 @@
-# pyright: reportUnknownMemberType=false
-# pyright: reportUnknownVariableType=false
-
 import math
 from collections.abc import Sequence
 from enum import IntEnum
 from typing import Any
 
+from fastapi import Query as Check
 from sqlalchemy import Row, RowMapping
 from sqlmodel import Session
 
@@ -20,7 +18,11 @@ class PaginationDefaults(IntEnum):
 class Pagination:
     """Base class for pagination."""
 
-    def __init__(self, page: int = PaginationDefaults.PAGE.value, limit: int = PaginationDefaults.LIMIT.value) -> None:
+    def __init__(
+        self,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
+    ) -> None:
         self.page: int = page
         self.limit: int = limit
 
@@ -36,13 +38,35 @@ class CompanyPagination(Pagination):
 
     def __init__(
         self,
-        page: int = PaginationDefaults.PAGE.value,
-        limit: int = PaginationDefaults.LIMIT.value,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
         *,
         ascending: bool = False,
     ) -> None:
         super().__init__(page=page, limit=limit)
-        self.ascending: bool | None = ascending
+        self.ascending: bool = ascending
+
+    def as_dict(self) -> dict[str, Any]:
+        """Get the params as a dict."""
+        return super().as_dict()
+
+
+class ShopPagination(Pagination):
+    """Pagination for getting Shop Items."""
+
+    def __init__(
+        self,
+        page: int = Check(default=PaginationDefaults.PAGE.value, ge=1),
+        limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
+        *,
+        ascending: bool = False,
+        sort_by: list[str] = Check(default=["price"], examples=["price", "quantity", "name"]),
+        is_disabled: bool | None = None,
+    ) -> None:
+        super().__init__(page=page, limit=limit)
+        self.ascending: bool = ascending
+        self.sort_by: list[str] = sort_by
+        self.is_disabled: bool | None = is_disabled
 
     def as_dict(self) -> dict[str, Any]:
         """Get the params as a dict."""
@@ -69,7 +93,7 @@ class Paginate:
         """
         return self.session.exec(
             self.query.offset((self.params.page - 1) * self.params.limit).limit(self.params.limit)
-        ).all()
+        ).all()  # type: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
     def add_data(self, data: dict[str, Any]) -> None:
         """Add data to the Page.
