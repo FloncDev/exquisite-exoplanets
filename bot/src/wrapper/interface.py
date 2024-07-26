@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal
 import aiohttp
 
 from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
-from .error import DoesNotExistError
+from .error import DoesNotExistError, UserError
 from .schema import Company, ShopItem, User
 
 if TYPE_CHECKING:
@@ -154,6 +154,45 @@ class ShopAPI(BaseAPI):
         :raise DoesNotExistError: The item cannot be found with the item_id
         """
         return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
+
+    async def create_shop_item(
+        self, item: ShopItem | None = None, /, *, name: str, price: float, quantity: int
+    ) -> None:
+        """Create an item with the ShopItem or(xor) the name, price and quantity of the item.
+
+        :param item: An `ShopItem` created from `ShopItem.from_future_definition`
+        :param name: The name of the item, Do not supply together with `item`
+        :param price: The price of the item, Do not supply together with `item`
+        :param quantity: The quantity of the item, Do not supply together with `item`
+        :raise ValueError: The shop item and the creation parameter have been supply at the same time
+        :raise UserError: The item is not created with `ShopItem.from_future_definition` and the `item_id` is not -1
+        :raise AlreadyExistError: The item have already exist
+        """
+        if item and any((name, price, quantity)):
+            msg = "A shop item and the creation parameter have been supply at the same time"
+            raise ValueError(msg)
+        if item:
+            create_item: ShopItem = item
+        else:
+            create_item = ShopItem.from_future_definition(name=name, price=price, quantity=quantity)
+        try:
+            item_definition = create_item.to_creation()
+        except ValueError as exc:
+            msg = "The item is not created properly"
+            raise UserError(msg) from exc
+        await ShopRawAPI.add_shop_item(self.parent.session, item_definition)
+
+    async def patch_item(self, item: ShopItem) -> None:
+        """Edit the item with the ShopItem with edited attribute.
+
+        :param item: A shop item with edited parameter
+        :raise DoesNotExistError: The item doesn't exist
+        """
+        if item.item_id == -1:
+            message = f"The item does not have a valid item ID: {item.item_id}"
+            raise DoesNotExistError(message)
+
+        await ShopRawAPI.patch_shop_item(self.parent.session, item.to_modify())
 
     async def purchase(self, item: ShopItem | int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company.
