@@ -29,7 +29,7 @@ class Item:
     @classmethod
     def from_dict(cls, src: RawItem) -> Self:
         """Convert json from http endpoint to Item object."""
-        return cls(id=src["item_id"], name=src["item_name"])
+        return cls(id=src["item_id"], name=src["name"])
 
 
 @dataclass
@@ -141,11 +141,11 @@ class ShopItem:
     def from_dict(cls, src: RawShopItem) -> Self:
         """Convert json from http endpoint to ShopItem object."""
         return cls(
-            id=src["item_id"],
-            name=src["item_name"],
-            price=src["item_price"],
-            quantity=src["item_quantity"],
-            is_disabled=src["item_is_disabled"],
+            id=src["id"],
+            name=src["name"],
+            price=src["price"],
+            quantity=src["available_quantity"],
+            is_disabled=src["is_disabled"],
         )
 
     def to_creation(self) -> ShopPostInput:
@@ -162,11 +162,11 @@ class ShopItem:
     def to_modify(self) -> RawShopItem:
         """Convert this to the patch json to be send to API endpoint."""
         return {
-            "item_id": self.id,
-            "item_name": self.name,
-            "item_price": self.price,
-            "item_quantity": self.quantity,
-            "item_is_disabled": self.is_disabled,
+            "id": self.id,
+            "name": self.name,
+            "price": self.price,
+            "available_quantity": self.quantity,
+            "is_disabled": self.is_disabled,
         }
 
     @classmethod

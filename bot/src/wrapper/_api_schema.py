@@ -32,15 +32,17 @@ class RawItem(TypedDict):
     """A item object."""
 
     item_id: int
-    item_name: str
+    name: str
 
 
-class RawShopItem(RawItem):
+class RawShopItem(TypedDict):
     """A item object from the shop."""
 
-    item_price: float
-    item_quantity: int
-    item_is_disabled: bool
+    id: int
+    name: str
+    price: float
+    available_quantity: int
+    is_disabled: bool
 
 
 class RawInventoryItem(TypedDict):
