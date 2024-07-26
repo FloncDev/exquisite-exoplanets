@@ -528,7 +528,7 @@ A Company cannot purchase more than the item quantity. The Company also has to h
 Method:
 
 ```
-POST /shop/{id}
+POST /shop/{id}/buy
 ```
 
 Body:
@@ -543,9 +543,20 @@ Body:
 
 Responses:
 
+```
+{
+  "user_id": "111111111111111111",
+  "company_id": 3,
+  "company_name": "theDogShop",
+  "item_id": 2,
+  "quantity": 1,
+  "new_balance": 9879
+}
+```
+
 | Code | Reason                                                                                     |
 |------|--------------------------------------------------------------------------------------------|
-| 200  | Shop fetched successfully.                                                                 |
+| 200  | Shop Item purchased successfully.                                                          |
 | 400  | Unable to purchase Item. Cannot purchase more than what is available.. Insufficient funds. |
 | 403  | Company bankrupt; cannot purchase. No available items to purchase.                         |
 | 404  | Shop Items cannot be found.                                                                |

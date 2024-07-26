@@ -227,6 +227,17 @@ class ShopItemPurchase(SQLModel):
     purchase_quantity: int = Field(gt=0)
 
 
+class ShopItemPurchasedPublic(SQLModel):
+    """Model representing the details of the Shop Item that was purchased."""
+
+    user_id: str
+    company_id: int | None
+    company_name: str
+    item_id: int | None
+    quantity: int
+    new_balance: float
+
+
 ####################
 # ACHIEVEMENT SCHEMA
 ####################

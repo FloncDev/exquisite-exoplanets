@@ -11,6 +11,7 @@ from src.models import (
     ShopItemCreate,
     ShopItemPublic,
     ShopItemPurchase,
+    ShopItemPurchasedPublic,
     ShopItemUpdate,
 )
 
@@ -120,7 +121,7 @@ class ShopRepresentation:
             paginator.add_data({"shop_items": res})
             return paginator.get_page()
 
-        def purchase_item(self, company: Company, data: ShopItemPurchase) -> None:
+        def purchase_item(self, company: Company, data: ShopItemPurchase) -> ShopItemPurchasedPublic:
             """Add purchased Item to the Company's inventory.
 
             :param data: Data on Shop Item purchase.
@@ -204,6 +205,15 @@ class ShopRepresentation:
             except SQLAlchemyError:
                 self.session.rollback()
                 raise HTTPException(status_code=400, detail="Unable to purchase Shop Item.") from None
+
+            return ShopItemPurchasedPublic(
+                user_id=company.user.user_id,
+                company_id=company.id,
+                item_id=self.shop_item.id,
+                quantity=data.purchase_quantity,
+                new_balance=company.networth,
+                company_name=company.name,
+            )
 
         def get_shop_item(self) -> ShopItem:
             """Get the Shop Item bound to the instance.
