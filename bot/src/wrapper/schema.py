@@ -97,6 +97,7 @@ class Achievement:
 class Company:
     """A dataclass for basic company information from /company endpoint."""
 
+    id: int
     name: str
     owner_id: int
     created_date: datetime.datetime
@@ -109,6 +110,7 @@ class Company:
     def from_dict(cls, src: CompanyGetIdOutput) -> Self:
         """Convert json from http endpoint to Company object."""
         return cls(
+            id=src["id"],
             name=src["name"],
             owner_id=int(src["owner_id"]),
             created_date=datetime.datetime.fromisoformat(src["created_date"]),

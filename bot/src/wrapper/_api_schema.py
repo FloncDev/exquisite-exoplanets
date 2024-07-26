@@ -11,6 +11,7 @@ class CompanyPostInput(TypedDict):
 class CompanyGetIdOutput(TypedDict):
     """JSON data for GET /conpany/{id} endpoint output."""
 
+    id: int
     name: str
     owner_id: str
     created_date: str
