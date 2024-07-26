@@ -4,9 +4,11 @@ from src.db import get_session
 from src.models import (
     Experience,
     User,
+    UserAddExperience,
     UserCreatePublic,
+    UserExperienceReturn,
     UserPublic,
-    UserUpdateExperience,
+    UserSetExperience,
 )
 
 router = APIRouter()
@@ -27,7 +29,10 @@ async def get_user(
 
     if user is None:
         raise HTTPException(404, "User not found")
-    return UserPublic(user_id=user.user_id, experience=Experience(experience=user.experience))  # type: ignore[reportArgumentType]
+    return UserPublic(
+        user_id=user_id,
+        experience=Experience(level=Experience.level_from_experience(user.experience), experience=user.experience),
+    )
 
 
 @router.post("/user/{user_id}")
@@ -52,12 +57,13 @@ async def create_user(
     return UserCreatePublic(id=user_id)
 
 
-@router.get("/user/{user_id}/experience")
-async def get_user_experience(
+@router.patch("/user/{user_id}/experience/add")
+async def add_user_experience(
     user_id: int,
+    new_experience: UserAddExperience,
     session: Session = Depends(get_session),
-) -> Experience:
-    """Endpoint to retrieve the given User's experience.
+) -> UserExperienceReturn:
+    """Endpoint to add to the given User's experience.
 
     :param user_id: ID of the User to retrieve.
     :param session: Database session.
@@ -67,16 +73,26 @@ async def get_user_experience(
 
     if user is None:
         raise HTTPException(404, "User not found")
-    return Experience(experience=user.experience)
+
+    current_level = Experience.level_from_experience(user.experience)
+
+    user.experience += new_experience.experience
+    session.add(user)
+    session.commit()
+
+    new_level = Experience.level_from_experience(user.experience)
+    levelled_up = current_level < new_level
+
+    return UserExperienceReturn(level_up=levelled_up, new_level=new_level, new_experience=user.experience)
 
 
-@router.post("/user/{user_id}/experience")
-async def update_user_experience(
+@router.post("/user/{user_id}/experience/set")
+async def set_user_experience(
     user_id: int,
-    new_experience: UserUpdateExperience,
+    new_experience: UserSetExperience,
     session: Session = Depends(get_session),
-) -> Experience:
-    """Endpoint to update the given User's experience.
+) -> UserExperienceReturn:
+    """Endpoint to set the given User's experience.
 
     :param user_id: ID of the User to update.
     :param new_experience: Represents the integer value of the user's new experience.
@@ -87,8 +103,14 @@ async def update_user_experience(
 
     if user is None:
         raise HTTPException(404, "User not found")
-    user.experience = new_experience.new_experience
+
+    current_level = Experience.level_from_experience(user.experience)
+
+    user.experience = new_experience.experience
     session.add(user)
     session.commit()
 
-    return Experience(experience=user.experience)
+    new_level = Experience.level_from_experience(user.experience)
+    levelled_up = current_level < new_level
+
+    return UserExperienceReturn(level_up=levelled_up, new_level=new_level, new_experience=user.experience)

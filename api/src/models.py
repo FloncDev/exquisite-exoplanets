@@ -99,6 +99,11 @@ class Experience(SQLModel):
     level: int = 0
     experience: int = 0
 
+    @staticmethod
+    def level_from_experience(experience: int) -> int:
+        """A function to calculate a level based on total experience."""  # noqa: D401
+        return experience // 200
+
 
 class User(SQLModel, table=True):
     """Model representing a User in the database."""
@@ -106,6 +111,14 @@ class User(SQLModel, table=True):
     user_id: int | None = Field(default=None, primary_key=True)
     registered: datetime | None = Field(nullable=False, default_factory=datetime.now)
     experience: int = Field(default=0, nullable=False)
+
+
+class UserExperienceReturn(SQLModel):
+    """Model representing the data used set a user's experience."""
+
+    level_up: bool
+    new_level: int
+    new_experience: int
 
 
 class UserPublic(SQLModel):
@@ -121,10 +134,16 @@ class UserCreatePublic(SQLModel):
     id: int
 
 
-class UserUpdateExperience(SQLModel):
-    """Model representing the data used to update a user's experience."""
+class UserAddExperience(SQLModel):
+    """Model representing the data used to add to a user's experience."""
 
-    new_experience: int
+    experience: int
+
+
+class UserSetExperience(SQLModel):
+    """Model representing the data used set a user's experience."""
+
+    experience: int
 
 
 ##############
