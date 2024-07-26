@@ -204,8 +204,8 @@ class ShopAPI(BaseAPI):
         :param item: A shop item with edited parameter
         :raise DoesNotExistError: The item doesn't exist
         """
-        if item.item_id == -1:
-            message = f"The item does not have a valid item ID: {item.item_id}"
+        if item.id == -1:
+            message = f"The item does not have a valid item ID: {item.id}"
             raise DoesNotExistError(message)
 
         await ShopRawAPI.patch_shop_item(self.parent.session, item.to_modify())
@@ -217,7 +217,7 @@ class ShopAPI(BaseAPI):
         :raise UserError: The company doesn't have enough balance to purchase the item
         """
         if isinstance(item, ShopItem):
-            item_id: int = item.item_id
+            item_id: int = item.id
         else:
             item_id: int = item
         if isinstance(company, Company):
