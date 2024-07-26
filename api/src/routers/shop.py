@@ -6,7 +6,7 @@ from src.classes.company import CompanyRepresentation
 from src.classes.pagination import ShopPagination
 from src.classes.shop import ShopRepresentation
 from src.db import get_session
-from src.models import ShopItemCreate, ShopItemPublic, ShopItemPurchase, ShopItemUpdate
+from src.models import ShopItemCreate, ShopItemPublic, ShopItemPurchase, ShopItemPurchasedPublic, ShopItemUpdate
 
 router = APIRouter()
 
@@ -65,7 +65,7 @@ async def update_shop_item(
 @router.post("/shop/{item_id}/buy", status_code=200)
 async def company_purchase_shop_item(
     item_id: int, data: ShopItemPurchase, session: Session = Depends(get_session)
-) -> dict[str, str]:
+) -> ShopItemPurchasedPublic:
     """Target company purchases the target item.
 
     :param item_id: ID of Shop Item.
@@ -79,5 +79,4 @@ async def company_purchase_shop_item(
     target_item: ShopRepresentation.ShopItemRepresentation = ShopRepresentation.get_item(
         session=session, item_id=item_id
     )
-    target_item.purchase_item(company=fetched_company.get_company(), data=data)
-    return {"message": "Shop Item successfully purchased."}
+    return target_item.purchase_item(company=fetched_company.get_company(), data=data)

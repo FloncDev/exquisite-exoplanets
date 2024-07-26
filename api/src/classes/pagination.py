@@ -60,12 +60,12 @@ class ShopPagination(Pagination):
         limit: int = Check(default=PaginationDefaults.LIMIT.value, ge=1),
         *,
         ascending: bool = False,
-        sort_by: list[str] = Check(default=["price"], examples=["price", "quantity", "name"]),
+        sort_by: str = Check(default="price", examples=["price", "quantity", "name"]),
         is_disabled: bool | None = None,
     ) -> None:
         super().__init__(page=page, limit=limit)
         self.ascending: bool = ascending
-        self.sort_by: list[str] = sort_by
+        self.sort_by: str = sort_by
         self.is_disabled: bool | None = is_disabled
 
     def as_dict(self) -> dict[str, Any]:

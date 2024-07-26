@@ -11,6 +11,7 @@ from src.models import (
     ShopItemCreate,
     ShopItemPublic,
     ShopItemPurchase,
+    ShopItemPurchasedPublic,
     ShopItemUpdate,
 )
 
@@ -93,23 +94,22 @@ class ShopRepresentation:
                 q = q.where(ShopItem.is_disabled) if params.is_disabled else q.where(not_(ShopItem.is_disabled))
 
             # Sort by given type
-            for option in params.sort_by:
-                match option:
-                    case "price":
-                        q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
+            match params.sort_by:
+                case "price":
+                    q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
 
-                    case "quantity":
-                        q = (
-                            q.order_by(desc(ShopItem.available_quantity))
-                            if not params.ascending
-                            else q.order_by(ShopItem.available_quantity)
-                        )
+                case "quantity":
+                    q = (
+                        q.order_by(desc(ShopItem.available_quantity))
+                        if not params.ascending
+                        else q.order_by(ShopItem.available_quantity)
+                    )
 
-                    case "name":
-                        q = q.order_by(desc(ShopItem.name)) if not params.ascending else q.order_by(ShopItem.name)
+                case "name":
+                    q = q.order_by(desc(ShopItem.name)) if not params.ascending else q.order_by(ShopItem.name)
 
-                    case _:
-                        continue
+                case _:
+                    pass
 
             paginator: Paginate = Paginate(query=q, session=session, params=params)
 
@@ -121,7 +121,7 @@ class ShopRepresentation:
             paginator.add_data({"shop_items": res})
             return paginator.get_page()
 
-        def purchase_item(self, company: Company, data: ShopItemPurchase) -> None:
+        def purchase_item(self, company: Company, data: ShopItemPurchase) -> ShopItemPurchasedPublic:
             """Add purchased Item to the Company's inventory.
 
             :param data: Data on Shop Item purchase.
@@ -205,6 +205,15 @@ class ShopRepresentation:
             except SQLAlchemyError:
                 self.session.rollback()
                 raise HTTPException(status_code=400, detail="Unable to purchase Shop Item.") from None
+
+            return ShopItemPurchasedPublic(
+                user_id=company.user.user_id,
+                company_id=company.id,
+                item_id=self.shop_item.id,
+                quantity=data.purchase_quantity,
+                new_balance=company.networth,
+                company_name=company.name,
+            )
 
         def get_shop_item(self) -> ShopItem:
             """Get the Shop Item bound to the instance.
