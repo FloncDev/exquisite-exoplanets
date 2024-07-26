@@ -120,7 +120,7 @@ class Company:
             name=src["name"],
             owner_id=int(src["owner_id"]),
             created_date=datetime.datetime.fromisoformat(src["created"]),
-            current_networth=decimal.Decimal(src["current_networth"]),
+            current_networth=decimal.Decimal(src["networth"]),
             is_bankrupt=src["is_bankrupt"],
         )
 

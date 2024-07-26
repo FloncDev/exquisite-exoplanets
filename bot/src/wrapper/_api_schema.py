@@ -16,7 +16,7 @@ class CompanyGetIdOutput(TypedDict):
     owner_id: str
     created: str
     is_bankrupt: bool
-    current_networth: float
+    networth: float
 
 
 class CompanyPatchIdInput(TypedDict):
