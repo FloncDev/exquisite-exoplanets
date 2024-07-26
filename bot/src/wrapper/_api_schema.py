@@ -14,7 +14,7 @@ class CompanyGetIdOutput(TypedDict):
     id: int
     name: str
     owner_id: str
-    created_date: str
+    created: str
     is_bankrupt: bool
     current_networth: float
 
