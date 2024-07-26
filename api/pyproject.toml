@@ -39,8 +39,18 @@ ignore = [
   "ISC001",
   # star-import
   "F403",
+  # Naming too complex
+  "C901",
+  # Arguments
+  "PLR0913",
+  "PLR0912",
+  # f-strings in logging
+  "G004",
 ]
 
+[tool.ruff.lint.flake8-bugbear]
+# Allow default arguments like, e.g., `data: List[str] = fastapi.Query(None)`.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [tool.poetry]
 name = "bot-backend"
@@ -48,7 +58,7 @@ version = "0.1.0"
 description = "A discord bot for the python discord codejam 11"
 authors = ["Author 1 <email@mail.com>"]
 license = "MIT"
-packages = [{include="src"}]
+packages = [{ include = "src" }]
 
 [tool.poetry.scripts]
 api = "src.main:main"
