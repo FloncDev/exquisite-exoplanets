@@ -52,7 +52,7 @@ class ShopIdPatchInput(TypedDict):
     item_id: int
     name: str | None
     price: float | None
-    available_quantity: int | None
+    quantity: int | None
     is_disabled: bool | None
 
 

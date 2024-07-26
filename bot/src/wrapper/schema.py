@@ -174,7 +174,7 @@ class ShopItem:
             "item_id": self.id,
             "name": self.name,
             "price": self.price,
-            "available_quantity": self.quantity,
+            "quantity": self.quantity,
             "is_disabled": self.is_disabled,
         }
 
