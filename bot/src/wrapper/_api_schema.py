@@ -133,7 +133,9 @@ class RawAchievement(TypedDict):
     latest_achieved: RawAchievementRecord | None
 
 
-type AchievementGetOutput = list[RawAchievement]
+class AchievementGetOutput(TypedDict):
+    achievements: list[RawAchievement]
+
 
 type AchievementIdGetOutput = RawAchievement
 
