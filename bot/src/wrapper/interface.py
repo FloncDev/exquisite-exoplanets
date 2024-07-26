@@ -31,11 +31,10 @@ class CompanyAPI(BaseAPI):
 
         :raise AlreadyExistError: Raise when the company name is already being used by other user,
          or the user already own a company
-        :raise DoesNotExistError: The company cannot be found after an attempt of creation
         """
         src: CompanyPostInput = {"name": company_name, "owner_id": user_id}
-        await CompanyRawAPI.create_company(self.parent.session, src)
-        return await self.get_company(user_id)
+        data = await CompanyRawAPI.create_company(self.parent.session, src)
+        return Company.from_dict(data)
 
     async def get_company(self, user_id: int) -> Company:
         """Get the company from user id.

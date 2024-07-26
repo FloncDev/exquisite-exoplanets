@@ -50,15 +50,15 @@ class CompanyRawAPI:
     """A bundle of API available to use for company endpoint."""
 
     @staticmethod
-    async def create_company(session: aiohttp.ClientSession, src: CompanyPostInput) -> None:
+    async def create_company(session: aiohttp.ClientSession, src: CompanyPostInput) -> CompanyGetIdOutput:
         """Create a company with the given details through a direct HTTP request."""
 
-        async def caller(session: aiohttp.ClientSession) -> None:
+        async def caller(session: aiohttp.ClientSession) -> CompanyGetIdOutput:
             async with (
                 session.post("/company", json=src) as resp,
             ):
                 if resp.ok:
-                    return
+                    return await resp.json()
                 if resp.status == Status.CONFLICT:
                     message = "This company name is already being used or The user already own a company"
                     raise AlreadyExistError(message)
