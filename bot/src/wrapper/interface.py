@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 
-from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
+from ._communication import AchievementRawAPI, CompanyRawAPI, ShopRawAPI, UserRawAPI
 from .error import DoesNotExistError, UserError
-from .schema import Company, ShopItem, User
+from .schema import Achievement, Company, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -211,7 +211,7 @@ class ShopAPI(BaseAPI):
 
 
 class UserAPI(BaseAPI):
-    """Bundle of formatted API access to api endpoint."""
+    """Bundle of formatted API access to user endpoint."""
 
     async def register_user(self, user_id: int) -> User:
         """Register the user by the user_id.
@@ -273,6 +273,19 @@ class UserAPI(BaseAPI):
         return result["level_up"], await self.get_user(user_id)
 
 
+class AchievementAPI(BaseAPI):
+    """Bundle of formatted API access to achievement endpoint."""
+
+    async def get_achievements(self) -> list[Achievement]:
+        """Get all achievements."""
+        data = await AchievementRawAPI.get_achievements(self.parent.session)
+        return [Achievement.from_dict(src) for src in data["achievements"]]
+
+    async def get_achievement(self, achievement_id: int) -> Achievement:
+        """Get the specific achievement with the given achievement_id."""
+        return Achievement.from_dict(await AchievementRawAPI.get_achievement(self.parent.session, achievement_id))
+
+
 class Interface:
     """An API wrapper interface for the bot."""
 
@@ -298,6 +311,11 @@ class Interface:
     def user(self) -> UserAPI:
         """Retrieve the User API with the address and Token."""
         return UserAPI(self.address, self.token, parent=self)
+
+    @property
+    def achievement(self) -> AchievementAPI:
+        """Retrieve the Achievement API with the address and Token."""
+        return AchievementAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:
