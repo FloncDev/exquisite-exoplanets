@@ -16,7 +16,7 @@ class Company(SQLModel, table=True):
     is_bankrupt: bool = Field(nullable=False, default=False)
     networth: float = Field(nullable=False, default=0)
     name: str = Field(nullable=False)
-    owner_id: int = Field(nullable=False)
+    owner_id: str = Field(nullable=False, foreign_key="user.user_id")
 
     @field_validator("name")
     @classmethod
@@ -30,13 +30,14 @@ class Company(SQLModel, table=True):
     # Relationships
     inventory: list["Inventory"] = Relationship(back_populates="company")
     achievements: list["EarnedAchievements"] = Relationship(back_populates="company")
+    user: "User" = Relationship(back_populates="companies")
 
 
 class CompanyCreate(SQLModel):
     """Model representing the data used to create a new Company."""
 
     name: str = Field(nullable=False)
-    owner_id: int = Field(nullable=False)
+    owner_id: str = Field(nullable=False)
 
 
 class CompanyUpdate(SQLModel):
@@ -60,7 +61,7 @@ class CompanyPublic(SQLModel):
     id: int
     created: datetime
     name: str
-    owner_id: int
+    owner_id: str
     networth: float
     is_bankrupt: bool
 
@@ -108,9 +109,12 @@ class Experience(SQLModel):
 class User(SQLModel, table=True):
     """Model representing a User in the database."""
 
-    user_id: int | None = Field(default=None, primary_key=True)
+    user_id: str = Field(primary_key=True)
     registered: datetime | None = Field(nullable=False, default_factory=datetime.now)
     experience: int = Field(default=0, nullable=False)
+
+    # Relationships
+    companies: "Company" = Relationship(back_populates="user")
 
 
 class UserExperienceReturn(SQLModel):
@@ -124,14 +128,14 @@ class UserExperienceReturn(SQLModel):
 class UserPublic(SQLModel):
     """Model representing a User that can be returned."""
 
-    user_id: int
+    user_id: str
     experience: Experience
 
 
 class UserCreatePublic(SQLModel):
     """Model representing the data used to create a new User."""
 
-    id: int
+    id: str
 
 
 class UserAddExperience(SQLModel):
@@ -218,7 +222,7 @@ class ShopItemInventoryPublic(SQLModel):
 class ShopItemPurchase(SQLModel):
     """Model representing the details of the Item being purchased."""
 
-    company_id: int
+    company_id: str
     item_id: int
     purchase_quantity: int = Field(gt=0)
 
@@ -241,7 +245,7 @@ class CompanyAchievementPublic(SQLModel):
     """Model representing the details of an Achievement achieved by a Company."""
 
     name: str
-    owner_id: int
+    owner_id: str
     date: datetime
 
 

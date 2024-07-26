@@ -93,23 +93,22 @@ class ShopRepresentation:
                 q = q.where(ShopItem.is_disabled) if params.is_disabled else q.where(not_(ShopItem.is_disabled))
 
             # Sort by given type
-            for option in params.sort_by:
-                match option:
-                    case "price":
-                        q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
+            match params.sort_by:
+                case "price":
+                    q = q.order_by(desc(ShopItem.price)) if not params.ascending else q.order_by(ShopItem.price)
 
-                    case "quantity":
-                        q = (
-                            q.order_by(desc(ShopItem.available_quantity))
-                            if not params.ascending
-                            else q.order_by(ShopItem.available_quantity)
-                        )
+                case "quantity":
+                    q = (
+                        q.order_by(desc(ShopItem.available_quantity))
+                        if not params.ascending
+                        else q.order_by(ShopItem.available_quantity)
+                    )
 
-                    case "name":
-                        q = q.order_by(desc(ShopItem.name)) if not params.ascending else q.order_by(ShopItem.name)
+                case "name":
+                    q = q.order_by(desc(ShopItem.name)) if not params.ascending else q.order_by(ShopItem.name)
 
-                    case _:
-                        continue
+                case _:
+                    pass
 
             paginator: Paginate = Paginate(query=q, session=session, params=params)
 
