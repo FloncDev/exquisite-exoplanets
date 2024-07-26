@@ -609,7 +609,7 @@ Get all the Achievements available to collect.
 Method:
 
 ```
-GET /achievement
+GET /achievements
 ```
 
 Responses:
