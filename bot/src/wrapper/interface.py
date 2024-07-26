@@ -68,22 +68,24 @@ class CompanyAPI(BaseAPI):
             user_id: int = company
         await CompanyRawAPI.delete_company(self.parent.session, user_id)
 
-    async def list_companies(self, page: int = 1, limit: int = 10) -> list[Company]:
+    async def list_companies(self, page: int = 1, limit: int = 10, *, ascending: bool = False) -> list[Company]:
         """List companies from the database using paginator.
 
         :raise DoesNotExistError: Reach the end of the paginator where no more company could be displayed
         """
         return [
             Company.from_dict(out)
-            for out in await CompanyRawAPI.list_companies(self.parent.session, page=page, limit=limit)
+            for out in await CompanyRawAPI.list_companies(
+                self.parent.session, page=page, limit=limit, ascending=ascending
+            )
         ]
 
-    async def iter_companies(self) -> AsyncGenerator[Company, None]:
+    async def iter_companies(self, *, ascending: bool = False) -> AsyncGenerator[Company, None]:
         """Iterate through all company until there are no company left."""
         page = 1
         while True:
             try:
-                for company in await self.list_companies(page=page):
+                for company in await self.list_companies(page=page, ascending=ascending):
                     yield company
                 page += 1
             except DoesNotExistError:

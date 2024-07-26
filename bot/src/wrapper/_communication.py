@@ -134,12 +134,14 @@ class CompanyRawAPI:
         return await make_request(session, caller)
 
     @staticmethod
-    async def list_companies(session: aiohttp.ClientSession, page: int = 1, limit: int = 10) -> BatchCompaniesOutput:
+    async def list_companies(
+        session: aiohttp.ClientSession, page: int = 1, limit: int = 10, *, ascending: bool = False
+    ) -> BatchCompaniesOutput:
         """Get a list of the registered Companies."""
 
         async def caller(session: aiohttp.ClientSession) -> BatchCompaniesOutput:
             async with (
-                session.get("/companies", params={"page": page, "limit": limit}) as resp,
+                session.get("/companies", params={"page": page, "limit": limit, "ascending": ascending}) as resp,
             ):
                 if resp.ok:
                     return (await resp.json())["companies"]
