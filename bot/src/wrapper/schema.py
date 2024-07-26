@@ -15,6 +15,7 @@ from ._api_schema import (
     RawItem,
     RawShopItem,
     RawUser,
+    ShopIdPatchInput,
     ShopPostInput,
 )
 
@@ -167,10 +168,10 @@ class ShopItem:
             raise ValueError(msg)
         return {"available_quantity": self.quantity, "name": self.name, "price": self.price}
 
-    def to_modify(self) -> RawShopItem:
+    def to_modify(self) -> ShopIdPatchInput:
         """Convert this to the patch json to be send to API endpoint."""
         return {
-            "id": self.id,
+            "item_id": self.id,
             "name": self.name,
             "price": self.price,
             "available_quantity": self.quantity,

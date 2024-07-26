@@ -17,6 +17,7 @@ from ._api_schema import (  # Company
     ShopBuyInput,
     ShopBuyOutput,
     ShopGetOutput,
+    ShopIdPatchInput,
     ShopPostInput,
     UserIdExperiencePatchInput,  # User
     UserIdExperiencePatchOutput,
@@ -239,17 +240,17 @@ class ShopRawAPI:
         return await make_request(session, caller)
 
     @staticmethod
-    async def patch_shop_item(session: aiohttp.ClientSession, item: RawShopItem) -> None:
+    async def patch_shop_item(session: aiohttp.ClientSession, item: ShopIdPatchInput) -> None:
         """Edit a item by its id in the shop through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> None:
             async with (
-                session.patch(f"/shop/{item['id']}", json=item) as resp,
+                session.patch(f"/shop/{item['item_id']}", json=item) as resp,
             ):
                 if resp.ok:
                     return
                 if resp.status == Status.NOT_FOUND:
-                    message = f"Item with item id: {item['id']} not found"
+                    message = f"Item with item id: {item['item_id']} not found"
                     raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.patch_shop_item, Status received {resp.status}"

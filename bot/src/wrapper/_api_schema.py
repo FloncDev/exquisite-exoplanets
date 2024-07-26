@@ -46,6 +46,16 @@ class RawShopItem(TypedDict):
     is_disabled: bool
 
 
+class ShopIdPatchInput(TypedDict):
+    """A item object from the shop."""
+
+    item_id: int
+    name: str | None
+    price: float | None
+    available_quantity: int | None
+    is_disabled: bool | None
+
+
 class RawInventoryItem(TypedDict):
     """A representation of an item owned by the company."""
 
