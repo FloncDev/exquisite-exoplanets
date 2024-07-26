@@ -82,8 +82,9 @@ type ShopIdGetOutput = RawShopItem
 class ShopBuyInput(TypedDict):
     """JSON data for PUT /shop/{id}/buy endpoint input."""
 
-    user_id: int
-    quantity: int
+    company_id: str
+    item_id: int
+    purchase_quantity: int
 
 
 class ShopBuyOutput(TypedDict):

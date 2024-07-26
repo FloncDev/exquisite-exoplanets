@@ -226,7 +226,11 @@ class ShopAPI(BaseAPI):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await ShopRawAPI.purchase_shop_item(self.parent.session, item_id, {"user_id": user_id, "quantity": quantity})
+        await ShopRawAPI.purchase_shop_item(
+            self.parent.session,
+            item_id,
+            {"company_id": str(user_id), "purchase_quantity": quantity, "item_id": item_id},
+        )
 
 
 class UserAPI(BaseAPI):
