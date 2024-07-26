@@ -106,6 +106,23 @@ class CompanyAPI(BaseAPI):
         )
         return check_company
 
+    async def get_achievement(self, company: Company | int) -> Company:
+        """Get the achievement of the company.
+
+        :param company: A company object or the company ID
+        :return: A company object with current achievement
+        :raise DoesNotExistError: The company referencing doesn't exist on the server
+        """
+        check_company: Company
+        if isinstance(company, int):
+            check_company = await self.get_company(company)
+        else:
+            check_company = company
+        check_company.set_achievements(
+            await CompanyRawAPI.get_company_achievement(self.parent.session, check_company.owner_id)
+        )
+        return check_company
+
 
 class ShopAPI(BaseAPI):
     """Bundle of formatted API access to shop endpoint."""

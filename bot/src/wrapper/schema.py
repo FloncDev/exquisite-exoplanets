@@ -5,9 +5,11 @@ from typing import Self
 
 from ._api_schema import (
     CompanyGetIdOutput,
+    CompanyIdAchievementGetOutput,
     CompanyIdInventoryGetOutput,
     RawAchievement,
     RawAchievementRecord,
+    RawBaseAchievement,
     RawExperience,
     RawInventoryItem,
     RawItem,
@@ -45,6 +47,53 @@ class InventoryItem:
 
 
 @dataclass
+class AchievementRecord:
+    """Representation of a user who held an achievement."""
+
+    name: str
+    owner_id: int
+    date: str
+
+    @classmethod
+    def from_dict(cls, src: RawAchievementRecord) -> Self:
+        """Convert json from http endpoint to AchievementRecord object."""
+        return cls(**src)
+
+
+@dataclass
+class Achievement:
+    """Representation of an achievement in game."""
+
+    id: int
+    name: str
+    description: str
+    companies_earned: int = -1
+    first_achieved: AchievementRecord | None = None
+    latest_achieved: AchievementRecord | None = None
+
+    @classmethod
+    def from_dict(cls, src: RawAchievement) -> Self:
+        """Convert json from http endpoint to Achievement object."""
+        return cls(
+            id=src["id"],
+            name=src["name"],
+            description=src["description"],
+            companies_earned=src.get("companies_earned", -1),
+            first_achieved=AchievementRecord(**src["first_achieved"]) if src["first_achieved"] else None,
+            latest_achieved=AchievementRecord(**src["latest_achieved"]) if src["latest_achieved"] else None,
+        )
+
+    @classmethod
+    def from_partial_dict(cls, src: RawBaseAchievement) -> Self:
+        """Convert json from http endpoint to Achievement object."""
+        return cls(
+            id=src["id"],
+            name=src["name"],
+            description=src["description"],
+        )
+
+
+@dataclass
 class Company:
     """A dataclass for basic company information from /company endpoint."""
 
@@ -54,6 +103,7 @@ class Company:
     current_networth: decimal.Decimal | None = field(default_factory=decimal.Decimal)
     is_bankrupt: bool | None = False
     inventory: list[InventoryItem] | None = None
+    achievements: list[Achievement] | None = None
 
     @classmethod
     def from_dict(cls, src: CompanyGetIdOutput) -> Self:
@@ -69,6 +119,11 @@ class Company:
     def set_inventory(self, src: CompanyIdInventoryGetOutput) -> Self:
         """Set the inventory of the company from data from HTTP request content."""
         self.inventory = [InventoryItem.from_dict(item) for item in src["inventory"]]
+        return self
+
+    def set_achievements(self, src: CompanyIdAchievementGetOutput) -> Self:
+        """Set the achievements of the company from data from HTTP request content."""
+        self.achievements = [Achievement.from_partial_dict(item) for item in src["achievements"]]
         return self
 
 
@@ -141,41 +196,3 @@ class User:
     def from_dict(cls, src: RawUser) -> Self:
         """Convert json from http endpoint to User object."""
         return cls(user_id=src["user_id"], experience=Experience(**src["experience"]))
-
-
-@dataclass
-class AchievementRecord:
-    """Representation of a user who held an achievement."""
-
-    name: str
-    owner_id: int
-    date: str
-
-    @classmethod
-    def from_dict(cls, src: RawAchievementRecord) -> Self:
-        """Convert json from http endpoint to AchievementRecord object."""
-        return cls(**src)
-
-
-@dataclass
-class Achievement:
-    """Representation of an achievement in game."""
-
-    id: int
-    name: str
-    description: str
-    companies_earned: int
-    first_achieved: AchievementRecord | None
-    latest_achieved: AchievementRecord | None
-
-    @classmethod
-    def from_dict(cls, src: RawAchievement) -> Self:
-        """Convert json from http endpoint to Achievement object."""
-        return cls(
-            id=src["id"],
-            name=src["name"],
-            description=src["description"],
-            companies_earned=src["companies_earned"],
-            first_achieved=AchievementRecord(**src["first_achieved"]) if src["first_achieved"] else None,
-            latest_achieved=AchievementRecord(**src["latest_achieved"]) if src["latest_achieved"] else None,
-        )

@@ -124,10 +124,13 @@ class RawAchievementRecord(TypedDict):
     date: str
 
 
-class RawAchievement(TypedDict):
+class RawBaseAchievement(TypedDict):
     id: int
     name: str
     description: str
+
+
+class RawAchievement(RawBaseAchievement):
     companies_earned: int
     first_achieved: RawAchievementRecord | None
     latest_achieved: RawAchievementRecord | None
@@ -144,3 +147,9 @@ class ShopPostInput(TypedDict):
     name: str
     price: float
     available_quantity: int
+
+
+class CompanyIdAchievementGetOutput(TypedDict):
+    first_achievement: str
+    latest_achievement: str
+    achievements: list[RawBaseAchievement]

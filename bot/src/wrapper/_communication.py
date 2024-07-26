@@ -9,6 +9,7 @@ from ._api_schema import (  # Company
     AchievementIdGetOutput,
     BatchCompaniesOutput,
     CompanyGetIdOutput,
+    CompanyIdAchievementGetOutput,
     CompanyIdInventoryGetOutput,
     CompanyPatchIdInput,
     CompanyPostInput,
@@ -154,7 +155,7 @@ class CompanyRawAPI:
 
     @staticmethod
     async def get_company_inventory(session: aiohttp.ClientSession, user_id: int) -> CompanyIdInventoryGetOutput:
-        """Get a list of the registered Companies."""
+        """Get the company inventory."""
 
         async def caller(session: aiohttp.ClientSession) -> CompanyIdInventoryGetOutput:
             async with (
@@ -167,6 +168,27 @@ class CompanyRawAPI:
                     raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.CompanyRawAPI.get_company_inventory,"
+                    f" Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def get_company_achievement(session: aiohttp.ClientSession, user_id: int) -> CompanyIdAchievementGetOutput:
+        """Get a list of company achievement."""
+
+        async def caller(session: aiohttp.ClientSession) -> CompanyIdAchievementGetOutput:
+            async with (
+                session.get(f"/company/{user_id}/achievements") as resp,
+            ):
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = "Company not found"
+                    raise DoesNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.CompanyRawAPI.get_company_achievement,"
                     f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
