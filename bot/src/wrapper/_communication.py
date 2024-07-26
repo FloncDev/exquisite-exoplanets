@@ -313,7 +313,7 @@ class ShopRawAPI:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.UNAUTHORIZED:
-                    await CompanyRawAPI.get_company(session, src["user_id"])
+                    await CompanyRawAPI.get_company(session, int(src["company_id"]))
                     message = "Not enough balance"
                     raise UserError(message)  # Should probably do further check on this
                 if resp.status == Status.NOT_FOUND:
@@ -430,7 +430,7 @@ class AchievementRawAPI:
         """Get the specific achievement through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> AchievementIdGetOutput:
-            async with session.get(f"/achievements/{achievement_id}") as resp:
+            async with session.get(f"/achievement/{achievement_id}") as resp:
                 if resp.ok:
                     return await resp.json()
                 if resp.status == Status.NOT_FOUND:
