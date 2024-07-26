@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 
@@ -90,18 +90,63 @@ class CompanyAPI(BaseAPI):
             except DoesNotExistError:
                 return
 
+    async def get_inventory(self, company: Company | int) -> Company:
+        """Get the inventory of the company.
+
+        :param company: A company object or the company ID
+        :return: A company object with current inventory
+        :raise DoesNotExistError: The company referencing doesn't exist on the server
+        """
+        check_company: Company
+        if isinstance(company, int):
+            check_company = await self.get_company(company)
+        else:
+            check_company = company
+        check_company.set_inventory(
+            await CompanyRawAPI.get_company_inventory(self.parent.session, check_company.owner_id)
+        )
+        return check_company
+
 
 class ShopAPI(BaseAPI):
     """Bundle of formatted API access to shop endpoint."""
 
-    async def list_items(self) -> list[ShopItem]:
-        """Return a list of shop items."""
+    async def list_items(  # noqa: PLR0913
+        self,
+        *,
+        page: int = 1,
+        limit: int = 10,
+        sort: Literal["price", "quantity"] = "price",
+        ascending: bool = True,
+        is_disabled: bool | None = None,
+    ) -> list[ShopItem]:
+        """Return a list of shop items.
+
+        :raise DoesNotExistError: No item from the current page have been found
+        """
         return [
             ShopItem.from_dict(out)
             for out in await ShopRawAPI.list_shop_items(
-                self.parent.session,
+                self.parent.session, page=page, limit=limit, sort=sort, ascending=ascending, is_disabled=is_disabled
             )
         ]
+
+    async def iter_items(
+        self,
+        *,
+        sort: Literal["price", "quantity"] = "price",
+        ascending: bool = True,
+        is_disabled: bool | None = None,
+    ) -> AsyncGenerator[ShopItem, None]:
+        """Iterate through all item until there are no item left."""
+        page = 1
+        while True:
+            try:
+                for item in await self.list_items(page=page, sort=sort, ascending=ascending, is_disabled=is_disabled):
+                    yield item
+                page += 1
+            except DoesNotExistError:
+                return
 
     async def get_shop_item(self, item_id: int) -> ShopItem:
         """Get a specific shop item.

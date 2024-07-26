@@ -1,5 +1,6 @@
 from collections.abc import Callable, Coroutine
 from enum import IntEnum
+from typing import Literal
 
 import aiohttp
 
@@ -137,7 +138,7 @@ class CompanyRawAPI:
                 session.get("/companies", params={"page": page, "limit": limit}) as resp,
             ):
                 if resp.ok:
-                    return await resp.json()
+                    return (await resp.json())["companies"]
                 if resp.status == Status.NOT_FOUND:
                     message = "No company found"
                     raise DoesNotExistError(message)
@@ -174,15 +175,35 @@ class ShopRawAPI:
     """A bundle of API available to use for company endpoint."""
 
     @staticmethod
-    async def list_shop_items(session: aiohttp.ClientSession) -> ShopGetOutput:
-        """Get a list of all item in the shop through a direct HTTP request."""
+    async def list_shop_items(  # noqa: PLR0913
+        session: aiohttp.ClientSession,
+        *,
+        page: int = 1,
+        limit: int = 10,
+        sort: Literal["price", "quantity"] = "price",
+        ascending: bool = True,
+        is_disabled: bool | None = None,
+    ) -> ShopGetOutput:
+        """Get a list of item in the page in the shop through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> ShopGetOutput:
             async with (
-                session.get("/shop") as resp,
+                session.get(
+                    "/shop",
+                    params={
+                        "page": page,
+                        "limit": limit,
+                        "sort": sort,
+                        "ascending": ascending,
+                        "is_disabled": is_disabled,
+                    },
+                ) as resp,
             ):
                 if resp.ok:
-                    return await resp.json()
+                    return (await resp.json())["shop_items"]
+                if resp.status == Status.NOT_FOUND:
+                    message = "No item found"
+                    raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.ShopRawAPI.list_shop_items," f" Status received {resp.status}"
                 )
