@@ -58,15 +58,7 @@ class CompanyRepresentation:
 
         paginator: Paginate = Paginate(query=q, session=session, params=params)
 
-        res: list[dict[str, Any]] = [
-            {
-                "name": company.name,
-                "owner_id": company.owner_id,
-                "networth": company.networth,
-                "is_bankrupt": company.is_bankrupt,
-            }
-            for company in paginator.get_data()
-        ]
+        res: list[CompanyPublic] = [CompanyPublic.model_validate(company) for company in paginator.get_data()]
 
         # If nothing
         if not res:

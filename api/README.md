@@ -227,7 +227,7 @@ Parameters:
 |-----------|------|------------------------------------------------|----------|---------|
 | page      | int  | Get the page.                                  | YES      | 1       |
 | limit     | int  | Get the limit (amount of companies on a page). | YES      | 10      |
-| ascending | bool | Sort the fetched companies.                    | YES      | false   |
+| ascending | bool | Sort the fetched companies by networth.        | YES      | false   |
 
 Responses:
 
@@ -236,16 +236,20 @@ Responses:
   "page": 1,
   "limit": 10,
   "page_count": 1,
-  "entry_count": 3,
+  "entry_count": 2,
   "companies": [
     {
-      "name": "theDogShop",
+      "id": 1,
+      "created": "2024-07-26T18:17:03.539Z",
+      "name": "TheDogShop",
       "owner_id": "111111111111111111",
       "networth": 0,
-      "is_bankrupt": true
+      "is_bankrupt": True
     },
     {
-      "name": "theDogShopSupreme",
+      "id": 2,
+      "created": "2024-08-26T18:17:03.539Z",
+      "name": "TheDogShopv2",
       "owner_id": "111111111111111111",
       "networth": 0,
       "is_bankrupt": false
