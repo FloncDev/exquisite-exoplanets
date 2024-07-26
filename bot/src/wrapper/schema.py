@@ -13,6 +13,7 @@ from ._api_schema import (
     RawItem,
     RawShopItem,
     RawUser,
+    ShopPostInput,
 )
 
 
@@ -85,6 +86,35 @@ class ShopItem:
     def from_dict(cls, src: RawShopItem) -> Self:
         """Convert json from http endpoint to ShopItem object."""
         return cls(**src)
+
+    def to_creation(self) -> ShopPostInput:
+        """Convert a future Item to an item definition for item creation.
+
+        :return: A dictionary of an item definition
+        :raise ValueError: The item have already been created
+        """
+        if self.item_id == -1:
+            msg = "This item have already been created with a given item id"
+            raise ValueError(msg)
+        return {"available_quantity": self.item_quantity, "name": self.item_name, "price": self.item_price}
+
+    def to_modify(self) -> RawShopItem:
+        """Convert this to the patch json to be send to API endpoint."""
+        return {
+            "item_id": self.item_id,
+            "item_name": self.item_name,
+            "item_price": self.item_price,
+            "item_quantity": self.item_quantity,
+            "item_is_disabled": self.item_is_disabled,
+        }
+
+    @classmethod
+    def from_future_definition(cls, *, name: str, price: float, quantity: int) -> Self:
+        """Create a future item to be created.
+
+        :return: An incomplete object with `item_id = 1` for item definition
+        """
+        return cls(item_id=-1, item_name=name, item_price=price, item_quantity=quantity, item_is_disabled=False)
 
 
 @dataclass

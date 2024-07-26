@@ -136,3 +136,9 @@ class RawAchievement(TypedDict):
 type AchievementGetOutput = list[RawAchievement]
 
 type AchievementIdGetOutput = RawAchievement
+
+
+class ShopPostInput(TypedDict):
+    name: str
+    price: float
+    available_quantity: int
