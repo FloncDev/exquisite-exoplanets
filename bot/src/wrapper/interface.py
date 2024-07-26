@@ -117,7 +117,7 @@ class ShopAPI(BaseAPI):
         :raise UserError: The company doesn't have enough balance to purchase the item
         """
         if isinstance(item, ShopItem):
-            item_id: int = item.item_id
+            item_id: int = item.id
         else:
             item_id: int = item
         if isinstance(company, Company):
