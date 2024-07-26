@@ -7,7 +7,7 @@ from src.models import AchievementPublic
 router = APIRouter()
 
 
-@router.get("/achievement")
+@router.get("/achievements")
 async def get_achievements(session: Session = Depends(get_session)) -> dict[str, list[AchievementPublic]]:
     """Get all the Achievements available to collect.
 

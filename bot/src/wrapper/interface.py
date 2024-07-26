@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 
-from ._communication import CompanyRawAPI, ShopRawAPI, UserRawAPI
-from .error import DoesNotExistError
-from .schema import Company, ShopItem, User
+from ._communication import AchievementRawAPI, CompanyRawAPI, ShopRawAPI, UserRawAPI
+from .error import DoesNotExistError, UserError
+from .schema import Achievement, Company, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -31,11 +31,10 @@ class CompanyAPI(BaseAPI):
 
         :raise AlreadyExistError: Raise when the company name is already being used by other user,
          or the user already own a company
-        :raise DoesNotExistError: The company cannot be found after an attempt of creation
         """
-        src: CompanyPostInput = {"company_name": company_name, "owner_id": user_id}
-        await CompanyRawAPI.create_company(self.parent.session, src)
-        return await self.get_company(user_id)
+        src: CompanyPostInput = {"name": company_name, "owner_id": str(user_id)}
+        data = await CompanyRawAPI.create_company(self.parent.session, src)
+        return Company.from_dict(data)
 
     async def get_company(self, user_id: int) -> Company:
         """Get the company from user id.
@@ -69,39 +68,103 @@ class CompanyAPI(BaseAPI):
             user_id: int = company
         await CompanyRawAPI.delete_company(self.parent.session, user_id)
 
-    async def list_companies(self, page: int = 1, limit: int = 10) -> list[Company]:
+    async def list_companies(self, page: int = 1, limit: int = 10, *, ascending: bool = False) -> list[Company]:
         """List companies from the database using paginator.
 
         :raise DoesNotExistError: Reach the end of the paginator where no more company could be displayed
         """
         return [
             Company.from_dict(out)
-            for out in await CompanyRawAPI.list_companies(self.parent.session, page=page, limit=limit)
+            for out in await CompanyRawAPI.list_companies(
+                self.parent.session, page=page, limit=limit, ascending=ascending
+            )
         ]
 
-    async def iter_companies(self) -> AsyncGenerator[Company, None]:
+    async def iter_companies(self, *, ascending: bool = False) -> AsyncGenerator[Company, None]:
         """Iterate through all company until there are no company left."""
         page = 1
         while True:
             try:
-                for company in await self.list_companies(page=page):
+                for company in await self.list_companies(page=page, ascending=ascending):
                     yield company
                 page += 1
             except DoesNotExistError:
                 return
 
+    async def get_inventory(self, company: Company | int) -> Company:
+        """Get the inventory of the company.
+
+        :param company: A company object or the company ID
+        :return: A company object with current inventory
+        :raise DoesNotExistError: The company referencing doesn't exist on the server
+        """
+        check_company: Company
+        if isinstance(company, int):
+            check_company = await self.get_company(company)
+        else:
+            check_company = company
+        check_company.set_inventory(
+            await CompanyRawAPI.get_company_inventory(self.parent.session, check_company.owner_id)
+        )
+        return check_company
+
+    async def get_achievement(self, company: Company | int) -> Company:
+        """Get the achievement of the company.
+
+        :param company: A company object or the company ID
+        :return: A company object with current achievement
+        :raise DoesNotExistError: The company referencing doesn't exist on the server
+        """
+        check_company: Company
+        if isinstance(company, int):
+            check_company = await self.get_company(company)
+        else:
+            check_company = company
+        check_company.set_achievements(
+            await CompanyRawAPI.get_company_achievement(self.parent.session, check_company.owner_id)
+        )
+        return check_company
+
 
 class ShopAPI(BaseAPI):
     """Bundle of formatted API access to shop endpoint."""
 
-    async def list_items(self) -> list[ShopItem]:
-        """Return a list of shop items."""
+    async def list_items(  # noqa: PLR0913
+        self,
+        *,
+        page: int = 1,
+        limit: int = 10,
+        sort: Literal["price", "quantity"] = "price",
+        ascending: bool = True,
+        is_disabled: bool | None = None,
+    ) -> list[ShopItem]:
+        """Return a list of shop items.
+
+        :raise DoesNotExistError: No item from the current page have been found
+        """
         return [
             ShopItem.from_dict(out)
             for out in await ShopRawAPI.list_shop_items(
-                self.parent.session,
+                self.parent.session, page=page, limit=limit, sort=sort, ascending=ascending, is_disabled=is_disabled
             )
         ]
+
+    async def iter_items(
+        self,
+        *,
+        sort: Literal["price", "quantity"] = "price",
+        ascending: bool = True,
+        is_disabled: bool | None = None,
+    ) -> AsyncGenerator[ShopItem, None]:
+        """Iterate through all item until there are no item left."""
+        page = 1
+        while True:
+            try:
+                for item in await self.list_items(page=page, sort=sort, ascending=ascending, is_disabled=is_disabled):
+                    yield item
+                page += 1
+            except DoesNotExistError:
+                return
 
     async def get_shop_item(self, item_id: int) -> ShopItem:
         """Get a specific shop item.
@@ -109,6 +172,45 @@ class ShopAPI(BaseAPI):
         :raise DoesNotExistError: The item cannot be found with the item_id
         """
         return ShopItem.from_dict(await ShopRawAPI.get_shop_item(self.parent.session, item_id))
+
+    async def create_shop_item(
+        self, item: ShopItem | None = None, /, *, name: str, price: float, quantity: int
+    ) -> None:
+        """Create an item with the ShopItem or(xor) the name, price and quantity of the item.
+
+        :param item: An `ShopItem` created from `ShopItem.from_future_definition`
+        :param name: The name of the item, Do not supply together with `item`
+        :param price: The price of the item, Do not supply together with `item`
+        :param quantity: The quantity of the item, Do not supply together with `item`
+        :raise ValueError: The shop item and the creation parameter have been supply at the same time
+        :raise UserError: The item is not created with `ShopItem.from_future_definition` and the `item_id` is not -1
+        :raise AlreadyExistError: The item have already exist
+        """
+        if item and any((name, price, quantity)):
+            msg = "A shop item and the creation parameter have been supply at the same time"
+            raise ValueError(msg)
+        if item:
+            create_item: ShopItem = item
+        else:
+            create_item = ShopItem.from_future_definition(name=name, price=price, quantity=quantity)
+        try:
+            item_definition = create_item.to_creation()
+        except ValueError as exc:
+            msg = "The item is not created properly"
+            raise UserError(msg) from exc
+        await ShopRawAPI.add_shop_item(self.parent.session, item_definition)
+
+    async def patch_item(self, item: ShopItem) -> None:
+        """Edit the item with the ShopItem with edited attribute.
+
+        :param item: A shop item with edited parameter
+        :raise DoesNotExistError: The item doesn't exist
+        """
+        if item.id == -1:
+            message = f"The item does not have a valid item ID: {item.id}"
+            raise DoesNotExistError(message)
+
+        await ShopRawAPI.patch_shop_item(self.parent.session, item.to_modify())
 
     async def purchase(self, item: ShopItem | int, company: Company | int, quantity: int) -> None:
         """Purchase item as the company.
@@ -124,11 +226,15 @@ class ShopAPI(BaseAPI):
             user_id: int = company.owner_id
         else:
             user_id: int = company
-        await ShopRawAPI.purchase_shop_item(self.parent.session, item_id, {"user_id": user_id, "quantity": quantity})
+        await ShopRawAPI.purchase_shop_item(
+            self.parent.session,
+            item_id,
+            {"company_id": str(user_id), "purchase_quantity": quantity, "item_id": item_id},
+        )
 
 
 class UserAPI(BaseAPI):
-    """Bundle of formatted API access to api endpoint."""
+    """Bundle of formatted API access to user endpoint."""
 
     async def register_user(self, user_id: int) -> User:
         """Register the user by the user_id.
@@ -172,6 +278,36 @@ class UserAPI(BaseAPI):
         result = await UserRawAPI.update_user_experience(self.parent.session, user_id, {"new_experience": exp})
         return result["level_up"], await self.get_user(user_id)
 
+    async def set_experience(self, user: User | int, exp: int = 0) -> tuple[bool, User]:
+        """Update the amount of experience the user have.
+
+        :param user: A `User` object or a user id
+        :param exp: the amount of experience set to the user
+        :return: A boolean value represent whether the user have upgraded, and
+         User represent an updated user after adding experience
+        :raise DoesNotExistError: The user cannot be found
+        """
+        if isinstance(user, User):
+            user_id: int = user.user_id
+        else:
+            user_id: int = user
+
+        result = await UserRawAPI.set_user_experience(self.parent.session, user_id, {"experience": exp})
+        return result["level_up"], await self.get_user(user_id)
+
+
+class AchievementAPI(BaseAPI):
+    """Bundle of formatted API access to achievement endpoint."""
+
+    async def get_achievements(self) -> list[Achievement]:
+        """Get all achievements."""
+        data = await AchievementRawAPI.get_achievements(self.parent.session)
+        return [Achievement.from_dict(src) for src in data["achievements"]]
+
+    async def get_achievement(self, achievement_id: int) -> Achievement:
+        """Get the specific achievement with the given achievement_id."""
+        return Achievement.from_dict(await AchievementRawAPI.get_achievement(self.parent.session, achievement_id))
+
 
 class Interface:
     """An API wrapper interface for the bot."""
@@ -198,6 +334,11 @@ class Interface:
     def user(self) -> UserAPI:
         """Retrieve the User API with the address and Token."""
         return UserAPI(self.address, self.token, parent=self)
+
+    @property
+    def achievement(self) -> AchievementAPI:
+        """Retrieve the Achievement API with the address and Token."""
+        return AchievementAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:

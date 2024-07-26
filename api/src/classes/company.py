@@ -2,8 +2,9 @@ from typing import TYPE_CHECKING, Any, Self
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, desc, or_, select
+from sqlmodel import Session, desc, not_, or_, select
 from src.classes.pagination import CompanyPagination, Paginate
+from src.classes.user import UserRepresentation
 from src.models import (
     Achievement,
     AchievementsCompanyPublic,
@@ -28,19 +29,15 @@ class CompanyRepresentation:
         self.company: Company = company
 
     @classmethod
-    def fetch_company(
-        cls, session: Session, *, name: str | None = None, owner_id: int | None = None, company_id: int | None = None
-    ) -> Self:
+    def fetch_company(cls, session: Session, company_id: str) -> Self:
         """Return instance with target Company, if it exists.
 
         :param company_id: ID of the Company to search for.
         :param session: Database session.
-        :param name: Name of the company.
-        :param owner_id: ID of the Owner.
         :return: Instance with the fetched company.
         """
         fetched_company: Company | None = session.exec(
-            select(Company).where(or_(Company.id == company_id, Company.name == name, Company.owner_id == owner_id))
+            select(Company).where(Company.owner_id == company_id, not_(Company.is_bankrupt))
         ).first()
 
         if not fetched_company:
@@ -61,15 +58,7 @@ class CompanyRepresentation:
 
         paginator: Paginate = Paginate(query=q, session=session, params=params)
 
-        res: list[dict[str, Any]] = [
-            {
-                "name": company.name,
-                "owner_id": company.owner_id,
-                "networth": company.networth,
-                "is_bankrupt": company.is_bankrupt,
-            }
-            for company in paginator.get_data()
-        ]
+        res: list[CompanyPublic] = [CompanyPublic.model_validate(company) for company in paginator.get_data()]
 
         # If nothing
         if not res:
@@ -89,6 +78,9 @@ class CompanyRepresentation:
         :param data: Company create data.
         :return: Instance with the created company.
         """
+        # Getting the User
+        fetched_user: UserRepresentation = UserRepresentation.fetch_user(session=session, user_id=data.owner_id)
+
         # Query the database
         target: Sequence[Company] = session.exec(
             select(Company).where(or_(Company.name == data.name, Company.owner_id == data.owner_id))
@@ -98,7 +90,7 @@ class CompanyRepresentation:
             raise HTTPException(status_code=409, detail="Such company already exists.")
 
         try:
-            new_company: Company = Company(name=data.name, owner_id=data.owner_id)
+            new_company: Company = Company(name=data.name, owner_id=fetched_user.get_user().user_id)
             session.add(new_company)
             session.commit()
             session.refresh(new_company)
