@@ -242,12 +242,12 @@ class ShopRawAPI:
 
         async def caller(session: aiohttp.ClientSession) -> None:
             async with (
-                session.patch(f"/shop/{item['item_id']}", json=item) as resp,
+                session.patch(f"/shop/{item['id']}", json=item) as resp,
             ):
                 if resp.ok:
                     return
                 if resp.status == Status.NOT_FOUND:
-                    message = f"Item with item id: {item['item_id']} not found"
+                    message = f"Item with item id: {item['id']} not found"
                     raise DoesNotExistError(message)
                 message = (
                     f"Undefined behaviour bot.src.wrapper.ShopRawAPI.patch_shop_item, Status received {resp.status}"
