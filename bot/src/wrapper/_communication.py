@@ -14,6 +14,7 @@ from ._api_schema import (  # Company
     ShopBuyInput,
     ShopBuyOutput,
     ShopGetOutput,
+    ShopPostInput,
     UserIdExperiencePatchInput,  # User
     UserIdExperiencePatchOutput,
     UserIdExperiencePostInput,
@@ -206,6 +207,49 @@ class ShopRawAPI:
                     raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.ShopRawAPI.list_shop_items," f" Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def patch_shop_item(session: aiohttp.ClientSession, item: RawShopItem) -> None:
+        """Edit a item by its id in the shop through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> None:
+            async with (
+                session.patch(f"/shop/{item['item_id']}", json=item) as resp,
+            ):
+                if resp.ok:
+                    return
+                if resp.status == Status.NOT_FOUND:
+                    message = f"Item with item id: {item['item_id']} not found"
+                    raise DoesNotExistError(message)
+                message = (
+                    f"Undefined behaviour bot.src.wrapper.ShopRawAPI.patch_shop_item, Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def add_shop_item(session: aiohttp.ClientSession, item: ShopPostInput) -> None:
+        """Create a item in the shop through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> None:
+            async with (
+                session.post("/shop", json=item) as resp,
+            ):
+                if resp.ok:
+                    return
+                if resp.status == Status.NOT_FOUND:
+                    message = "Item have already existed"
+                    raise AlreadyExistError(message)
+                if resp.status == Status.BAD_REQUEST:
+                    message = "Unable to create item"
+                    raise UnknownNetworkError(message)
+                message = (
+                    f"Undefined behaviour bot.src.wrapper.ShopRawAPI.patch_shop_item, Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
 
