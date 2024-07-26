@@ -23,13 +23,13 @@ from ._api_schema import (
 class Item:
     """Representation of an item."""
 
-    item_id: int
-    item_name: str
+    id: int
+    name: str
 
     @classmethod
     def from_dict(cls, src: RawItem) -> Self:
         """Convert json from http endpoint to Item object."""
-        return cls(**src)
+        return cls(id=src["item_id"], name=src["item_name"])
 
 
 @dataclass
@@ -43,7 +43,7 @@ class InventoryItem:
     @classmethod
     def from_dict(cls, src: RawInventoryItem) -> Self:
         """Convert json from http endpoint to InventoryItem object."""
-        return cls(stock=src["stock"], total_amount_spent=src["total_amount_spent"], item=Item(**src["item"]))
+        return cls(stock=src["stock"], total_amount_spent=src["total_amount_spent"], item=Item.from_dict(src["item"]))
 
 
 @dataclass
@@ -131,16 +131,22 @@ class Company:
 class ShopItem:
     """A dataclass in represent of a specific item and its availability in the shop."""
 
-    item_id: int
-    item_name: str
-    item_price: float
-    item_quantity: int
-    item_is_disabled: bool
+    id: int
+    name: str
+    price: float
+    quantity: int
+    is_disabled: bool
 
     @classmethod
     def from_dict(cls, src: RawShopItem) -> Self:
         """Convert json from http endpoint to ShopItem object."""
-        return cls(**src)
+        return cls(
+            id=src["item_id"],
+            name=src["item_name"],
+            price=src["item_price"],
+            quantity=src["item_quantity"],
+            is_disabled=src["item_is_disabled"],
+        )
 
     def to_creation(self) -> ShopPostInput:
         """Convert a future Item to an item definition for item creation.
@@ -148,19 +154,19 @@ class ShopItem:
         :return: A dictionary of an item definition
         :raise ValueError: The item have already been created
         """
-        if self.item_id == -1:
+        if self.id == -1:
             msg = "This item have already been created with a given item id"
             raise ValueError(msg)
-        return {"available_quantity": self.item_quantity, "name": self.item_name, "price": self.item_price}
+        return {"available_quantity": self.quantity, "name": self.name, "price": self.price}
 
     def to_modify(self) -> RawShopItem:
         """Convert this to the patch json to be send to API endpoint."""
         return {
-            "item_id": self.item_id,
-            "item_name": self.item_name,
-            "item_price": self.item_price,
-            "item_quantity": self.item_quantity,
-            "item_is_disabled": self.item_is_disabled,
+            "item_id": self.id,
+            "item_name": self.name,
+            "item_price": self.price,
+            "item_quantity": self.quantity,
+            "item_is_disabled": self.is_disabled,
         }
 
     @classmethod
@@ -169,7 +175,7 @@ class ShopItem:
 
         :return: An incomplete object with `item_id = 1` for item definition
         """
-        return cls(item_id=-1, item_name=name, item_price=price, item_quantity=quantity, item_is_disabled=False)
+        return cls(id=-1, name=name, price=price, quantity=quantity, is_disabled=False)
 
 
 @dataclass
