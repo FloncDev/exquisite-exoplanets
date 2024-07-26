@@ -110,7 +110,7 @@ class Company:
         """Convert json from http endpoint to Company object."""
         return cls(
             name=src["name"],
-            owner_id=src["owner_id"],
+            owner_id=int(src["owner_id"]),
             created_date=datetime.datetime.fromisoformat(src["created_date"]),
             current_networth=decimal.Decimal(src["current_networth"]),
             is_bankrupt=src["is_bankrupt"],

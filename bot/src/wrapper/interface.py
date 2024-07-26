@@ -32,7 +32,7 @@ class CompanyAPI(BaseAPI):
         :raise AlreadyExistError: Raise when the company name is already being used by other user,
          or the user already own a company
         """
-        src: CompanyPostInput = {"name": company_name, "owner_id": user_id}
+        src: CompanyPostInput = {"name": company_name, "owner_id": str(user_id)}
         data = await CompanyRawAPI.create_company(self.parent.session, src)
         return Company.from_dict(data)
 

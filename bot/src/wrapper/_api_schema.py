@@ -5,14 +5,14 @@ class CompanyPostInput(TypedDict):
     """JSON data for POST /conpany endpoint input."""
 
     name: str
-    owner_id: int
+    owner_id: str
 
 
 class CompanyGetIdOutput(TypedDict):
     """JSON data for GET /conpany/{id} endpoint output."""
 
     name: str
-    owner_id: int
+    owner_id: str
     created_date: str
     is_bankrupt: bool
     current_networth: float
