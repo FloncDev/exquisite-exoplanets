@@ -49,6 +49,7 @@ class RawShopItem(TypedDict):
 class RawInventoryItem(TypedDict):
     """A representation of an item owned by the company."""
 
+    company_id: int
     stock: int
     total_amount_spent: float
     item: RawItem

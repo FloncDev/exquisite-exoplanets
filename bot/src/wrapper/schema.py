@@ -36,6 +36,7 @@ class Item:
 class InventoryItem:
     """Representation of an item owned by a company."""
 
+    company_id: int
     stock: int
     total_amount_spent: float
     item: Item
@@ -43,7 +44,12 @@ class InventoryItem:
     @classmethod
     def from_dict(cls, src: RawInventoryItem) -> Self:
         """Convert json from http endpoint to InventoryItem object."""
-        return cls(stock=src["stock"], total_amount_spent=src["total_amount_spent"], item=Item.from_dict(src["item"]))
+        return cls(
+            company_id=src["company_id"],
+            stock=src["stock"],
+            total_amount_spent=src["total_amount_spent"],
+            item=Item.from_dict(src["item"]),
+        )
 
 
 @dataclass
