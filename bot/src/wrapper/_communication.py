@@ -5,6 +5,8 @@ from typing import Literal
 import aiohttp
 
 from ._api_schema import (  # Company
+    AchievementGetOutput,  # Achievement
+    AchievementIdGetOutput,
     BatchCompaniesOutput,
     CompanyGetIdOutput,
     CompanyIdInventoryGetOutput,
@@ -249,7 +251,7 @@ class ShopRawAPI:
                     message = "Unable to create item"
                     raise UnknownNetworkError(message)
                 message = (
-                    f"Undefined behaviour bot.src.wrapper.ShopRawAPI.patch_shop_item, Status received {resp.status}"
+                    f"Undefined behaviour bot.src.wrapper.ShopRawAPI.add_shop_item, Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
 
@@ -371,6 +373,46 @@ class UserRawAPI:
                     raise DoesNotExistError(message)
                 message = (
                     "Undefined behaviour bot.src.wrapper.UserRawAPI.set_user_experience,"
+                    f" Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+
+class AchievementRawAPI:
+    @staticmethod
+    async def get_achievements(session: aiohttp.ClientSession) -> AchievementGetOutput:
+        """Get all achievements through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> AchievementGetOutput:
+            async with session.get("/achievements") as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = "No achievements found."
+                    raise DoesNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.AchievementRawAPI.get_achievements,"
+                    f" Status received {resp.status}"
+                )
+                raise UnknownNetworkError(message)
+
+        return await make_request(session, caller)
+
+    @staticmethod
+    async def get_achievement(session: aiohttp.ClientSession, achievement_id: int) -> AchievementIdGetOutput:
+        """Get the specific achievement through a direct HTTP request."""
+
+        async def caller(session: aiohttp.ClientSession) -> AchievementIdGetOutput:
+            async with session.get(f"/achievements/{achievement_id}") as resp:
+                if resp.ok:
+                    return await resp.json()
+                if resp.status == Status.NOT_FOUND:
+                    message = "Achievements not found."
+                    raise DoesNotExistError(message)
+                message = (
+                    "Undefined behaviour bot.src.wrapper.AchievementRawAPI.get_achievement,"
                     f" Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
