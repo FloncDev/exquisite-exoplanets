@@ -1,17 +1,53 @@
+from typing import TYPE_CHECKING
+
 import discord
 from discord.commands import SlashCommandGroup, option
 from discord.ext import commands, pages
 
 from src.context import AutocompleteContext, Context
 from src.main import Client
-from src.wrapper import ShopItem
+from src.wrapper.error import DoesNotExistError, UserError
+
+if TYPE_CHECKING:
+    from src.wrapper.schema import ShopItem
 
 
-async def item_autocomplete(_: AutocompleteContext) -> list[str]:
-    # TODO: Change onces wrapper is fixed
-    shop = [ShopItem(id=i, name=f"Item {i+1}", price=10, quantity=10) for i in range(10)]
+async def item_autocomplete(ctx: AutocompleteContext) -> list[str]:
+    shop = (
+        ctx.bot.interface.shop.iter_items()  # pyright: ignore[reportAttributeAccessIssue]
+    )
 
-    return [item.name for item in shop]
+    return [item.name async for item in shop]
+
+
+class Confirm(discord.ui.View):
+    """Discord view with confirm/cancel buttons."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.confirmed = None
+
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
+    async def confirm_callback(
+        self,
+        _,  # noqa: ANN001
+        interaction: discord.Interaction,
+    ) -> None:
+        """Ran when confirm button is pressed."""
+        await interaction.response.defer()
+        self.confirmed = True
+        self.stop()
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey)
+    async def cancel_callback(
+        self,
+        _,  # noqa: ANN001
+        interaction: discord.Interaction,
+    ) -> None:
+        """Ran when cancel button is pressed."""
+        await interaction.response.defer()
+        self.confirmed = False
+        self.stop()
 
 
 class Shop(commands.Cog):
@@ -26,11 +62,13 @@ class Shop(commands.Cog):
     async def view(self, ctx: Context) -> None:
         """Interact with the shop."""
         # Temporary while wrapper is getting fixed
-        shop = [ShopItem(id=i, name=f"Item {i+1}", price=10, quantity=10) for i in range(10)]
+        shop = self.client.interface.shop.iter_items()
 
         shop_pages: list[discord.Embed] = []
 
-        for index, item in enumerate(shop):
+        # Yes, I know about enumerate but apparently it doesnt work with async generators
+        index = 0
+        async for item in shop:
             if index % 6 == 0:
                 shop_pages.append(
                     discord.Embed(
@@ -45,6 +83,7 @@ class Shop(commands.Cog):
                 name=f"{disabled_tag}{item.name}{disabled_tag}",
                 value=f"${item.price:.2f}\n{item.quantity} in stock",
             )
+            index += 1
 
         paginator = pages.Paginator(
             pages=shop_pages  # pyright: ignore[reportArgumentType]
@@ -61,6 +100,49 @@ class Shop(commands.Cog):
     @option("quantity", int, description="How many you want to buy, defaults to 1.")
     async def buy(self, ctx: Context, item: str, quantity: int = 1) -> None:
         """Buy an item in the shop."""
+        try:
+            company = await self.client.interface.company.get_company(ctx.author.id)
+        except DoesNotExistError:
+            await ctx.error("You do not have a company.")
+            return
+
+        shop = self.client.interface.shop.iter_items()
+        shop_item: ShopItem | None = None
+
+        async for i in shop:
+            if i.name == item:
+                shop_item = i
+                break
+
+        if shop_item is None:
+            await ctx.error("Could not find item.")
+            return
+
+        message = f"{quantity} `{item}`s for ${shop_item.price * quantity:.2f}"
+
+        embed = discord.Embed(title="Confirmation", description=f"Are you sure you want to buy {message}")
+
+        view = Confirm()
+
+        await ctx.respond(embed=embed, view=view)
+
+        await view.wait()
+
+        if view.confirmed is None or not view.confirmed:
+            embed.colour = discord.Colour.red()
+            await ctx.edit(embed=embed, view=None)
+            return
+
+        try:
+            await self.client.interface.shop.purchase(shop_item, company, quantity)
+        except UserError:
+            await ctx.error("Your company does not have enough money.")
+            return
+
+        embed.colour = discord.Colour.green()
+        embed.title = "Shop Purchase"
+        embed.description = f"Purchased {message}"
+        await ctx.edit(embed=embed, view=None)
 
 
 def setup(client: Client) -> None:
