@@ -142,7 +142,7 @@ class CompanyRawAPI:
 
         async def caller(session: aiohttp.ClientSession) -> BatchCompaniesOutput:
             async with (
-                session.get("/companies", params={"page": page, "limit": limit, "ascending": ascending}) as resp,
+                session.get("/companies", params={"page": page, "limit": limit, "ascending": str(ascending)}) as resp,
             ):
                 if resp.ok:
                     return (await resp.json())["companies"]
@@ -215,16 +215,18 @@ class ShopRawAPI:
         """Get a list of item in the page in the shop through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> ShopGetOutput:
+            params = {
+                "page": page,
+                "limit": limit,
+                "sort": sort,
+                "ascending": str(ascending),
+            }
+            if isinstance(is_disabled, bool):
+                params["is_disabled"] = str(is_disabled)
             async with (
                 session.get(
                     "/shop",
-                    params={
-                        "page": page,
-                        "limit": limit,
-                        "sort": sort,
-                        "ascending": ascending,
-                        "is_disabled": is_disabled,
-                    },
+                    params=params,
                 ) as resp,
             ):
                 if resp.ok:
