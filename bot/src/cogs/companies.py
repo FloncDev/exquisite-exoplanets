@@ -95,8 +95,8 @@ class Companies(commands.Cog):
         except DoesNotExistError:
             await ctx.error("You do not have a company! Please run `/company create`.")
             return
-        if not company.inventory:
-            await ctx.error("Unable to found anything from your inventory.")
+        if company.inventory is None:
+            await ctx.error("Unable to get your inventory.")
             return
         inv_pages: list[list[discord.Embed] | discord.Embed] = []
         chunk_inv_list: list[list[InventoryItem]] = list(chunk_list(company.inventory, 25))
