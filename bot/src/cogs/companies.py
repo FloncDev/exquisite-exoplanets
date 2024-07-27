@@ -98,6 +98,9 @@ class Companies(commands.Cog):
         if company.inventory is None:
             await ctx.error("Unable to get your inventory.")
             return
+        if not company.inventory:
+            await ctx.respond("There is nothing in your inventory")
+            return
         inv_pages: list[list[discord.Embed] | discord.Embed] = []
         chunk_inv_list: list[list[InventoryItem]] = list(chunk_list(company.inventory, 25))
         for page, page_inventories in enumerate(chunk_inv_list, start=1):
@@ -111,7 +114,7 @@ class Companies(commands.Cog):
                 )
             inv_pages.append(embed)
         paginator = pages.Paginator(pages=inv_pages, show_indicator=False)
-        await paginator.respond(ctx.interaction, ephemeral=True)
+        await paginator.respond(ctx.interaction, ephemeral=False)
 
 
 def setup(client: Client) -> None:
