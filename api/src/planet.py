@@ -3,7 +3,7 @@ from typing import Any
 import random
 import itertools
 
-from api.src import Resource, YamlReader
+from src import Resource, YamlReader
 
 planet_logger = logging.getLogger(__name__)
 

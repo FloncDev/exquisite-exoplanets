@@ -2,7 +2,7 @@ import logging
 import random
 from typing import TYPE_CHECKING, Any
 
-from api.src import YamlReader
+from src import YamlReader
 
 if TYPE_CHECKING:
     from collections.abc import Callable
