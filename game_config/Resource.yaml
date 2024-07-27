@@ -1,47 +1,238 @@
-# resource template
+#template
 #ResourceID:
-#  name: 'ResourceName'
-#  min_tier: [0, inf]
-#  unit_price: [0, inf] # unit price by cubic meter
-#  unit_xp: [0, inf]
-#  # probability of making the resource appear on a planet, scaling with planet tier
-#  apparition_probability: [0,1]
-#  tier_apparition_upscale: [1,inf]
-#  # initial density of the material appearing on the planet, increasing with tier
-#  init_density: [0,1]
-#  tier_density_upscale: [1,inf]
-#  # the rate at which the density decreases each time the resource is collected
-#  # options
-#  #   - linear : a fixed amount is removed each time
-#  #   - exponential : the amount removed scales down with the density (density(t)=init_density*exp(-t/factor))
-#  #   - geometric : the density is multiplied by a factor < 1 each time
-#  decay_function: 'linear'
-#  decay_factor: [-inf, inf]  # depends on the decay function
+#    name: 'ResourceName'
+#    min_tier: [0, inf[ # minimal tier at which the ressource can appear
+#    unit_price: [0, inf[ # unit price by cubic meter
+#    unit_xp: [0, inf[ # xp obtained for each unit harvested
+#
+#    # probability of making the resource appear on a planet, scaling with planet tier
+#    # actual probability = init_probability * upscale^tier
+#    apparition_probability: [0,1]
+#    tier_apparition_upscale: [1,inf[
+#
+#    # average amount of units by planet
+#    # actual units = normal probability centered on [init_units * upscale^tier]
+#    init_units: [0,1]
+#    tier_units_upscale: [1,inf[
+#
+#    # the rate at which the units decrease each time the resource is collected
+#    # options
+#    #   - linear : a fixed amount is removed each time
+#    #     linear factor : [0, inf[
+#    #   - exponential : the amount removed scales down with the density (density(t)=init_density*exp(-t/factor))
+#    #     exponential factor : 5*factor is the number of epochs to collect 99% ressources
+#    #   - geometric : the density is multiplied by a factor < 1 each time
+#    #     geometric factor : [0, 1]
+#    decay_function: 'linear'
+#    decay_factor: [0, inf[  # depends on the decay function
+#
+#    balancing_delay = 1 # number of units/s  #this is the expected average units/s overall
+
+
+WA00:
+  name: water
+  min_tier: 0
+  unit_price: 3.0
+  unit_xp: 0.03
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100000
+  tier_units_upscale: 10
+  decay_function: 'exponential'
+  decay_factor: 75.0
+  balancing_delay: 0.09259259259
 
 WO00:
-  name: 'Wood'
+  name: wood
   min_tier: 0
-  unit_price: 60
-  unit_xp: 1
-  # probability of making the resource appear on a planet, scaling with planet tier
-  apparition_probability: 0.5
-  tier_apparition_upscale: 1.01
-  # initial density of the material appearing on the planet, increasing with tier
+  unit_price: 60.0
+  unit_xp: 0.6
+  apparition_probability: 1
+  tier_apparition_upscale: 1
   init_units: 100
-  tier_units_upscale: 1.01
-  decay_function: 'geometric'
-  decay_factor: 0.95
+  tier_units_upscale: 10
+  decay_function: 'linear'
+  decay_factor: 1.0
+  balancing_delay: 0.00462962963
 
-IR01:
-  name: 'Iron'
+IR00:
+  name: iron
   min_tier: 1
-  unit_price: 60
-  unit_xp: 2
-  # probability of making the resource appear on a planet, scaling with planet tier
-  apparition_probability: 0.5
-  tier_apparition_upscale: 1.01
-  # initial density of the material appearing on the planet, increasing with tier
-  init_density: 0.7
-  tier_density_upscale: 1.01
+  unit_price: 786.0
+  unit_xp: 7.86
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.95
+  decay_factor: 0.9
+  balancing_delay: 0.00353406842
+
+OI00:
+  name: oil
+  min_tier: 1
+  unit_price: 477.0
+  unit_xp: 4.77
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'linear'
+  decay_factor: 1.0
+  balancing_delay: 0.005823433496
+
+CO00:
+  name: coal
+  min_tier: 1
+  unit_price: 832.5
+  unit_xp: 8.325
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'linear'
+  decay_factor: 1.0
+  balancing_delay: 0.003336670003
+
+AL00:
+  name: aluminium
+  min_tier: 2
+  unit_price: 7020.0
+  unit_xp: 70.2
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.9
+  balancing_delay: 0.003956948401
+
+LE00:
+  name: lead
+  min_tier: 2
+  unit_price: 24970.0
+  unit_xp: 249.7
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.9
+  balancing_delay: 0.001112446046
+
+ZI00:
+  name: zinc
+  min_tier: 2
+  unit_price: 21450.0
+  unit_xp: 214.5
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100000
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.9
+  balancing_delay: 0.001295001295
+
+NI00:
+  name: nickel
+  min_tier: 3
+  unit_price: 131542.0
+  unit_xp: 1315.42
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 1000
+  tier_units_upscale: 10
+  decay_function: 'linear'
+  decay_factor: 1.0
+  balancing_delay: 0.002111704078
+
+TI00:
+  name: titanium
+  min_tier: 3
+  unit_price: 21555.0
+  unit_xp: 215.55
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.86
+  balancing_delay: 0.01288693008
+
+CO01:
+  name: copper
+  min_tier: 3
+  unit_price: 82866.8
+  unit_xp: 828.668
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'exponential'
+  decay_factor: 75.0
+  balancing_delay: 0.003352099728
+
+SI00:
+  name: silver
+  min_tier: 4
+  unit_price: 10500000.0
+  unit_xp: 105000.0
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.9
+  balancing_delay: 0.0002645502646
+
+GO00:
+  name: gold
+  min_tier: 4
+  unit_price: 1331314000.0
+  unit_xp: 13313140.0
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'geometric'
+  decay_factor: 0.93
+  balancing_delay: 2.086493327e-06
+
+ME00:
+  name: mercury
+  min_tier: 5
+  unit_price: 3334995.656
+  unit_xp: 33349.95656
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 1000
+  tier_units_upscale: 10
+  decay_function: 'exponential'
+  decay_factor: 75.0
+  balancing_delay: 0.008329179598
+
+UR00:
+  name: uranium
+  min_tier: 5
+  unit_price: 1309000.0
+  unit_xp: 13090.0
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'exponential'
+  decay_factor: 75.0
+  balancing_delay: 0.02122060946
+
+DI00:
+  name: diamonds
+  min_tier: 6
+  unit_price: 15786000000.0
+  unit_xp: 157860000.0
+  apparition_probability: 1
+  tier_apparition_upscale: 1
+  init_units: 100
+  tier_units_upscale: 10
+  decay_function: 'exponential'
+  decay_factor: 75.0
+  balancing_delay: 1.759646381e-05
