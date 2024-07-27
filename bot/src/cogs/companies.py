@@ -65,16 +65,17 @@ class Companies(commands.Cog):
 
         embed = discord.Embed(title=f"Company Information: `{company.name}`")
 
-        founder = self.client.get_user(company.owner_id)
-        founder = "Could not be found." if founder is None else founder.mention
-        embed.add_field(name="Founder", value=founder, inline=True)
+        founder = await self.client.fetch_user(company.owner_id)
+        embed.add_field(name="Founder", value=founder.mention, inline=True)
 
-        net_worth = f"${company.current_networth}" if not company.is_bankrupt else "**Bankrupt**"
+        net_worth = f"${company.current_networth:,}" if not company.is_bankrupt else "**Bankrupt**"
         embed.add_field(name="Net Worth", value=net_worth, inline=True)
 
         # creation_timestamp = int(datetime.fromisoformat(company.).timestamp())
         creation_timestamp = int(company.created_date.timestamp())
         embed.add_field(name="Creation Time", value=f"<t:{creation_timestamp}>")
+
+        await ctx.respond(embed=embed)
 
 
 def setup(client: Client) -> None:
