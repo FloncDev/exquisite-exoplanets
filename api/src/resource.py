@@ -57,7 +57,7 @@ class Resource:
         return self.get_units_collected() * self.unit_price
 
     def collect(self, n: int = 1) -> float:
-        """Collect resources."""
+        """Collect resources then returns the amount of resources collected"""
         if n <= 0:
             raise ValueError("n must be strictly positive")
         else:
@@ -65,8 +65,9 @@ class Resource:
             for i in range(n, 0, -1):
                 # check if the resource collection is possible
                 if self.decay_function(self.init_units, self.epoch+i) >= 0:
+                    before_collection = self.get_units_collected()
                     self.epoch += i
-                    return self.get_units_collected()
+                    return self.get_units_collected()-before_collection
 
     def __repr__(self):
         return self.__str__()
