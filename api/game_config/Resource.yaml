@@ -59,7 +59,7 @@ IR00:
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.9
+  decay_factor: 0.986
   balancing_delay: 0.00353406842
 
 OI00:
@@ -92,7 +92,7 @@ AL00:
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.9
+  decay_factor: 0.986
   balancing_delay: 0.003956948401
 
 LE00:
@@ -103,7 +103,7 @@ LE00:
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.9
+  decay_factor: 0.986
   balancing_delay: 0.001112446046
 
 ZI00:
@@ -114,7 +114,7 @@ ZI00:
   init_units: 100000
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.9
+  decay_factor: 0.986
   balancing_delay: 0.001295001295
 
 NI00:
@@ -155,10 +155,10 @@ SI00:
   min_tier: 4
   unit_price: 10500000.0
   unit_xp: 105000.0
-  init_units: 100
+  init_units: 1000
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.9
+  decay_factor: 0.986
   balancing_delay: 0.0002645502646
 
 GO00:
@@ -169,7 +169,7 @@ GO00:
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
-  decay_factor: 0.93
+  decay_factor: 0.99305
   balancing_delay: 2.086493327e-06
 
 ME00:
