@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 yaml_logger = logging.getLogger(__name__)
-root = Path("../..")
+root = Path()
 
 
 class YamlReader:
