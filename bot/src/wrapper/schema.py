@@ -86,8 +86,8 @@ class Achievement:
             name=src["name"],
             description=src["description"],
             companies_earned=src.get("companies_earned", -1),
-            first_achieved=AchievementRecord(**src["first_achieved"]) if src["first_achieved"] else None,
-            latest_achieved=AchievementRecord(**src["latest_achieved"]) if src["latest_achieved"] else None,
+            first_achieved=(AchievementRecord(**src["first_achieved"]) if src["first_achieved"] else None),
+            latest_achieved=(AchievementRecord(**src["latest_achieved"]) if src["latest_achieved"] else None),
         )
 
     @classmethod
@@ -166,7 +166,11 @@ class ShopItem:
         if self.id == -1:
             msg = "This item have already been created with a given item id"
             raise ValueError(msg)
-        return {"available_quantity": self.quantity, "name": self.name, "price": self.price}
+        return {
+            "available_quantity": self.quantity,
+            "name": self.name,
+            "price": self.price,
+        }
 
     def to_modify(self) -> ShopIdPatchInput:
         """Convert this to the patch json to be send to API endpoint."""
