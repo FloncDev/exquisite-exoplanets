@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 yaml_logger = logging.getLogger(__name__)
-root = Path()
+root = Path().absolute()
 
 
 class YamlReader:
@@ -19,7 +19,7 @@ class YamlReader:
             error = "Wrong file type, must be `.yaml` extension"
             raise ValueError(error)
 
-        filepath = root.joinpath("game_config", filename)
+        filepath = root.parent.joinpath("game_config", filename)
         yaml_logger.debug(f"reading {filename}")
         with filepath.open() as file:
             self.contents: dict[str, Any] = yaml.safe_load(file)

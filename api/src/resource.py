@@ -2,7 +2,7 @@ import logging
 import random
 from typing import TYPE_CHECKING, Any
 
-from yaml_reader import YamlReader
+from api.src import YamlReader
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -13,10 +13,10 @@ resource_logger = logging.getLogger(__name__)
 class Resource:
     """Class representing an in game resource."""
 
-    _config: dict[str, Any] = YamlReader("Resource.yaml").contents
+    config: dict[str, Any] = YamlReader("Resource.yaml").contents
 
     def __init__(self, mat_id: str, tier: int = 0) -> None:
-        self._matconf = self._config[mat_id]
+        self._matconf = self.config[mat_id]
         self.name = self._matconf["name"]
         if tier < self._matconf["min_tier"]:
             raise ValueError(f"{self._matconf['name']} can only appear on tier {self._matconf['min_tier']} or above")
@@ -27,11 +27,6 @@ class Resource:
         self.unit_price = self._matconf["unit_price"]
         self.unit_xp = self._matconf["unit_xp"]
 
-        # apparition probability is limited to 1
-        self.apparition_probability = min(
-            self._matconf["apparition_probability"] * self._matconf["tier_apparition_upscale"] ** tier_upscaling,
-            1,
-        )
         # mu = 1 and sigma = 1/30 means you have a normal distribution centered on 1 that can go as far as ]0.9, 1.1[
         self.init_units = (
                 self._matconf["init_units"]
@@ -54,15 +49,27 @@ class Resource:
         return self.init_units - self.get_units_left()
 
     def get_xp_collected(self) -> float:
-        """Get the amount of units collected."""
-        return self.epoch * self.unit_xp
+        """Get the amount of xp collected."""
+        return self.get_units_collected() * self.unit_xp
+
+    def get_money_collected(self) -> float:
+        """Get the amount of money collected."""
+        return self.get_units_collected() * self.unit_price
 
     def collect(self, n: int = 1) -> float:
         """Collect resources."""
         if n <= 0:
             raise ValueError("n must be strictly positive")
-        self.epoch += n
-        return self.get_units_collected()
+        else:
+            # find max epoch allowed
+            for i in range(n, 0, -1):
+                # check if the resource collection is possible
+                if self.decay_function(self.init_units, self.epoch+i) >= 0:
+                    self.epoch += i
+                    return self.get_units_collected()
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self) -> str:
         return f'<name:{self.name}, tier:{self._tier}, units_left:{self.get_units_left()}>'

@@ -34,8 +34,6 @@ WA00:
   min_tier: 0
   unit_price: 3.0
   unit_xp: 0.03
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100000
   tier_units_upscale: 10
   decay_function: 'exponential'
@@ -47,8 +45,6 @@ WO00:
   min_tier: 0
   unit_price: 60.0
   unit_xp: 0.6
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'linear'
@@ -60,8 +56,6 @@ IR00:
   min_tier: 1
   unit_price: 786.0
   unit_xp: 7.86
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -73,8 +67,6 @@ OI00:
   min_tier: 1
   unit_price: 477.0
   unit_xp: 4.77
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'linear'
@@ -86,8 +78,6 @@ CO00:
   min_tier: 1
   unit_price: 832.5
   unit_xp: 8.325
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'linear'
@@ -99,8 +89,6 @@ AL00:
   min_tier: 2
   unit_price: 7020.0
   unit_xp: 70.2
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -112,8 +100,6 @@ LE00:
   min_tier: 2
   unit_price: 24970.0
   unit_xp: 249.7
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -125,8 +111,6 @@ ZI00:
   min_tier: 2
   unit_price: 21450.0
   unit_xp: 214.5
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100000
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -138,8 +122,6 @@ NI00:
   min_tier: 3
   unit_price: 131542.0
   unit_xp: 1315.42
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 1000
   tier_units_upscale: 10
   decay_function: 'linear'
@@ -151,8 +133,6 @@ TI00:
   min_tier: 3
   unit_price: 21555.0
   unit_xp: 215.55
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -164,8 +144,6 @@ CO01:
   min_tier: 3
   unit_price: 82866.8
   unit_xp: 828.668
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'exponential'
@@ -177,8 +155,6 @@ SI00:
   min_tier: 4
   unit_price: 10500000.0
   unit_xp: 105000.0
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -190,8 +166,6 @@ GO00:
   min_tier: 4
   unit_price: 1331314000.0
   unit_xp: 13313140.0
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'geometric'
@@ -203,8 +177,6 @@ ME00:
   min_tier: 5
   unit_price: 3334995.656
   unit_xp: 33349.95656
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 1000
   tier_units_upscale: 10
   decay_function: 'exponential'
@@ -216,8 +188,6 @@ UR00:
   min_tier: 5
   unit_price: 1309000.0
   unit_xp: 13090.0
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'exponential'
@@ -229,8 +199,6 @@ DI00:
   min_tier: 6
   unit_price: 15786000000.0
   unit_xp: 157860000.0
-  apparition_probability: 1
-  tier_apparition_upscale: 1
   init_units: 100
   tier_units_upscale: 10
   decay_function: 'exponential'
