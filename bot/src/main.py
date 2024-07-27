@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from dotenv import find_dotenv, load_dotenv
 
-from src.context import Context
+from src.context import AutocompleteContext, Context
 from src.wrapper.interface import Interface
 
 load_dotenv(find_dotenv())
@@ -30,6 +30,14 @@ class Client(commands.Bot):
     ) -> discord.ApplicationContext:
         """Return custom application context."""
         return await super().get_application_context(interaction, cls)
+
+    async def get_autocomplete_context(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        interaction: discord.Interaction,
+        cls=AutocompleteContext,  # pyright: ignore[reportMissingParameterType]  # noqa: ANN001
+    ) -> discord.AutocompleteContext:
+        """Return custom autocomplete context."""
+        return await super().get_autocomplete_context(interaction, cls)
 
     async def on_ready(self) -> None:
         """Ran after bot has logged in."""

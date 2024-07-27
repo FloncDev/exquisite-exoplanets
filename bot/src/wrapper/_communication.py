@@ -4,9 +4,9 @@ from typing import Literal
 
 import aiohttp
 
-from ._api_schema import (  # Company
+from ._api_schema import (
     AchievementGetOutput,  # Achievement
-    AchievementIdGetOutput,
+    AchievementIdGetOutput,  # Company
     BatchCompaniesOutput,
     CompanyGetIdOutput,
     CompanyIdAchievementGetOutput,
@@ -136,13 +136,20 @@ class CompanyRawAPI:
 
     @staticmethod
     async def list_companies(
-        session: aiohttp.ClientSession, page: int = 1, limit: int = 10, *, ascending: bool = False
+        session: aiohttp.ClientSession,
+        page: int = 1,
+        limit: int = 10,
+        *,
+        ascending: bool = False,
     ) -> BatchCompaniesOutput:
         """Get a list of the registered Companies."""
 
         async def caller(session: aiohttp.ClientSession) -> BatchCompaniesOutput:
             async with (
-                session.get("/companies", params={"page": page, "limit": limit, "ascending": str(ascending)}) as resp,
+                session.get(
+                    "/companies",
+                    params={"page": page, "limit": limit, "ascending": str(ascending)},
+                ) as resp,
             ):
                 if resp.ok:
                     return (await resp.json())["companies"]
@@ -181,7 +188,9 @@ class CompanyRawAPI:
     async def get_company_achievement(session: aiohttp.ClientSession, user_id: int) -> CompanyIdAchievementGetOutput:
         """Get a list of company achievement."""
 
-        async def caller(session: aiohttp.ClientSession) -> CompanyIdAchievementGetOutput:
+        async def caller(
+            session: aiohttp.ClientSession,
+        ) -> CompanyIdAchievementGetOutput:
             async with (
                 session.get(f"/company/{user_id}/achievements") as resp,
             ):
@@ -310,11 +319,11 @@ class ShopRawAPI:
 
         async def caller(session: aiohttp.ClientSession) -> ShopBuyOutput:
             async with (
-                session.put(f"/shop/{item_id}/buy", json=src) as resp,
+                session.post(f"/shop/{item_id}/buy", json=src) as resp,
             ):
                 if resp.ok:
                     return await resp.json()
-                if resp.status == Status.UNAUTHORIZED:
+                if resp.status == Status.BAD_REQUEST:
                     await CompanyRawAPI.get_company(session, int(src["company_id"]))
                     message = "Not enough balance"
                     raise UserError(message)  # Should probably do further check on this

@@ -1,4 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import discord
+
+if TYPE_CHECKING:
+    from src.main import Client
 
 
 class Context(discord.ApplicationContext):
@@ -13,3 +20,10 @@ class Context(discord.ApplicationContext):
 
         except discord.HTTPException:
             pass
+
+
+class AutocompleteContext(discord.AutocompleteContext):
+    """Custom AutocompleteContext."""
+
+    def __init__(self, bot: Client, interaction: discord.Interaction) -> None:
+        super().__init__(bot, interaction)
