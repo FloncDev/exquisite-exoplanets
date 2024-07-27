@@ -111,7 +111,7 @@ class Companies(commands.Cog):
             for inv_item in page_inventories:
                 embed.add_field(
                     name=f"{inv_item.item.name} [{inv_item.item.id}]",
-                    value=f"Quantity: {inv_item.stock}\nWorth: ${round(inv_item.total_amount_spent, 4)}",
+                    value=f"Quantity: {inv_item.stock}\nWorth: ${round(inv_item.total_amount_spent, 4):.2f}",
                 )
             inv_pages.append(embed)
         paginator = pages.Paginator(pages=inv_pages, show_indicator=False)
