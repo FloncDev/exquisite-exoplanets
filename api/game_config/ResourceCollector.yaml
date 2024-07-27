@@ -79,6 +79,7 @@ PU00:
   cost_of_use: 10
   cost_of_use_price_upscale : 10
   resources:
+    WA00: 0
     OI00: 1
 
 RE00:
