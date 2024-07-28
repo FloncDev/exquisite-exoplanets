@@ -101,3 +101,9 @@ class ResourceCollector:
         self.__epochs += epochs_since_last_collection
         units_collected = self.resource.collect(epochs_since_last_collection)
         return units_collected, self.get_cost(epochs_since_last_collection), self.resource.unit_price * units_collected
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return f'<name:{self.name}, tier:{self.tier}, resource:{self.resource}>'
