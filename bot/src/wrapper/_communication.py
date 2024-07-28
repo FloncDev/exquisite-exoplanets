@@ -94,7 +94,7 @@ class CompanyRawAPI:
         return await make_request(session, caller)
 
     @staticmethod
-    async def edit_company_name(session: aiohttp.ClientSession, user_id: int, src: CompanyPatchIdInput) -> None:
+    async def edit_company(session: aiohttp.ClientSession, user_id: int, src: CompanyPatchIdInput) -> None:
         """Edit the company name with the user id of the discord user through a direct HTTP request."""
 
         async def caller(session: aiohttp.ClientSession) -> None:
@@ -107,8 +107,7 @@ class CompanyRawAPI:
                     message = "This user doesn't own a company"
                     raise DoesNotExistError(message)
                 message = (
-                    "Undefined behaviour bot.src.wrapper.CompanyRawAPI.edit_company_name, "
-                    f"Status received {resp.status}"
+                    "Undefined behaviour bot.src.wrapper.CompanyRawAPI.edit_company, " f"Status received {resp.status}"
                 )
                 raise UnknownNetworkError(message)
 
