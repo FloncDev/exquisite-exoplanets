@@ -44,17 +44,18 @@ class CompanyAPI(BaseAPI):
         out: CompanyGetIdOutput = await CompanyRawAPI.get_company(self.parent.session, user_id)
         return Company.from_dict(out)
 
-    async def edit_company_name(self, company: Company | int, new_name: str) -> Company:
+    async def edit_company(self, company: Company) -> Company:
         """Edit the company name with the given user id.
 
         :raise DoesNotExistError: The company cannot be found
         """
-        if isinstance(company, Company):
-            user_id: int = company.owner_id
-        else:
-            user_id: int = company
-        src: CompanyPatchIdInput = {"company_name": new_name}
-        await CompanyRawAPI.edit_company_name(self.parent.session, user_id, src)
+        user_id: int = company.owner_id
+        src: CompanyPatchIdInput = {
+            "company_name": company.name,
+            "networth": float(company.current_networth),
+            "planet_name": company.planet,
+        }
+        await CompanyRawAPI.edit_company(self.parent.session, user_id, src)
         return await self.get_company(user_id)
 
     async def delete_company(self, company: Company | int) -> None:

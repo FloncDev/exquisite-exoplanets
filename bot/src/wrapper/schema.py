@@ -108,7 +108,8 @@ class Company:
     name: str
     owner_id: int
     created_date: datetime.datetime
-    current_networth: decimal.Decimal | None = field(default_factory=decimal.Decimal)
+    planet: str
+    current_networth: decimal.Decimal = field(default_factory=decimal.Decimal)
     is_bankrupt: bool | None = False
     inventory: list[InventoryItem] | None = None
     achievements: list[Achievement] | None = None
@@ -121,8 +122,9 @@ class Company:
             name=src["name"],
             owner_id=int(src["owner_id"]),
             created_date=datetime.datetime.fromisoformat(src["created"]),
-            current_networth=decimal.Decimal(src["networth"]),
+            current_networth=decimal.Decimal(src["networth"] or 0),
             is_bankrupt=src["is_bankrupt"],
+            planet=src["current_planet"],
         )
 
     def set_inventory(self, src: CompanyIdInventoryGetOutput) -> Self:

@@ -17,12 +17,15 @@ class CompanyGetIdOutput(TypedDict):
     created: str
     is_bankrupt: bool
     networth: float
+    current_planet: str
 
 
 class CompanyPatchIdInput(TypedDict):
-    """JSON data for PUT /conpany/{id} endpoint input."""
+    """JSON data for PATCH /conpany/{id} endpoint input."""
 
     company_name: str
+    networth: float
+    planet_name: str
 
 
 type BatchCompaniesOutput = list[CompanyGetIdOutput]
