@@ -4,9 +4,9 @@
 #  init_price: [0, inf]  # buying price
 #  init_speed: [0, inf]  # resource harvest speed
 #
-#  speed_upgrade_upscale: [1, inf[  # multiplication of speed for each tier
-#  speed_upgrade_init_price: [0, inf[  # first upgrade price
-#  speed_upgrade_price_upscale: [1, inf[  # multiplication of price by tier
+#  upgrade_upscale: [1, inf[  # multiplication of speed for each tier
+#  upgrade_init_price: [0, inf[  # first upgrade price
+#  upgrade_price_upscale: [1, inf[  # multiplication of price by tier
 #  cost_of_use: [0, inf[  # how much money do you need to operate the machine / epoch
 #  cost_of_use_price_upscale : [1, inf[  # the multiplication of the cost to use per tier
 #  resources:  # the resources this collector can cover with the respective minimal tier upgrade needed
@@ -17,11 +17,11 @@ FO00:
   name: foundry
   init_price: 10000
   init_speed: 1
-  speed_upgrade_upscale: 5
-  speed_upgrade_init_price: 250000
-  speed_upgrade_price_upscale: 10
+  upgrade_upscale: 7
+  upgrade_init_price: 250000
+  upgrade_price_upscale: 10
   cost_of_use: 10
-  cost_of_use_price_upscale : 10
+  cost_of_use_price_upscale : 2
   resources:
     IR00: 1
     AL00: 2
@@ -37,11 +37,11 @@ MI00:
   name: mining robot
   init_price: 20000
   init_speed: 1
-  speed_upgrade_upscale: 5
-  speed_upgrade_init_price: 250000
-  speed_upgrade_price_upscale: 10
+  upgrade_upscale: 7
+  upgrade_init_price: 250000
+  upgrade_price_upscale: 10
   cost_of_use: 10
-  cost_of_use_price_upscale : 10
+  cost_of_use_price_upscale : 2
   resources:
     CO00: 1
     IR00: 1
@@ -61,11 +61,11 @@ NO00:
   name: nothing
   init_price: 0
   init_speed: 1
-  speed_upgrade_upscale: 0
-  speed_upgrade_init_price: 0
-  speed_upgrade_price_upscale: 0
-  cost_of_use: 10
-  cost_of_use_price_upscale : 10
+  upgrade_upscale: 0
+  upgrade_init_price: 0
+  upgrade_price_upscale: 0
+  cost_of_use: 0
+  cost_of_use_price_upscale : 1
   resources:
     WO00: 0
 
@@ -73,11 +73,11 @@ PU00:
   name: pump
   init_price: 15000
   init_speed: 1
-  speed_upgrade_upscale: 5
-  speed_upgrade_init_price: 250000
-  speed_upgrade_price_upscale: 10
+  upgrade_upscale: 7
+  upgrade_init_price: 250000
+  upgrade_price_upscale: 10
   cost_of_use: 10
-  cost_of_use_price_upscale : 10
+  cost_of_use_price_upscale : 2
   resources:
     WA00: 0
     OI00: 1
@@ -86,11 +86,11 @@ RE00:
   name: refinery
   init_price: 15000
   init_speed: 1
-  speed_upgrade_upscale: 5
-  speed_upgrade_init_price: 250000
-  speed_upgrade_price_upscale: 10
+  upgrade_upscale: 7
+  upgrade_init_price: 250000
+  upgrade_price_upscale: 10
   cost_of_use: 10
-  cost_of_use_price_upscale : 10
+  cost_of_use_price_upscale : 2
   resources:
     OI00: 1
     ME00: 5
