@@ -1,6 +1,6 @@
 # a template for making random planet names
 
-random_name_part1:
+names:
    - 'Cardinan'
    - 'Solis'
    - 'Aractus'
@@ -15,8 +15,33 @@ random_name_part1:
    - 'Pietrus'
    - 'Lu'
    - 'Babao'
+   - 'Astraeus'
+   - 'Caelestia'
+   - 'Cosmorra'
+   - 'Elysara'
+   - 'Firmamentus'
+   - 'Galaxia'
+   - 'Helius'
+   - 'Luminaera'
+   - 'Nebulora'
+   - 'Orionis'
+   - 'Polaris'
+   - 'Sidra'
+   - 'Solara'
+   - 'Stellarae'
+   - 'Vestara'
+   - 'Zenithia'
+   - 'Astralis'
+   - 'Caelumia'
+   - 'Lunara'
+   - 'Stella'
+   - 'Bylitium'
+   - 'Carlago'
+   - 'Constan'
+   - 'Athanee'
+   - 'Babyl'
 
-random_name_modifier:
+name_modifiers:
    - 'I'
    - 'II'
    - 'III'
@@ -35,17 +60,23 @@ random_name_modifier:
    - 'major'
    - 'bis'
    - 'ter'
+   - 'Prima'
+   - 'Secunda'
+   - 'Novus'
+   - 'Nova'
+   - 'Alpha'
+   - 'Beta'
+   - 'Gamma'
+   - 'Omega'
 
 # premade planets
 EA0000:
    name: 'Earth'
    tier: 0
-   resources: []
    description: 'This empty husk used to be the most magnificent green world, believe it or not'
 
 HO0004:
    name: 'Hoxxes IV'
    tier: 0
-   ressources: [] # Gold in high density
    description: 'This very rich planet has a huge chunk of its crust detached exposing the lower layers.
    Unfortunately, no matter how many prospecting devices you send, they always seem to get destroyed by the extremely hostile local wildlife'
