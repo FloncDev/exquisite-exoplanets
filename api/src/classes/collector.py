@@ -1,8 +1,10 @@
+from datetime import datetime, timedelta
 from typing import Any, Self
 
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from src.models import ResourceCollectorModel, ResourceCollectorPublic
+from src.classes.resource import ResourceRepresentation
+from src.models import ResourceCollectorModel, ResourceCollectorPublic, ResourceModel
 
 
 class ResourceCollectorRepresentation:

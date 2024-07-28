@@ -1,5 +1,6 @@
 FO00:
   name: foundry
+  tier: 1
   init_price: 10000
   init_speed: 1
   upgrade_upscale: 7
@@ -20,6 +21,7 @@ FO00:
 
 MI00:
   name: mining robot
+  tier: 1
   init_price: 20000
   init_speed: 1
   upgrade_upscale: 7
@@ -44,6 +46,7 @@ MI00:
 
 NO00:
   name: nothing
+  tier: 1
   init_price: 0
   init_speed: 1
   upgrade_upscale: 0
@@ -56,6 +59,7 @@ NO00:
 
 PU00:
   name: pump
+  tier: 1
   init_price: 15000
   init_speed: 1
   upgrade_upscale: 7
@@ -69,6 +73,7 @@ PU00:
 
 RE00:
   name: refinery
+  tier: 1
   init_price: 15000
   init_speed: 1
   upgrade_upscale: 7

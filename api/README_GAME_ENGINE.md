@@ -83,6 +83,7 @@ Structure:
 ```yaml
 RESOURCE_COLLECTOR_ID:
   name: 'ResourceCollectorName'
+  tier: 1
   init_price: [0, inf)  # buying price
   init_speed: [0, inf)  # resource harvest speed
 
@@ -101,6 +102,7 @@ Example:
 ```yaml
 FO00:
   name: foundry
+  tier: 1
   init_price: 10000
   init_speed: 1
   upgrade_upscale: 7

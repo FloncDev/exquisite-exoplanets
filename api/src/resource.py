@@ -36,7 +36,8 @@ class Resource:
         )
         # the decay function has the signature
         # (init_units:int, epoch:int) -> units left rounded:int
-        self.decay_function: Callable[[int, int], int] = self._matconf["decay_function"]
+        self.decay_function: Callable[[int, int], float] = YamlReader.str_to_decay_function(
+            self._matconf["decay_function"], self._matconf["decay_factor"])
         self.epoch = 0
 
         self.balancing_delay = self._matconf["balancing_delay"]
@@ -58,7 +59,7 @@ class Resource:
         return self.get_units_collected() * self.unit_price
 
     def collect(self, n: int = 1) -> float:
-        """Collect resources then returns the amount of resources collected"""
+        """Collect resources then returns the amount of resources collected."""
         if n <= 0:
             raise ValueError("n must be strictly positive")
         else:

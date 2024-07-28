@@ -1,7 +1,8 @@
 import datetime
 import logging
 
-from src import Resource, YamlReader
+from .resource import Resource
+from .yaml_reader import YamlReader
 
 collector_logger = logging.getLogger(__name__)
 
@@ -83,9 +84,8 @@ class ResourceCollector:
             raise ValueError("collector has to be started before collecting")
         collection_time = datetime.datetime.now()
         epochs_since_last_collection = self.get_speed() * (
-                    collection_time - self.__last_collected_at) // self.epoch_definition
+                collection_time - self.__last_collected_at) // self.epoch_definition
         epochs_since_last_collection = int(min(epochs_since_last_collection, self.auto_stop))
         self.__epochs += epochs_since_last_collection
         units_collected = self.resource.collect(epochs_since_last_collection)
         return units_collected, self.get_cost(epochs_since_last_collection), self.resource.unit_price * units_collected
-

@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import Any
 
 from pydantic import field_validator
 from sqlmodel import (
@@ -22,6 +23,7 @@ class Company(SQLModel, table=True):
     name: str = Field(nullable=False)
     owner_id: str = Field(nullable=False, foreign_key="user.user_id")
     current_planet: str = Field(foreign_key="planet.planet_id", nullable=False)
+    last_resource_collect: datetime = Field(nullable=False, default_factory=datetime.now)
 
     @field_validator("name")
     @classmethod
@@ -390,6 +392,7 @@ class ResourceCollectorModel(SQLModel, table=True):
     id: int | None = Field(primary_key=True, default=None)
     collector_id: str = Field(nullable=False)
     name: str = Field(nullable=False)
+    tier: int = Field(nullable=False)
     init_price: float = Field(nullable=False)
     init_speed: float = Field(nullable=False)
     upgrade_upscale: float = Field(nullable=False)
@@ -425,3 +428,9 @@ class ResourceCollectorMineableResourcesModel(SQLModel, table=True):
     # Relationships
     resource_collector: "ResourceCollectorModel" = Relationship(back_populates="mineable_resources")
     resource: "ResourceModel" = Relationship(back_populates="harvestable_by")
+
+
+class ResourceCollectionPublic(SQLModel):
+    """Model representing the details of the materials collected."""
+
+    resources: list[dict[str, Any]]

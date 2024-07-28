@@ -5,7 +5,7 @@ from sqlmodel import Session
 from src.classes.company import CompanyRepresentation
 from src.classes.pagination import CompanyPagination
 from src.db import get_session
-from src.models import AchievementsCompanyPublic, CompanyCreate, CompanyPublic, CompanyUpdate
+from src.models import AchievementsCompanyPublic, CompanyCreate, CompanyPublic, CompanyUpdate, ResourceCollectionPublic
 
 router = APIRouter()
 
@@ -38,8 +38,8 @@ async def get_company(company_id: str, session: Session = Depends(get_session)) 
 
 @router.get("/companies")
 async def get_companies(
-    params: CompanyPagination = Depends(),
-    session: Session = Depends(get_session),
+        params: CompanyPagination = Depends(),
+        session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     """Endpoint to get all Companies, with pagination.
 
@@ -52,7 +52,7 @@ async def get_companies(
 
 @router.patch("/company/{company_id}", status_code=200)
 async def update_company(
-    company_id: str, data: CompanyUpdate, session: Session = Depends(get_session)
+        company_id: str, data: CompanyUpdate, session: Session = Depends(get_session)
 ) -> dict[str, str]:
     """Endpoint to update the given Company's details.
 
@@ -90,7 +90,7 @@ async def get_inventory(company_id: str, session: Session = Depends(get_session)
 
 @router.get("/company/{company_id}/achievements")
 async def get_company_achievements(
-    company_id: str, session: Session = Depends(get_session)
+        company_id: str, session: Session = Depends(get_session)
 ) -> AchievementsCompanyPublic:
     """Get the Achievements for the given Company.
 
@@ -99,3 +99,9 @@ async def get_company_achievements(
     :return: Company's achievements.
     """
     return CompanyRepresentation.fetch_company(session=session, company_id=company_id).get_achievements()
+
+
+@router.get("/company/{company_id}/collect")
+def collect_resources(company_id: str, session: Session = Depends(get_session)) -> ResourceCollectionPublic:
+    """Collect the resources on the Planet."""
+    return CompanyRepresentation.fetch_company(session=session, company_id=company_id).collect_resources()
