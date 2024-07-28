@@ -11,7 +11,7 @@ class ResourceCollector:
     Each instance is bound to one material only"""
 
     config = YamlReader("ResourceCollector.yaml").contents
-    epoch_definition = datetime.timedelta(microseconds=1)
+    epoch_definition = datetime.timedelta(hours=1)
 
     def __init__(self,
                  collector_id: str,
