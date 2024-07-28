@@ -1,7 +1,9 @@
 import logging
 from datetime import UTC, datetime, timedelta
 
-from src import Resource, YamlReader
+from src import Resource
+
+from .yaml_reader import YamlReader
 
 collector_logger = logging.getLogger(__name__)
 

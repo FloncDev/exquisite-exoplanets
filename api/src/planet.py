@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import itertools
 import logging
 import random
-from collections.abc import Generator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from src import Resource, YamlReader
+from .resource import Resource
+from .yaml_reader import YamlReader
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 planet_logger = logging.getLogger(__name__)
 
