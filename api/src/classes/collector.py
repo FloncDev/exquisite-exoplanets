@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta
 from typing import Any, Self
 
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from src.classes.resource import ResourceRepresentation
-from src.models import ResourceCollectorModel, ResourceCollectorPublic, ResourceModel
+from src.models import ResourceCollectorModel, ResourceCollectorPublic
 
 
 class ResourceCollectorRepresentation:
@@ -18,7 +16,8 @@ class ResourceCollectorRepresentation:
     def fetch_collector(cls, session: Session, name: str) -> Self:
         """Fetch a planet from the database. Return class with fetched planet."""
         fetched_collector: ResourceCollectorModel | None = session.exec(
-            select(ResourceCollectorModel).where(ResourceCollectorModel.collector_id == name)).first()
+            select(ResourceCollectorModel).where(ResourceCollectorModel.collector_id == name)
+        ).first()
 
         if fetched_collector is None:
             raise HTTPException(status_code=404, detail="Collector not found.")

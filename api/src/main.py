@@ -74,15 +74,20 @@ def _populate_achievements() -> None:
 def _populate_planets() -> None:
     """Populate the Planets table with what is in the config."""
     # Default starting planet
-    starting_planet: dict[str, Any] = {"planet_id": "EA0000", "name": "Earth", "tier": 0,
-                                       "description": "This empty husk used to be the most magnificent green world, believe it or not"}
+    starting_planet: dict[str, Any] = {
+        "planet_id": "EA0000",
+        "name": "Earth",
+        "tier": 0,
+        "description": "This empty husk used to be the most magnificent green world, believe it or not",
+    }
 
     planets: dict[str, Any] = YamlReader("Planet.yaml").contents
 
     with Session(engine) as session:
         # insert default starting planet
         fetched_starting_planet: PlanetModel | None = session.exec(
-            select(PlanetModel).where(PlanetModel.planet_id == starting_planet["planet_id"])).first()
+            select(PlanetModel).where(PlanetModel.planet_id == starting_planet["planet_id"])
+        ).first()
 
         if not fetched_starting_planet:
             session.add(PlanetModel.model_validate(starting_planet))
@@ -91,7 +96,8 @@ def _populate_planets() -> None:
             # Check if the Planet exists.
             # Only store if it does not exists
             fetched_planet: PlanetModel | None = session.exec(
-                select(PlanetModel).where(PlanetModel.planet_id == planet_id)).first()
+                select(PlanetModel).where(PlanetModel.planet_id == planet_id)
+            ).first()
 
             if fetched_planet is None:
                 # Add new planet to the
@@ -117,7 +123,8 @@ def _populate_resources() -> None:
             # Check if the resource exists.
             # Only store if it does not exists
             fetched_resource: ResourceModel | None = session.exec(
-                select(ResourceModel).where(ResourceModel.resource_id == resource_id)).first()
+                select(ResourceModel).where(ResourceModel.resource_id == resource_id)
+            ).first()
 
             if fetched_resource is None:
                 # Add new resource to the
@@ -143,7 +150,8 @@ def _populate_resource_collectors() -> None:
             # Check if the resource exists.
             # Only store if it exists
             fetched_collector: ResourceCollectorModel | None = session.exec(
-                select(ResourceCollectorModel).where(ResourceCollectorModel.collector_id == collector_id)).first()
+                select(ResourceCollectorModel).where(ResourceCollectorModel.collector_id == collector_id)
+            ).first()
 
             if fetched_collector is None:
                 # Add new collector to the
@@ -156,12 +164,16 @@ def _populate_resource_collectors() -> None:
                 # Adding the items
                 for item in data["resources"]:
                     # Check that the item exists, if not, ignore
-                    fetched_item: ResourceModel = session.exec(
-                        select(ResourceModel).where(ResourceModel.resource_id == item)).first()
+                    fetched_item: ResourceModel | None = session.exec(
+                        select(ResourceModel).where(ResourceModel.resource_id == item)
+                    ).first()
 
                     if fetched_item is not None:
-                        new_collector_item: ResourceCollectorMineableResourcesModel = ResourceCollectorMineableResourcesModel.model_validate(
-                            {"resource_collector_id": new_collector.id, "resource_id": fetched_item.id})
+                        new_collector_item: ResourceCollectorMineableResourcesModel = (
+                            ResourceCollectorMineableResourcesModel.model_validate(
+                                {"resource_collector_id": new_collector.id, "resource_id": fetched_item.id}
+                            )
+                        )
 
                         session.add(new_collector_item)
 
@@ -179,20 +191,25 @@ def _populate_resources_on_planet() -> None:
     with Session(engine) as session:
         fetched_planets: Sequence[PlanetModel] = session.exec(select(PlanetModel)).all()
 
-        for planet in fetched_planets:
-            if len(planet.resources) == 0:
-                p: Planet = Planet(tier=planet.tier)
+        for pp in fetched_planets:
+            if len(pp.resources) == 0:
+                p: Planet = Planet(tier=pp.tier)
                 p.spawn_resources()
 
-                for resource in p.resources:
+                for r in p.resources:
                     # Add the resource to the planet.
                     # If not exists
                     planet_resource: PlanetResourcesModel | None = session.exec(
-                        select(PlanetResourcesModel).where(PlanetResourcesModel.planet_id == planet.id,
-                                                           PlanetResourcesModel.resource_id == resource.id)).first()
+                        select(PlanetResourcesModel).where(
+                            PlanetResourcesModel.planet_id == pp.id,
+                            PlanetResourcesModel.resource_id == r.id,
+                        )
+                    ).first()
                     if planet_resource is None:
-                        new_planet_resource: PlanetResourcesModel = PlanetResourcesModel(planet_id=planet.id,
-                                                                                         resource_id=resource.id)
+                        new_planet_resource: PlanetResourcesModel = PlanetResourcesModel(
+                            planet_id=pp.id,  # type: ignore[reportArgumentType]
+                            resource_id=r.id,  # type: ignore[reportArgumentType]
+                        )
                         session.add(new_planet_resource)
                         session.flush()
 

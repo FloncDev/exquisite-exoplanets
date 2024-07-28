@@ -24,8 +24,6 @@ class YamlReader:
         with filepath.open() as file:
             self.contents: dict[str, Any] = yaml.safe_load(file)
 
-        # self.parse_special(self.contents)
-
     def parse_special(self, cursor: dict[str, Any]) -> None:
         """Parse special YAML content."""
         for attr, value in cursor.items():
@@ -40,8 +38,8 @@ class YamlReader:
 
     @staticmethod
     def str_to_decay_function(
-            fct_name: str,
-            factor: float = 1,
+        fct_name: str,
+        factor: float = 1,
     ) -> Callable[[int, int], float]:
         """Match a string to a decay function.
 
@@ -66,7 +64,7 @@ class YamlReader:
                     error = "Geometric factor must be in [0, 1]"
                     raise ValueError(error)
 
-                return lambda init_units, x: round(init_units * factor ** x, 0)
+                return lambda init_units, x: round(init_units * factor**x, 0)
 
             case "exponential":
                 if factor <= 0:

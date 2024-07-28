@@ -15,7 +15,6 @@ from src.models import (
     EarnedAchievements,
     Inventory,
     InventoryPublic,
-    PlanetModel,
     ResourceCollectionPublic,
 )
 from src.resource import Resource
@@ -92,12 +91,10 @@ class CompanyRepresentation:
         if target and not any(x.is_bankrupt for x in target):
             raise HTTPException(status_code=409, detail="Such company already exists.")
 
-        # Getting the starting planet
-        start_planet: PlanetModel = session.exec(select(PlanetModel).where(PlanetModel.planet_id == "EA0000")).first()
-
         try:
-            new_company: Company = Company(name=data.name, owner_id=fetched_user.get_user().user_id,
-                                           current_planet=start_planet.planet_id)
+            new_company: Company = Company(
+                name=data.name, owner_id=fetched_user.get_user().user_id, current_planet="EA0000"
+            )
             session.add(new_company)
             session.commit()
             session.refresh(new_company)
@@ -230,14 +227,18 @@ class CompanyRepresentation:
 
             # Update the company
             self.company.networth += money_collected
-            self.company.user.experience += xp_collected
+            self.company.user.experience += xp_collected  # type: ignore[reportAttributeAccessIssue]
             self.session.add(self.company)
 
             # Sort to return to the user
             collected_resources.append(
-                {"resource_id": resource.resource.resource_id, "amount": collected_resources_amt,
-                 "xp_earned": xp_collected,
-                 "money_earned": money_collected})
+                {
+                    "resource_id": resource.resource.resource_id,
+                    "amount": collected_resources_amt,
+                    "xp_earned": xp_collected,
+                    "money_earned": money_collected,
+                }
+            )
 
         self.session.commit()
 

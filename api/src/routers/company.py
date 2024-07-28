@@ -38,8 +38,8 @@ async def get_company(company_id: str, session: Session = Depends(get_session)) 
 
 @router.get("/companies")
 async def get_companies(
-        params: CompanyPagination = Depends(),
-        session: Session = Depends(get_session),
+    params: CompanyPagination = Depends(),
+    session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     """Endpoint to get all Companies, with pagination.
 
@@ -52,7 +52,7 @@ async def get_companies(
 
 @router.patch("/company/{company_id}", status_code=200)
 async def update_company(
-        company_id: str, data: CompanyUpdate, session: Session = Depends(get_session)
+    company_id: str, data: CompanyUpdate, session: Session = Depends(get_session)
 ) -> dict[str, str]:
     """Endpoint to update the given Company's details.
 
@@ -90,7 +90,7 @@ async def get_inventory(company_id: str, session: Session = Depends(get_session)
 
 @router.get("/company/{company_id}/achievements")
 async def get_company_achievements(
-        company_id: str, session: Session = Depends(get_session)
+    company_id: str, session: Session = Depends(get_session)
 ) -> AchievementsCompanyPublic:
     """Get the Achievements for the given Company.
 

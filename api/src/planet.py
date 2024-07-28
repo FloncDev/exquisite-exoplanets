@@ -38,41 +38,45 @@ class Planet:
                     case _ if resource.min_tier < self.tier:  # if tier is inferior
                         tier_diff = self.tier - resource.min_tier
 
-                        if random.random() < 1 / (
-                                3 * tier_diff):  # the chance of spawning is (1/3) * (1/tier difference)
+                        if random.random() < 1 / (  # noqa: S311
+                            3 * tier_diff
+                        ):  # the chance of spawning is (1/3) * (1/tier difference)
                             self.resources.append(resource)
 
                     case _ if resource.min_tier == self.tier:  # if tier is equal there is 100% chance of spawning
                         self.resources.append(resource)
 
+                    case _:
+                        pass
+
     @classmethod
     def generate_random_name(cls) -> str:
         """Create a random name for the planet."""
         try:
-            planet_name = next(cls._name_generator)
+            planet_name = next(cls._name_generator)  # type: ignore[reportUnknownVariableType]
         except (StopIteration, TypeError):
             cls._name_generator = cls.name_generator()
             planet_name = cls.generate_random_name()
-        return planet_name
+        return planet_name  # type: ignore[reportUnknownVariableType]
 
     @classmethod
-    def name_generator(cls) -> str:
+    def name_generator(cls) -> str:  # type: ignore[reportReturnType]
+        """Generate a name for a planet."""
         names = cls._config["names"]
         modifiers = cls._config["name_modifiers"]
         names_list = [f"{name} {modifier}" for name, modifier in itertools.product(names, modifiers)]
         random.shuffle(names_list)
-        for name in names_list:
-            yield name
+        yield from names_list  # type: ignore[reportReturnType]
 
     @staticmethod
     def generate_id(name: str) -> str:
         """Generate an id for the planet."""
         return f"{name[:2].upper()}{0:04}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<name:{self.name},resources:{[str(e) for e in self.resources]}>"
 
 

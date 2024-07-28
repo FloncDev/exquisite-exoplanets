@@ -315,7 +315,7 @@ class EarnedAchievements(SQLModel, table=True):
 class PlanetModel(SQLModel, table=True):
     """Model representing a single Planet."""
 
-    __tablename__ = "planet"
+    __tablename__ = "planet"  # type: ignore[reportUnknownVariableType]
 
     id: int | None = Field(primary_key=True, default=None)
     planet_id: str = Field(nullable=False)
@@ -341,7 +341,7 @@ class PlanetPublic(SQLModel):
 class ResourceModel(SQLModel, table=True):
     """Model representing a single Resource."""
 
-    __tablename__ = "resource"
+    __tablename__ = "resource"  # type: ignore[reportUnknownVariableType]
 
     id: int | None = Field(primary_key=True, default=None)
     resource_id: str = Field(nullable=False)
@@ -374,7 +374,7 @@ class ResourcePublic(SQLModel):
 class PlanetResourcesModel(SQLModel, table=True):
     """Model representing all the Resources found on a Planet."""
 
-    __tablename__ = "planet_resources"
+    __tablename__ = "planet_resources"  # type: ignore[reportUnknownVariableType]
 
     planet_id: int = Field(primary_key=True, foreign_key="planet.id")
     resource_id: int = Field(primary_key=True, foreign_key="resource.id")
@@ -387,7 +387,7 @@ class PlanetResourcesModel(SQLModel, table=True):
 class ResourceCollectorModel(SQLModel, table=True):
     """Model representing a single Resource Collector."""
 
-    __tablename__ = "resource_collector"
+    __tablename__ = "resource_collector"  # type: ignore[reportUnknownVariableType]
 
     id: int | None = Field(primary_key=True, default=None)
     collector_id: str = Field(nullable=False)
@@ -403,11 +403,12 @@ class ResourceCollectorModel(SQLModel, table=True):
 
     # Relationships
     mineable_resources: list["ResourceCollectorMineableResourcesModel"] = Relationship(
-        back_populates="resource_collector")
+        back_populates="resource_collector"
+    )
 
 
 class ResourceCollectorPublic(SQLModel):
-    """Model representing the details of a Resource collector that can be returned to the User"""
+    """Model representing the details of a Resource collector that can be returned to the User."""
 
     collector_id: str
     name: str
@@ -420,7 +421,7 @@ class ResourceCollectorPublic(SQLModel):
 class ResourceCollectorMineableResourcesModel(SQLModel, table=True):
     """Model representing the Resources that a Resource Collector can harvest."""
 
-    __tablename__ = "collector_resources"
+    __tablename__ = "collector_resources"  # type: ignore[reportUnknownVariableType]
 
     resource_collector_id: int = Field(primary_key=True, foreign_key="resource_collector.id")
     resource_id: int = Field(primary_key=True, foreign_key="resource.id")

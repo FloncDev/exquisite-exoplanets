@@ -16,7 +16,8 @@ class ResourceRepresentation:
     def fetch_resource(cls, session: Session, name: str) -> Self:
         """Fetch a planet from the database. Return class with fetched planet."""
         fetched_resource: ResourceModel | None = session.exec(
-            select(ResourceModel).where(ResourceModel.resource_id == name)).first()
+            select(ResourceModel).where(ResourceModel.resource_id == name)
+        ).first()
 
         if fetched_resource is None:
             raise HTTPException(status_code=404, detail="Resource not found.")

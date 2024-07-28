@@ -16,7 +16,8 @@ class PlanetRepresentation:
     def fetch_planet(cls, session: Session, name: str) -> Self:
         """Fetch a planet from the database. Return class with fetched planet."""
         fetched_planet: PlanetModel | None = session.exec(
-            select(PlanetModel).where(PlanetModel.planet_id == name)).first()
+            select(PlanetModel).where(PlanetModel.planet_id == name)
+        ).first()
 
         if fetched_planet is None:
             raise HTTPException(status_code=404, detail="Planet not found.")
