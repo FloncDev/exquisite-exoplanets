@@ -301,3 +301,90 @@ class EarnedAchievements(SQLModel, table=True):
     # Relationships
     company: "Company" = Relationship(back_populates="achievements")
     achievement: "Achievement" = Relationship(back_populates="companies_earned")
+
+
+######################
+# GAME ENGINE SCHEMAS
+######################
+class PlanetModel(SQLModel, table=True):
+    """Model representing a single Planet."""
+
+    __tablename__ = "planet"
+
+    id: int | None = Field(primary_key=True, default=None)
+    planet_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+    tier: int = Field(nullable=False)
+
+    # Relationships
+    resources: list["PlanetResourcesModel"] = Relationship(back_populates="planet")
+
+
+class ResourceModel(SQLModel, table=True):
+    """Model representing a single Resource."""
+
+    __tablename__ = "resource"
+
+    id: int | None = Field(primary_key=True, default=None)
+    resource_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    min_tier: int = Field(nullable=False)
+    unit_price: float = Field(nullable=False)
+    unit_xp: float = Field(nullable=False)
+    init_units: int = Field(nullable=False)
+    tier_units_upscale: int = Field(nullable=False)
+    decay_function: str = Field(nullable=False)
+    decay_factor: float = Field(nullable=False)
+    balancing_delay: float = Field(nullable=False)
+
+    # Relationships
+    on_planets: list["PlanetResourcesModel"] = Relationship(back_populates="resource")
+    harvestable_by: "ResourceCollectorMineableResourcesModel" = Relationship(back_populates="resource")
+
+
+class PlanetResourcesModel(SQLModel, table=True):
+    """Model representing all the Resources found on a Planet."""
+
+    __tablename__ = "planet_resources"
+
+    planet_id: int = Field(primary_key=True, foreign_key="planet.id")
+    resource_id: int = Field(primary_key=True, foreign_key="resource.id")
+
+    # Relationships
+    planet: "PlanetModel" = Relationship(back_populates="resources")
+    resource: "ResourceModel" = Relationship(back_populates="on_planets")
+
+
+class ResourceCollectorModel(SQLModel, table=True):
+    """Model representing a single Resource Collector."""
+
+    __tablename__ = "resource_collector"
+
+    id: int | None = Field(primary_key=True, default=None)
+    collector_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    init_price: float = Field(nullable=False)
+    init_speed: float = Field(nullable=False)
+    upgrade_upscale: float = Field(nullable=False)
+    upgrade_init_price: float = Field(nullable=False)
+    upgrade_price_upscale: float = Field(nullable=False)
+    cost_of_use: float = Field(nullable=False)
+    cost_of_use_price_upscale: float = Field(nullable=False)
+
+    # Relationships
+    mineable_resources: list["ResourceCollectorMineableResourcesModel"] = Relationship(
+        back_populates="resource_collector")
+
+
+class ResourceCollectorMineableResourcesModel(SQLModel, table=True):
+    """Model representing the Resources that a Resource Collector can harvest."""
+
+    __tablename__ = "collector_resources"
+
+    resource_collector_id: int = Field(primary_key=True, foreign_key="resource_collector.id")
+    resource_id: int = Field(primary_key=True, foreign_key="resource.id")
+
+    # Relationships
+    resource_collector: "ResourceCollectorModel" = Relationship(back_populates="mineable_resources")
+    resource: "ResourceModel" = Relationship(back_populates="harvestable_by")

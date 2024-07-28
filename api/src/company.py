@@ -1,7 +1,7 @@
 import logging
 from datetime import UTC, datetime
 
-from src import Planet, RessourceCollector
+from src import Planet, ResourceCollector
 
 company_logger = logging.getLogger(__name__)
 
@@ -27,19 +27,19 @@ class Company:
 
     def explore(self,
                 tier: int = None) -> "Planet":
-        """generates a new planet for the company to harvest"""
+        """Generates a new planet for the company to harvest"""
         if not tier:
             tier = self.tier
         return Planet(tier=tier)
 
     def add_planet(self,
                    planet: "Planet") -> None:
-        """adds the planet to the currently harvested planets"""
+        """Adds the planet to the currently harvested planets"""
         self.planets[id(planet)] = planet
 
     def remove_planet(self,
                       planet: "Planet") -> None:
-        """removes the planet from the currently harvested planets"""
+        """Removes the planet from the currently harvested planets"""
         self.planets.pop(id(planet))
 
     def search_all_planets(self,
@@ -57,12 +57,12 @@ class Company:
 
     def add_collector(self,
                       collector: "ResourceCollector") -> None:
-        """adds a collector to the available collectors"""
+        """Adds a collector to the available collectors"""
         self.collectors[id(collector)] = collector
 
     def remove_collector(self,
                          collector: "ResourceCollector") -> None:
-        """removes the collector from the available collectors"""
+        """Removes the collector from the available collectors"""
         self.collectors.pop(id(collector))
 
     def search_all_collectors(self,

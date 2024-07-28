@@ -2,7 +2,7 @@ import logging
 import random
 from typing import TYPE_CHECKING, Any
 
-from src import YamlReader
+from .yaml_reader import YamlReader
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -65,14 +65,13 @@ class Resource:
             # find max epoch allowed
             for i in range(n, 0, -1):
                 # check if the resource collection is possible
-                if self.decay_function(self.init_units, self.epoch+i) >= 0:
+                if self.decay_function(self.init_units, self.epoch + i) >= 0:
                     before_collection = self.get_units_collected()
                     self.epoch += i
-                    return self.get_units_collected()-before_collection
+                    return self.get_units_collected() - before_collection
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self) -> str:
-        return f'<name:{self.name}, tier:{self.tier}, units_left:{self.get_units_left()}>'
-
+        return f"<name:{self.name}, tier:{self.tier}, units_left:{self.get_units_left()}>"
