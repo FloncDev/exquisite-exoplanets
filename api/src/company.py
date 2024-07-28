@@ -78,22 +78,3 @@ class Company:
 
         return next(self.collector_search, None)
 
-
-if __name__ == '__main__':
-    import copy
-
-    C = Company('Test', 'me')
-    p = C.explore()
-    C.add_planet(p)
-    C.add_planet(copy.deepcopy(p))
-    C.add_planet(C.explore())
-    C.add_planet(C.explore())
-    C.add_planet(C.explore())
-    C.add_planet(copy.deepcopy(p))
-    print(*C.planets.values(), sep='\n')
-
-    target = p
-    print(f'search `{target.name}`')
-
-    while (search_result := C.search_planet(target.name)) is not None:
-        print(search_result)
