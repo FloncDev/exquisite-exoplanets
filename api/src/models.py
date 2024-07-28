@@ -2,7 +2,11 @@ import re
 from datetime import datetime
 
 from pydantic import field_validator
-from sqlmodel import Field, Relationship, SQLModel  # type: ignore[reportUnknownVariableType]
+from sqlmodel import (
+    Field,  # type: ignore[reportUnknownVariableType]
+    Relationship,
+    SQLModel,
+)
 
 
 #################
@@ -44,6 +48,7 @@ class CompanyUpdate(SQLModel):
     """Model representing the data used to update a Company."""
 
     name: str | None = Field(default=None)
+    networth: float | None = Field(default=None)
 
     @field_validator("name")
     @classmethod

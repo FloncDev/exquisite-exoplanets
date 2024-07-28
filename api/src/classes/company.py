@@ -128,6 +128,10 @@ class CompanyRepresentation:
                 self.company.name = data.name
                 has_changed = True
 
+            if data.networth is not None:
+                self.company.networth = data.networth
+                has_changed = True
+
             if has_changed:
                 self.session.add(self.company)
                 self.session.commit()
@@ -181,12 +185,19 @@ class CompanyRepresentation:
         achievements_details: list[AchievementsCompanyPublic.AchievementSingle] = []
         for achievement in company_achievements:
             ach: Achievement = achievement.achievement
-            details: dict[str, Any] = {"id": ach.id, "name": ach.name, "description": ach.description}
+            details: dict[str, Any] = {
+                "id": ach.id,
+                "name": ach.name,
+                "description": ach.description,
+            }
             achievements_details.append(AchievementsCompanyPublic.AchievementSingle.model_validate(details))
 
         # Getting the Company's first and latest Achievement
         company_achievements = sorted(company_achievements, key=lambda x: x.achieved, reverse=False)
-        first_achievement, latest_achievement = company_achievements[0], company_achievements[-1]
+        first_achievement, latest_achievement = (
+            company_achievements[0],
+            company_achievements[-1],
+        )
 
         res: dict[str, Any] = {
             "achievements": achievements_details,
