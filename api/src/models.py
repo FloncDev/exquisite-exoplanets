@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import Any
 
 from pydantic import field_validator
 from sqlmodel import (
@@ -21,6 +22,8 @@ class Company(SQLModel, table=True):
     networth: float = Field(nullable=False, default=0)
     name: str = Field(nullable=False)
     owner_id: str = Field(nullable=False, foreign_key="user.user_id")
+    current_planet: str = Field(foreign_key="planet.planet_id", nullable=False)
+    last_resource_collect: datetime = Field(nullable=False, default_factory=datetime.now)
 
     @field_validator("name")
     @classmethod
@@ -35,6 +38,7 @@ class Company(SQLModel, table=True):
     inventory: list["Inventory"] = Relationship(back_populates="company")
     achievements: list["EarnedAchievements"] = Relationship(back_populates="company")
     user: "User" = Relationship(back_populates="companies")
+    planet: "PlanetModel" = Relationship(back_populates="companies_on")
 
 
 class CompanyCreate(SQLModel):
@@ -49,6 +53,7 @@ class CompanyUpdate(SQLModel):
 
     name: str | None = Field(default=None)
     networth: float | None = Field(default=None)
+    planet_name: str | None = Field(default=None)
 
     @field_validator("name")
     @classmethod
@@ -69,6 +74,7 @@ class CompanyPublic(SQLModel):
     owner_id: str
     networth: float
     is_bankrupt: bool
+    current_planet: str
 
 
 ###########################
@@ -301,3 +307,131 @@ class EarnedAchievements(SQLModel, table=True):
     # Relationships
     company: "Company" = Relationship(back_populates="achievements")
     achievement: "Achievement" = Relationship(back_populates="companies_earned")
+
+
+######################
+# GAME ENGINE SCHEMAS
+######################
+class PlanetModel(SQLModel, table=True):
+    """Model representing a single Planet."""
+
+    __tablename__ = "planet"  # type: ignore[reportUnknownVariableType]
+
+    id: int | None = Field(primary_key=True, default=None)
+    planet_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    description: str = Field(nullable=False)
+    tier: int = Field(nullable=False)
+
+    # Relationships
+    resources: list["PlanetResourcesModel"] = Relationship(back_populates="planet")
+    companies_on: list["Company"] = Relationship(back_populates="planet")
+
+
+class PlanetPublic(SQLModel):
+    """Model representing the details of a Planet to be returned to a User."""
+
+    planet_id: str
+    name: str
+    description: str
+    tier: int
+    available_resources: list[str]
+
+
+class ResourceModel(SQLModel, table=True):
+    """Model representing a single Resource."""
+
+    __tablename__ = "resource"  # type: ignore[reportUnknownVariableType]
+
+    id: int | None = Field(primary_key=True, default=None)
+    resource_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    min_tier: int = Field(nullable=False)
+    unit_price: float = Field(nullable=False)
+    unit_xp: float = Field(nullable=False)
+    init_units: int = Field(nullable=False)
+    tier_units_upscale: int = Field(nullable=False)
+    decay_function: str = Field(nullable=False)
+    decay_factor: float = Field(nullable=False)
+    balancing_delay: float = Field(nullable=False)
+
+    # Relationships
+    on_planets: list["PlanetResourcesModel"] = Relationship(back_populates="resource")
+    harvestable_by: "ResourceCollectorMineableResourcesModel" = Relationship(back_populates="resource")
+
+
+class ResourcePublic(SQLModel):
+    """Model representing the details of a Resource to be returned to the User."""
+
+    resource_id: str
+    name: str
+    unit_price: float
+    unit_xp: float
+    min_tier: int
+    found_on: list[str]
+
+
+class PlanetResourcesModel(SQLModel, table=True):
+    """Model representing all the Resources found on a Planet."""
+
+    __tablename__ = "planet_resources"  # type: ignore[reportUnknownVariableType]
+
+    planet_id: int = Field(primary_key=True, foreign_key="planet.id")
+    resource_id: int = Field(primary_key=True, foreign_key="resource.id")
+
+    # Relationships
+    planet: "PlanetModel" = Relationship(back_populates="resources")
+    resource: "ResourceModel" = Relationship(back_populates="on_planets")
+
+
+class ResourceCollectorModel(SQLModel, table=True):
+    """Model representing a single Resource Collector."""
+
+    __tablename__ = "resource_collector"  # type: ignore[reportUnknownVariableType]
+
+    id: int | None = Field(primary_key=True, default=None)
+    collector_id: str = Field(nullable=False)
+    name: str = Field(nullable=False)
+    tier: int = Field(nullable=False)
+    init_price: float = Field(nullable=False)
+    init_speed: float = Field(nullable=False)
+    upgrade_upscale: float = Field(nullable=False)
+    upgrade_init_price: float = Field(nullable=False)
+    upgrade_price_upscale: float = Field(nullable=False)
+    cost_of_use: float = Field(nullable=False)
+    cost_of_use_price_upscale: float = Field(nullable=False)
+
+    # Relationships
+    mineable_resources: list["ResourceCollectorMineableResourcesModel"] = Relationship(
+        back_populates="resource_collector"
+    )
+
+
+class ResourceCollectorPublic(SQLModel):
+    """Model representing the details of a Resource collector that can be returned to the User."""
+
+    collector_id: str
+    name: str
+    init_price: float
+    init_speed: float
+    cost_of_use: float
+    mineable_resources: list[str]
+
+
+class ResourceCollectorMineableResourcesModel(SQLModel, table=True):
+    """Model representing the Resources that a Resource Collector can harvest."""
+
+    __tablename__ = "collector_resources"  # type: ignore[reportUnknownVariableType]
+
+    resource_collector_id: int = Field(primary_key=True, foreign_key="resource_collector.id")
+    resource_id: int = Field(primary_key=True, foreign_key="resource.id")
+
+    # Relationships
+    resource_collector: "ResourceCollectorModel" = Relationship(back_populates="mineable_resources")
+    resource: "ResourceModel" = Relationship(back_populates="harvestable_by")
+
+
+class ResourceCollectionPublic(SQLModel):
+    """Model representing the details of the materials collected."""
+
+    resources: list[dict[str, Any]]

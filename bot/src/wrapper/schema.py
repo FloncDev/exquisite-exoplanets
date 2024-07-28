@@ -13,6 +13,9 @@ from ._api_schema import (
     RawExperience,
     RawInventoryItem,
     RawItem,
+    RawPlanet,
+    RawResource,
+    RawResourceCollector,
     RawShopItem,
     RawUser,
     ShopIdPatchInput,
@@ -217,3 +220,53 @@ class User:
     def from_dict(cls, src: RawUser) -> Self:
         """Convert json from http endpoint to User object."""
         return cls(user_id=src["user_id"], experience=Experience(**src["experience"]))
+
+
+@dataclass
+class Planet:
+    """Model representing the details of a Planet to be returned to the User."""
+
+    planet_id: str
+    name: str
+    description: str
+    tier: int
+    available_resources: list[str]
+
+    @classmethod
+    def from_dict(cls, src: RawPlanet) -> Self:
+        """Convert json from http endpoint to Planet object."""
+        return cls(**src)
+
+
+@dataclass
+class Resource:
+    """Model representing the details of a Resource to be returned to the User."""
+
+    resource_id: str
+    name: str
+    unit_price: float
+    unit_xp: float
+    min_tier: int
+    found_on: list[str]
+
+    @classmethod
+    def from_dict(cls, src: RawResource) -> Self:
+        """Convert json from http endpoint to Resource object."""
+        return cls(**src)
+
+
+@dataclass
+class ResourceCollector:
+    """Model representing the details of a Resource collector that can be returned to the User."""
+
+    collector_id: str
+    name: str
+    init_price: float
+    init_speed: float
+    cost_of_use: float
+    mineable_resources: list[str]
+
+    @classmethod
+    def from_dict(cls, src: RawResourceCollector) -> Self:
+        """Convert json from http endpoint to Collector object."""
+        return cls(**src)

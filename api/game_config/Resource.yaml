@@ -1,34 +1,3 @@
-#template
-#ResourceID:
-#    name: 'ResourceName'
-#    min_tier: [0, inf[ # minimal tier at which the ressource can appear
-#    unit_price: [0, inf[ # unit price by cubic meter
-#    unit_xp: [0, inf[ # xp obtained for each unit harvested
-#
-#    # probability of making the resource appear on a planet, scaling with planet tier
-#    # actual probability = init_probability * upscale^tier
-#    apparition_probability: [0,1]
-#    tier_apparition_upscale: [1,inf[
-#
-#    # average amount of units by planet
-#    # actual units = normal probability centered on [init_units * upscale^tier]
-#    init_units: [0,1]
-#    tier_units_upscale: [1,inf[
-#
-#    # the rate at which the units decrease each time the resource is collected
-#    # options
-#    #   - linear : a fixed amount is removed each time
-#    #     linear factor : [0, inf[
-#    #   - exponential : the amount removed scales down with the density (density(t)=init_density*exp(-t/factor))
-#    #     exponential factor : 5*factor is the number of epochs to collect 99% ressources
-#    #   - geometric : the density is multiplied by a factor < 1 each time
-#    #     geometric factor : [0, 1]
-#    decay_function: 'linear'
-#    decay_factor: [0, inf[  # depends on the decay function
-#
-#    balancing_delay = 1 # number of units/s  #this is the expected average units/s overall
-
-
 WA00:
   name: water
   min_tier: 0

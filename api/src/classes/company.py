@@ -15,7 +15,9 @@ from src.models import (
     EarnedAchievements,
     Inventory,
     InventoryPublic,
+    ResourceCollectionPublic,
 )
+from src.resource import Resource
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -90,7 +92,9 @@ class CompanyRepresentation:
             raise HTTPException(status_code=409, detail="Such company already exists.")
 
         try:
-            new_company: Company = Company(name=data.name, owner_id=fetched_user.get_user().user_id)
+            new_company: Company = Company(
+                name=data.name, owner_id=fetched_user.get_user().user_id, current_planet="EA0000"
+            )
             session.add(new_company)
             session.commit()
             session.refresh(new_company)
@@ -130,6 +134,10 @@ class CompanyRepresentation:
 
             if data.networth is not None:
                 self.company.networth = data.networth
+                has_changed = True
+
+            if data.planet_name is not None:
+                self.company.current_planet = data.planet_name
                 has_changed = True
 
             if has_changed:
@@ -206,3 +214,32 @@ class CompanyRepresentation:
         }
 
         return AchievementsCompanyPublic.model_validate(res)
+
+    def collect_resources(self) -> ResourceCollectionPublic:
+        """Collect the resources that have been mined since the last collection."""
+        collected_resources: list[dict[str, Any]] = []
+
+        for resource in self.company.planet.resources:
+            r: Resource = Resource(r_id=resource.resource.resource_id, tier=resource.resource.min_tier)
+            collected_resources_amt = r.collect()
+            xp_collected = r.get_xp_collected()
+            money_collected = r.get_money_collected()
+
+            # Update the company
+            self.company.networth += money_collected
+            self.company.user.experience += xp_collected  # type: ignore[reportAttributeAccessIssue]
+            self.session.add(self.company)
+
+            # Sort to return to the user
+            collected_resources.append(
+                {
+                    "resource_id": resource.resource.resource_id,
+                    "amount": collected_resources_amt,
+                    "xp_earned": xp_collected,
+                    "money_earned": money_collected,
+                }
+            )
+
+        self.session.commit()
+
+        return ResourceCollectionPublic.model_validate({"resources": collected_resources})
