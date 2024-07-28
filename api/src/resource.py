@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import random
 from typing import TYPE_CHECKING, Any
@@ -9,6 +11,9 @@ from .yaml_reader import YamlReader
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from src import Planet
+    from src.resource_collector import ResourceCollector
 
 resource_logger = logging.getLogger(__name__)
 

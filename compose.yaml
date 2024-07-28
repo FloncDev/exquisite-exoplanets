@@ -1,16 +1,10 @@
+---
 services:
   bot:
     build: bot
-    env_file:
-      - .env
+    env_file: [.env]
   api:
     build: api
-    env_file:
-      - .env
+    env_file: [.env]
     ports:
-      - 8000:80
-  snekbox:
-    image: ghcr.io/python-discord/snekbox:latest
-    ports:
-      - "8060:8060"
-    privileged: true
+     - 8000:80

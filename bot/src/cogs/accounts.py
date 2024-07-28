@@ -50,7 +50,7 @@ class Accounts(commands.Cog):
 
         level = account.experience.level
         experience = account.experience.experience
-        experience_needed = 999  # TODO: Change once implemented
+        experience_needed = 200
 
         progress = int((experience / experience_needed) * self.XP_BAR_WIDTH)
         progress_needed = self.XP_BAR_WIDTH - progress
@@ -61,10 +61,13 @@ class Accounts(commands.Cog):
 
         embed.add_field(name="Account Level", value=level_text, inline=True)
 
-        # TODO: Change once implemented
-        company = "Mining Inc."
+        try:
+            company = await self.client.interface.company.get_company(ctx.author.id)
+            company = company.name
+        except DoesNotExistError:
+            company = "None"
 
-        embed.add_field(name="Current Company", value=company, inline=True)
+        embed.add_field(name="Current Company", value=f"`{company}`", inline=True)
 
         await ctx.respond(embed=embed)
 

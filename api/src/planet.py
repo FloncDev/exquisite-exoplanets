@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import itertools
 import logging
 import random
 from typing import TYPE_CHECKING, Any
-
 from sqlmodel import Session, select
 from src.main import engine
 from src.models import ResourceModel
