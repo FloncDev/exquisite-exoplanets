@@ -15,13 +15,14 @@ class Resource:
 
     config: dict[str, Any] = YamlReader("Resource.yaml").contents
 
-    def __init__(self, mat_id: str, tier: int = 0) -> None:
-        self._matconf = self.config[mat_id]
+    def __init__(self, r_id: str, tier: int = 0) -> None:
+        self._matconf = self.config[r_id]
+        self.r_id = r_id
         self.name = self._matconf["name"]
         if tier < self._matconf["min_tier"]:
             raise ValueError(f"{self._matconf['name']} can only appear on tier {self._matconf['min_tier']} or above")
 
-        self._tier = tier
+        self.tier = tier
         tier_upscaling = tier - self._matconf["min_tier"]
 
         self.unit_price = self._matconf["unit_price"]
@@ -73,5 +74,5 @@ class Resource:
         return self.__str__()
 
     def __str__(self) -> str:
-        return f'<name:{self.name}, tier:{self._tier}, units_left:{self.get_units_left()}>'
+        return f'<name:{self.name}, tier:{self.tier}, units_left:{self.get_units_left()}>'
 
