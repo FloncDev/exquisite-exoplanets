@@ -58,7 +58,6 @@ class Companies(commands.Cog):
 
         embed = discord.Embed(
             title="Company Founded!",
-            # TODO: Use company.name once pushed to main
             description=f"{ctx.author.mention} has incorporated `{company.name}`",
             colour=discord.Colour.green(),
         )
@@ -84,6 +83,31 @@ class Companies(commands.Cog):
         # creation_timestamp = int(datetime.fromisoformat(company.).timestamp())
         creation_timestamp = int(company.created_date.timestamp())
         embed.add_field(name="Creation Time", value=f"<t:{creation_timestamp}>")
+
+        await ctx.respond(embed=embed)
+
+    @company.command()
+    async def rename(self, ctx: Context, name: str) -> None:
+        """Rename your current company."""
+        if not re.match(r"^[a-zA-Z0-9\- \.]{1,}$", name):
+            await ctx.error("Company name must only contain alphanumerics, spaces, `-` and `.`")
+            return
+
+        try:
+            company = await self.client.interface.company.get_company(ctx.author.id)
+        except DoesNotExistError:
+            await ctx.error("You do not have a company! Please run `/company create`.")
+            return
+
+        company.name = name
+
+        await self.client.interface.company.edit_company(company)
+
+        embed = discord.Embed(
+            title="Name Changed",
+            description=f"Changed company name to {company.name}",
+            colour=discord.Colour.green(),
+        )
 
         await ctx.respond(embed=embed)
 
