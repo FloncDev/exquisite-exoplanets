@@ -3,6 +3,7 @@ import random
 from typing import TYPE_CHECKING, Any
 
 from src import Planet, YamlReader
+from src.resource_collector import ResourceCollector
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -46,11 +47,11 @@ class Resource:
         self.planet_parent = None
         self.collector_parent = None
 
-    def set_planet_parent(self, planet: Planet) -> None:
+    def set_planet_parent(self, planet: Planet | None) -> None:
         """Set the planet's parent."""
         self.planet_parent = planet
 
-    def set_collector_parent(self, collector: Planet) -> None:
+    def set_collector_parent(self, collector: ResourceCollector | None) -> None:
         """Set the collector's parent."""
         self.collector_parent = collector
 
