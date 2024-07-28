@@ -4,9 +4,17 @@ from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 
-from ._communication import AchievementRawAPI, CompanyRawAPI, ShopRawAPI, UserRawAPI
+from ._communication import (
+    AchievementRawAPI,
+    CollectorRawAPI,
+    CompanyRawAPI,
+    PlanetRawAPI,
+    ResourceRawAPI,
+    ShopRawAPI,
+    UserRawAPI,
+)
 from .error import DoesNotExistError, UserError
-from .schema import Achievement, Company, ShopItem, User
+from .schema import Achievement, Company, Planet, Resource, ResourceCollector, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -44,17 +52,18 @@ class CompanyAPI(BaseAPI):
         out: CompanyGetIdOutput = await CompanyRawAPI.get_company(self.parent.session, user_id)
         return Company.from_dict(out)
 
-    async def edit_company_name(self, company: Company | int, new_name: str) -> Company:
+    async def edit_company(self, company: Company) -> Company:
         """Edit the company name with the given user id.
 
         :raise DoesNotExistError: The company cannot be found
         """
-        if isinstance(company, Company):
-            user_id: int = company.owner_id
-        else:
-            user_id: int = company
-        src: CompanyPatchIdInput = {"company_name": new_name}
-        await CompanyRawAPI.edit_company_name(self.parent.session, user_id, src)
+        user_id: int = company.owner_id
+        src: CompanyPatchIdInput = {
+            "company_name": company.name,
+            "networth": float(company.current_networth),
+            "planet_name": company.planet,
+        }
+        await CompanyRawAPI.edit_company(self.parent.session, user_id, src)
         return await self.get_company(user_id)
 
     async def delete_company(self, company: Company | int) -> None:
@@ -309,6 +318,33 @@ class AchievementAPI(BaseAPI):
         return Achievement.from_dict(await AchievementRawAPI.get_achievement(self.parent.session, achievement_id))
 
 
+class PlanetAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, planet_id: int) -> Planet:
+        """Get the specific planet via id."""
+        data = await PlanetRawAPI.get(self.parent.session, planet_id)
+        return Planet.from_dict(data)
+
+
+class ResourceAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, resource_id: int) -> Resource:
+        """Get the specific planet via id."""
+        data = await ResourceRawAPI.get(self.parent.session, resource_id)
+        return Resource.from_dict(data)
+
+
+class CollectorAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, collector_id: int) -> ResourceCollector:
+        """Get the specific planet via id."""
+        data = await CollectorRawAPI.get(self.parent.session, collector_id)
+        return ResourceCollector.from_dict(data)
+
+
 class Interface:
     """An API wrapper interface for the bot."""
 
@@ -339,6 +375,21 @@ class Interface:
     def achievement(self) -> AchievementAPI:
         """Retrieve the Achievement API with the address and Token."""
         return AchievementAPI(self.address, self.token, parent=self)
+
+    @property
+    def planet(self) -> PlanetAPI:
+        """Retrieve the Planet API with the address and Token."""
+        return PlanetAPI(self.address, self.token, parent=self)
+
+    @property
+    def resource(self) -> ResourceAPI:
+        """Retrieve the Resource API with the address and Token."""
+        return ResourceAPI(self.address, self.token, parent=self)
+
+    @property
+    def collector(self) -> CollectorAPI:
+        """Retrieve the Collector API with the address and Token."""
+        return CollectorAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:

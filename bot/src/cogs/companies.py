@@ -1,12 +1,22 @@
 import re
+from collections.abc import Generator
+from typing import TYPE_CHECKING
 
 import discord
 from discord.commands import SlashCommandGroup, option
-from discord.ext import commands
+from discord.ext import commands, pages
 
 from src.context import Context
 from src.main import Client
 from src.wrapper.error import DoesNotExistError
+
+if TYPE_CHECKING:
+    from src.wrapper import InventoryItem
+
+
+def chunk_list[T](lists: list[T], n: int) -> Generator[list[T], None, None]:
+    for i in range(0, len(lists), n):
+        yield lists[i : i + n]
 
 
 class Companies(commands.Cog):
@@ -76,6 +86,36 @@ class Companies(commands.Cog):
         embed.add_field(name="Creation Time", value=f"<t:{creation_timestamp}>")
 
         await ctx.respond(embed=embed)
+
+    @company.command()
+    async def inventory(self, ctx: Context) -> None:
+        """Get inventories of your company."""
+        try:
+            company = await self.client.interface.company.get_company(ctx.author.id)
+            await self.client.interface.company.get_inventory(company)
+        except DoesNotExistError:
+            await ctx.error("You do not have a company! Please run `/company create`.")
+            return
+        if company.inventory is None:
+            await ctx.error("Unable to get your inventory.")
+            return
+        if not company.inventory:
+            await ctx.respond("There is nothing in your inventory")
+            return
+        inv_pages: list[list[discord.Embed] | discord.Embed] = []
+        chunk_inv_list: list[list[InventoryItem]] = list(chunk_list(company.inventory, 25))
+        for page, page_inventories in enumerate(chunk_inv_list, start=1):
+            embed = discord.Embed(title="Inventory")
+            embed.set_author(name=company.name)
+            embed.set_footer(text=f"Page: {page}/{len(chunk_inv_list)}")
+            for inv_item in page_inventories:
+                embed.add_field(
+                    name=f"{inv_item.item.name} [{inv_item.item.id}]",
+                    value=f"Quantity: {inv_item.stock}\nWorth: ${round(inv_item.total_amount_spent, 4):.2f}",
+                )
+            inv_pages.append(embed)
+        paginator = pages.Paginator(pages=inv_pages, show_indicator=False)
+        await paginator.respond(ctx.interaction, ephemeral=False)
 
 
 def setup(client: Client) -> None:
