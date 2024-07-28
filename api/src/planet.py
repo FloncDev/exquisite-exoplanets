@@ -29,9 +29,13 @@ class Planet:
                 case _ if r_config[r_id]["min_tier"] < self.tier:  # if tier is inferior
                     tier_diff = self.tier - r_config[r_id]["min_tier"]
                     if random.random() < 1/(3*tier_diff):  # the chance of spawning is (1/3) * (1/tier difference)
-                        self.resources.append(Resource(r_id, self.tier))
+                        resource_instance = Resource(r_id, self.tier)
+                        resource_instance.set_planet_parent(self)
+                        self.resources.append(resource_instance)
                 case _ if r_config[r_id]["min_tier"] == self.tier:  # if tier is equal there is 100% chance of spawning
-                    self.resources.append(Resource(r_id, self.tier))
+                    resource_instance = Resource(r_id, self.tier)
+                    resource_instance.set_planet_parent(self)
+                    self.resources.append(resource_instance)
 
     @classmethod
     def generate_random_name(cls) -> str:

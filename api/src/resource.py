@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 from src import YamlReader
 
+from api.src import Planet
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -40,6 +42,15 @@ class Resource:
         self.epoch = 0
 
         self.balancing_delay = self._matconf["balancing_delay"]
+
+        self.planet_parent = None
+        self.collector_parent = None
+
+    def set_planet_parent(self, planet: Planet) -> None:
+        self.planet_parent = planet
+
+    def set_collector_parent(self, collector: Planet) -> None:
+        self.collector_parent = collector
 
     def get_units_left(self) -> float:
         """Get the amount of units left."""

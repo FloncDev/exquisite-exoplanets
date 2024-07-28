@@ -15,11 +15,11 @@ class ResourceCollector:
 
     def __init__(self,
                  collector_id: str,
-                 resource: Resource,
                  tier: int = 0) -> None:
         collector_conf = self.config[collector_id]
         self.name = collector_conf["name"]
         self.tier = tier
+        self.resource = None
         self.auto_stop = float('inf')
         self.__init_price = collector_conf["init_price"]
         self.__init_speed = collector_conf["init_speed"]
@@ -28,17 +28,29 @@ class ResourceCollector:
         self.__upgrade_price_upscale = collector_conf["upgrade_price_upscale"]
         self.__cost_of_use = collector_conf["cost_of_use"]
         self.__cost_of_use_price_upscale = collector_conf["cost_of_use_price_upscale"]
-        resources = collector_conf["resources"]
-        if resource.r_id not in resources.keys():
+        self.__resources_allowed = self.config[collector_id]["resources"]
+        self.__started_at: datetime.datetime = None
+        self.__last_collected_at: datetime.datetime = None
+        self.__epochs = 0
+
+    def install(self,
+                resource: "Resource") -> None:
+        """attaches a collector to an instance of resource"""
+        if resource.r_id not in self.__resources_allowed.keys():
             raise ValueError(f"Cannot extract {resource.name} with {self.name}")
         elif resource.tier > self.tier:
             raise ValueError(f"You need this extractor to be level {resource.tier}"
                              f"in order to extract {resource.name}")
         else:
             self.resource = resource
-        self.__started_at: datetime.datetime = None
-        self.__last_collected_at: datetime.datetime = None
-        self.__epochs = 0
+            self.resource.set_collector_parent(self)
+
+    def uninstall(self) -> "Resource":
+        """detaches the instance of resource"""
+        resource = self.resource
+        resource.set_collector_parent(None)
+        self.resource = None
+        return resource
 
     def __get_relative_tier(self):
         return self.tier - self.resource.tier
@@ -61,6 +73,8 @@ class ResourceCollector:
 
     def start(self) -> None:
         """starts the resource harvesting"""
+        if not self.resource:
+            raise ValueError(f"The collector is not associated to a resource")
         start_time = datetime.datetime.now()
         self.__started_at = start_time
         self.__last_collected_at = start_time
@@ -82,9 +96,8 @@ class ResourceCollector:
             raise ValueError("collector has to be started before collecting")
         collection_time = datetime.datetime.now()
         epochs_since_last_collection = self.get_speed() * (
-                    collection_time - self.__last_collected_at) // self.epoch_definition
+                collection_time - self.__last_collected_at) // self.epoch_definition
         epochs_since_last_collection = int(min(epochs_since_last_collection, self.auto_stop))
         self.__epochs += epochs_since_last_collection
         units_collected = self.resource.collect(epochs_since_last_collection)
         return units_collected, self.get_cost(epochs_since_last_collection), self.resource.unit_price * units_collected
-
