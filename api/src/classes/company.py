@@ -15,6 +15,7 @@ from src.models import (
     EarnedAchievements,
     Inventory,
     InventoryPublic,
+    PlanetModel,
 )
 
 if TYPE_CHECKING:
@@ -89,8 +90,12 @@ class CompanyRepresentation:
         if target and not any(x.is_bankrupt for x in target):
             raise HTTPException(status_code=409, detail="Such company already exists.")
 
+        # Getting the starting planet
+        start_planet: PlanetModel = session.exec(select(PlanetModel).where(PlanetModel.planet_id == "EA0000")).first()
+
         try:
-            new_company: Company = Company(name=data.name, owner_id=fetched_user.get_user().user_id)
+            new_company: Company = Company(name=data.name, owner_id=fetched_user.get_user().user_id,
+                                           current_planet=start_planet.planet_id)
             session.add(new_company)
             session.commit()
             session.refresh(new_company)
@@ -130,6 +135,10 @@ class CompanyRepresentation:
 
             if data.networth is not None:
                 self.company.networth = data.networth
+                has_changed = True
+
+            if data.planet_name is not None:
+                self.company.current_planet = data.planet_name
                 has_changed = True
 
             if has_changed:

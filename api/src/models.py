@@ -21,6 +21,7 @@ class Company(SQLModel, table=True):
     networth: float = Field(nullable=False, default=0)
     name: str = Field(nullable=False)
     owner_id: str = Field(nullable=False, foreign_key="user.user_id")
+    current_planet: str = Field(foreign_key="planet.planet_id", nullable=False)
 
     @field_validator("name")
     @classmethod
@@ -35,6 +36,7 @@ class Company(SQLModel, table=True):
     inventory: list["Inventory"] = Relationship(back_populates="company")
     achievements: list["EarnedAchievements"] = Relationship(back_populates="company")
     user: "User" = Relationship(back_populates="companies")
+    planet: "PlanetModel" = Relationship(back_populates="companies_on")
 
 
 class CompanyCreate(SQLModel):
@@ -49,6 +51,7 @@ class CompanyUpdate(SQLModel):
 
     name: str | None = Field(default=None)
     networth: float | None = Field(default=None)
+    planet_name: str | None = Field(default=None)
 
     @field_validator("name")
     @classmethod
@@ -69,6 +72,7 @@ class CompanyPublic(SQLModel):
     owner_id: str
     networth: float
     is_bankrupt: bool
+    current_planet: str
 
 
 ###########################
@@ -319,6 +323,17 @@ class PlanetModel(SQLModel, table=True):
 
     # Relationships
     resources: list["PlanetResourcesModel"] = Relationship(back_populates="planet")
+    companies_on: list["Company"] = Relationship(back_populates="planet")
+
+
+class PlanetPublic(SQLModel):
+    """Model representing the details of a Planet to be returned to a User."""
+
+    planet_id: str
+    name: str
+    description: str
+    tier: int
+    available_resources: list[str]
 
 
 class ResourceModel(SQLModel, table=True):
@@ -341,6 +356,17 @@ class ResourceModel(SQLModel, table=True):
     # Relationships
     on_planets: list["PlanetResourcesModel"] = Relationship(back_populates="resource")
     harvestable_by: "ResourceCollectorMineableResourcesModel" = Relationship(back_populates="resource")
+
+
+class ResourcePublic(SQLModel):
+    """Model representing the details of a Resource to be returned to the User."""
+
+    resource_id: str
+    name: str
+    unit_price: float
+    unit_xp: float
+    min_tier: int
+    found_on: list[str]
 
 
 class PlanetResourcesModel(SQLModel, table=True):
@@ -375,6 +401,17 @@ class ResourceCollectorModel(SQLModel, table=True):
     # Relationships
     mineable_resources: list["ResourceCollectorMineableResourcesModel"] = Relationship(
         back_populates="resource_collector")
+
+
+class ResourceCollectorPublic(SQLModel):
+    """Model representing the details of a Resource collector that can be returned to the User"""
+
+    collector_id: str
+    name: str
+    init_price: float
+    init_speed: float
+    cost_of_use: float
+    mineable_resources: list[str]
 
 
 class ResourceCollectorMineableResourcesModel(SQLModel, table=True):

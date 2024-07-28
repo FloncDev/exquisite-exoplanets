@@ -17,7 +17,7 @@ from .models import (
     ResourceModel,
 )
 from .planet import Planet
-from .routers import achievement, company, shop, user
+from .routers import achievement, collector, company, planet, resource, shop, user
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -81,7 +81,11 @@ def _populate_planets() -> None:
 
     with Session(engine) as session:
         # insert default starting planet
-        session.add(PlanetModel.model_validate(starting_planet))
+        fetched_starting_planet: PlanetModel | None = session.exec(
+            select(PlanetModel).where(PlanetModel.planet_id == starting_planet["planet_id"])).first()
+
+        if not fetched_starting_planet:
+            session.add(PlanetModel.model_validate(starting_planet))
 
         for planet_id, data in planets.items():
             # Check if the Planet exists.
@@ -176,20 +180,21 @@ def _populate_resources_on_planet() -> None:
         fetched_planets: Sequence[PlanetModel] = session.exec(select(PlanetModel)).all()
 
         for planet in fetched_planets:
-            p: Planet = Planet(tier=planet.tier)
-            p.spawn_resources()
+            if len(planet.resources) == 0:
+                p: Planet = Planet(tier=planet.tier)
+                p.spawn_resources()
 
-            for resource in p.resources:
-                # Add the resource to the planet.
-                # If not exists
-                planet_resource: PlanetResourcesModel | None = session.exec(
-                    select(PlanetResourcesModel).where(PlanetResourcesModel.planet_id == planet.id,
-                                                       PlanetResourcesModel.resource_id == resource.id)).first()
-                if planet_resource is None:
-                    new_planet_resource: PlanetResourcesModel = PlanetResourcesModel(planet_id=planet.id,
-                                                                                     resource_id=resource.id)
-                    session.add(new_planet_resource)
-                    session.flush()
+                for resource in p.resources:
+                    # Add the resource to the planet.
+                    # If not exists
+                    planet_resource: PlanetResourcesModel | None = session.exec(
+                        select(PlanetResourcesModel).where(PlanetResourcesModel.planet_id == planet.id,
+                                                           PlanetResourcesModel.resource_id == resource.id)).first()
+                    if planet_resource is None:
+                        new_planet_resource: PlanetResourcesModel = PlanetResourcesModel(planet_id=planet.id,
+                                                                                         resource_id=resource.id)
+                        session.add(new_planet_resource)
+                        session.flush()
 
         try:
             session.commit()
@@ -218,6 +223,9 @@ app.include_router(company.router)
 app.include_router(user.router)
 app.include_router(shop.router)
 app.include_router(achievement.router)
+app.include_router(planet.router)
+app.include_router(resource.router)
+app.include_router(collector.router)
 
 
 def main() -> None:
