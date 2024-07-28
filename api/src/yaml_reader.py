@@ -19,12 +19,10 @@ class YamlReader:
             error = "Wrong file type, must be `.yaml` extension"
             raise ValueError(error)
 
-        filepath = root.parent.joinpath("game_config", filename)
+        filepath = root.joinpath("game_config", filename)
         yaml_logger.debug(f"reading {filename}")
         with filepath.open() as file:
             self.contents: dict[str, Any] = yaml.safe_load(file)
-
-        self.parse_special(self.contents)
 
     def parse_special(self, cursor: dict[str, Any]) -> None:
         """Parse special YAML content."""

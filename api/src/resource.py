@@ -2,8 +2,10 @@ import logging
 import random
 from typing import TYPE_CHECKING, Any
 
-from src import Planet, YamlReader
+from src import Planet
 from src.resource_collector import ResourceCollector
+
+from .yaml_reader import YamlReader
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -39,7 +41,9 @@ class Resource:
         )
         # the decay function has the signature
         # (init_units:int, epoch:int) -> units left rounded:int
-        self.decay_function: Callable[[int, int], int] = self._matconf["decay_function"]
+        self.decay_function: Callable[[int, int], float] = YamlReader.str_to_decay_function(
+            self._matconf["decay_function"], self._matconf["decay_factor"]
+        )
         self.epoch = 0
 
         self.balancing_delay = self._matconf["balancing_delay"]

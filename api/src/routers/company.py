@@ -5,7 +5,7 @@ from sqlmodel import Session
 from src.classes.company import CompanyRepresentation
 from src.classes.pagination import CompanyPagination
 from src.db import get_session
-from src.models import AchievementsCompanyPublic, CompanyCreate, CompanyPublic, CompanyUpdate
+from src.models import AchievementsCompanyPublic, CompanyCreate, CompanyPublic, CompanyUpdate, ResourceCollectionPublic
 
 router = APIRouter()
 
@@ -99,3 +99,9 @@ async def get_company_achievements(
     :return: Company's achievements.
     """
     return CompanyRepresentation.fetch_company(session=session, company_id=company_id).get_achievements()
+
+
+@router.get("/company/{company_id}/collect")
+def collect_resources(company_id: str, session: Session = Depends(get_session)) -> ResourceCollectionPublic:
+    """Collect the resources on the Planet."""
+    return CompanyRepresentation.fetch_company(session=session, company_id=company_id).collect_resources()
