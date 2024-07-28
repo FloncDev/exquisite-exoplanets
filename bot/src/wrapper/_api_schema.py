@@ -171,3 +171,35 @@ class CompanyIdAchievementGetOutput(TypedDict):
     first_achievement: str
     latest_achievement: str
     achievements: list[RawBaseAchievement]
+
+
+class RawPlanet(TypedDict):
+    """Model representing the details of a Planet to be returned to a User."""
+
+    planet_id: str
+    name: str
+    description: str
+    tier: int
+    available_resources: list[str]
+
+
+class RawResource(TypedDict):
+    """Model representing the details of a Resource to be returned to the User."""
+
+    resource_id: str
+    name: str
+    unit_price: float
+    unit_xp: float
+    min_tier: int
+    found_on: list[str]
+
+
+class RawResourceCollector(TypedDict):
+    """Model representing the details of a Resource collector that can be returned to the User."""
+
+    collector_id: str
+    name: str
+    init_price: float
+    init_speed: float
+    cost_of_use: float
+    mineable_resources: list[str]

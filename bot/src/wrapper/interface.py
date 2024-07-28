@@ -4,9 +4,17 @@ from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 
-from ._communication import AchievementRawAPI, CompanyRawAPI, ShopRawAPI, UserRawAPI
+from ._communication import (
+    AchievementRawAPI,
+    CollectorRawAPI,
+    CompanyRawAPI,
+    PlanetRawAPI,
+    ResourceRawAPI,
+    ShopRawAPI,
+    UserRawAPI,
+)
 from .error import DoesNotExistError, UserError
-from .schema import Achievement, Company, ShopItem, User
+from .schema import Achievement, Company, Planet, Resource, ResourceCollector, ShopItem, User
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -310,6 +318,33 @@ class AchievementAPI(BaseAPI):
         return Achievement.from_dict(await AchievementRawAPI.get_achievement(self.parent.session, achievement_id))
 
 
+class PlanetAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, planet_id: int) -> Planet:
+        """Get the specific planet via id."""
+        data = await PlanetRawAPI.get(self.parent.session, planet_id)
+        return Planet.from_dict(data)
+
+
+class ResourceAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, resource_id: int) -> Resource:
+        """Get the specific planet via id."""
+        data = await ResourceRawAPI.get(self.parent.session, resource_id)
+        return Resource.from_dict(data)
+
+
+class CollectorAPI(BaseAPI):
+    """Bundle of formatted API access to planet endpoint."""
+
+    async def get(self, collector_id: int) -> ResourceCollector:
+        """Get the specific planet via id."""
+        data = await CollectorRawAPI.get(self.parent.session, collector_id)
+        return ResourceCollector.from_dict(data)
+
+
 class Interface:
     """An API wrapper interface for the bot."""
 
@@ -340,6 +375,21 @@ class Interface:
     def achievement(self) -> AchievementAPI:
         """Retrieve the Achievement API with the address and Token."""
         return AchievementAPI(self.address, self.token, parent=self)
+
+    @property
+    def planet(self) -> PlanetAPI:
+        """Retrieve the Planet API with the address and Token."""
+        return PlanetAPI(self.address, self.token, parent=self)
+
+    @property
+    def resource(self) -> ResourceAPI:
+        """Retrieve the Resource API with the address and Token."""
+        return ResourceAPI(self.address, self.token, parent=self)
+
+    @property
+    def collector(self) -> CollectorAPI:
+        """Retrieve the Collector API with the address and Token."""
+        return CollectorAPI(self.address, self.token, parent=self)
 
     @property
     def session(self) -> aiohttp.ClientSession:
