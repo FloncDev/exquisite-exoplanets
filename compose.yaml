@@ -6,4 +6,5 @@ services:
   api:
     build: api
     env_file: [.env]
-    ports: [8000:80]
+    ports:
+     - 8000:80
