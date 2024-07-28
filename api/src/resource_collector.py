@@ -29,9 +29,10 @@ class ResourceCollector:
         self.__cost_of_use = collector_conf["cost_of_use"]
         self.__cost_of_use_price_upscale = collector_conf["cost_of_use_price_upscale"]
         self.__resources_allowed = self.config[collector_id]["resources"]
-        self.__started_at: datetime.datetime = None
-        self.__last_collected_at: datetime.datetime = None
-        self.__epochs = 0
+        self.started_at: datetime.datetime = None
+        self.last_collected_at: datetime.datetime = None
+        self.last_collection: tuple[float, float] = None
+        self.epochs = 0
 
     def install(self,
                 resource: "Resource") -> None:
@@ -47,13 +48,25 @@ class ResourceCollector:
 
     def uninstall(self) -> "Resource":
         """detaches the instance of resource"""
+        self.reset()
         resource = self.resource
         resource.set_collector_parent(None)
         self.resource = None
         return resource
 
+    def reset(self) -> None:
+        """resets the parameters for a collector to allow it to be attributed to a new resource"""
+        self.stop()
+        self.collect()
+        self.last_collection = None
+        self.last_collected_at = None
+        self.epochs = 0
+
     def __get_relative_tier(self):
-        return self.tier - self.resource.tier
+        """gives the number of tiers between the collector's current tier and the harvested resource minimal tier"""
+        if not self.resource:
+            raise ValueError(f"no resource to count the relative tier from")
+        return self.tier - self.__resources_allowed[self.resource.r_id]["min_tier"]
 
     def get_speed(self) -> float:
         """returns the harvesting speed"""
@@ -76,12 +89,13 @@ class ResourceCollector:
         if not self.resource:
             raise ValueError(f"The collector is not associated to a resource")
         start_time = datetime.datetime.now()
-        self.__started_at = start_time
-        self.__last_collected_at = start_time
+        self.started_at = start_time
+        self.last_collected_at = start_time
 
     def stop(self) -> None:
         """Stops the resource harvesting"""
-        self.__started_at = None
+        self.started_at = None
+        self.collect()
 
     def set_auto_stop(self,
                       stop_value: float) -> None:
@@ -90,17 +104,39 @@ class ResourceCollector:
             raise ValueError(f"auto stopping has to be greater or equal to 1")
         self.auto_stop = stop_value
 
-    def collect(self) -> tuple[float, float, float]:
+    def collect(self) -> tuple[float, float]:
         """collects resources then returns the amount collected and the cost of harvesting"""
-        if not self.__last_collected_at:
+        if not self.last_collected_at:
             raise ValueError("collector has to be started before collecting")
         collection_time = datetime.datetime.now()
-        epochs_since_last_collection = self.get_speed() * (
-                collection_time - self.__last_collected_at) // self.epoch_definition
+        epochs_since_last_collection = self.get_speed() * (collection_time - self.last_collected_at) // self.epoch_definition
         epochs_since_last_collection = int(min(epochs_since_last_collection, self.auto_stop))
-        self.__epochs += epochs_since_last_collection
+        self.epochs += epochs_since_last_collection
         units_collected = self.resource.collect(epochs_since_last_collection)
-        return units_collected, self.get_cost(epochs_since_last_collection), self.resource.unit_price * units_collected
+        self.last_collection = units_collected, self.get_cost(epochs_since_last_collection)
+        return self.last_collection
+
+    def last_collection_detail(self):
+        details = dict(
+            units_collected=self.last_collection[0],
+            units_left=self.resource.get_units_left(),
+            cost=self.last_collection[1],
+            raw_worth=self.last_collection[0] * self.resource.unit_price,
+            net_worth=(self.last_collection[0] * self.resource.unit_price) - self.last_collection[1],
+            xp_earned=self.last_collection[0] * self.resource.unit_xp
+        )
+        return details
+
+    def total_collection_detail(self):
+        details = dict(
+            units_collected=self.resource.get_units_collected(),
+            units_left=self.resource.get_units_left(),
+            cost=self.__cost_of_use * self.epochs,
+            raw_worth=self.resource.get_units_collected() * self.resource.unit_price,
+            net_worth=(self.resource.get_units_collected() * self.resource.unit_price) - (self.__cost_of_use * self.epochs),
+            xp_earned=self.resource.get_units_collected() * self.resource.unit_xp
+        )
+        return details
 
     def __repr__(self):
         return self.__str__()
