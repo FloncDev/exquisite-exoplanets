@@ -25,8 +25,8 @@ In it's current state, there isn't much connection to the theme. Our idea was to
 Even though we did not manage to accomplish our goal, _huge_ thanks to everyone on the team for their effort, ideas, and support.
 
 <!-- Alphabetical Order :) -->
-[@Elektriman](https://github.com/Elektriman) Core game logic and game design
-[@Evorage0](https://github.com/Evorage0) API implementation and design
-[@FloncDev](https://github.com/FloncDev) Discord interaction
-[@MilaDog](https://github.com/MilaDog) Database and API implementation
+[@Elektriman](https://github.com/Elektriman) Core game logic and game design<br>
+[@Evorage0](https://github.com/Evorage0) API implementation and design<br>
+[@FloncDev](https://github.com/FloncDev) Discord interaction<br>
+[@MilaDog](https://github.com/MilaDog) Database and API implementation<br>
 [@i-am-unknown-81514525](https://github.com/i-am-unknown-81514525) API wrapper
