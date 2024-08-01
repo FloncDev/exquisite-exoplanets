@@ -14,7 +14,7 @@ API_URL=http://api:80
 After that, the simplest way is with docker. Simply run `docker compose up -d`, then the bot and api _should_ automagiclly start.
 
 ## How to Use
-After starting the bot and heading to discord. After you type `/`, you should be able to see all the available commands! Sadly we did not have enough time to implement everything we wanted to, so the only things you are able to do are company management (found under the `/company` group), and viewing information about your profile `/profile`. We do have `/shop` working (trust me), but it will not show anything unless you manually add items via the API - so just pretend it isnt there :)
+After starting the bot and heading to discord, you should be able to see all the available commands after you type `/` in the discord chat. Sadly we did not have enough time to implement everything we wanted to, so the only things you are able to do are company management (found under the `/company` group), and viewing information about your profile `/profile`. We do have `/shop` working (trust me), but it will not show anything unless you manually add items via the API - so just pretend it isnt there :)
 
 Don't forget the obligatory `/ping` command, we can guarantee that one will work ;)
 
